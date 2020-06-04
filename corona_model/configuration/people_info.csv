@@ -1,0 +1,6 @@
+name,age,immunity,initial condition,infected
+kukai,20,0.1,dorm, True
+lain,21,0.1,dorm, False
+Lain,21,0.1,dorm, False
+Sayo, 19,0.1,dorm, False
+
