@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+import pickle
 
 def load_pickle(filepath, default):
     """load an existing pickle file or make a pickle with default data and return the pickled data"""
@@ -8,7 +9,7 @@ def load_pickle(filepath, default):
             x = pickle.load(f)
     except Exception:
         x = default
-        with open(path, "wb") as f:
+        with open(filepath, "wb") as f:
             pickle.dump(x, f)
     return x
 
@@ -27,7 +28,7 @@ def save_pickle(filepath, content):
 
 def format_data(filename):
     """get the relevant data from the file with the corresponding filename, then make a dictionary out of it"""
-    cd, filepath = get_cd()
+    _, filepath = get_cd()
     content = open_csv(filepath+"configuration\\" + filename, [])
     df_list = [content.columns.values.tolist()]+content.values.tolist()
     df_list = [[txt.strip() if type(txt) == str else txt for txt in lst] for lst in df_list]

@@ -1,6 +1,9 @@
-name,age,immunity,initial condition,infected
-kukai,20,0.1,dorm, True
-lain,21,0.1,dorm, False
-Lain,21,0.1,dorm, False
-Sayo, 19,0.1,dorm, False
+random, name,age,  immunity,initial condition,infected, archetypes
+F, kukai,20, 0.1,dorm, True, nerd
+F, lain,21,0.1,dorm, False, nerd
+F, Lain,21,0.1,dorm, False, nerd
+F, Sayo, 19,  0.1,dorm, False, athletic
+F, naruto, 18,  100, dorm, False, athletic
+F, ur mom, 50,  1, dorm, False, athletic
+
 
