@@ -39,7 +39,7 @@ The infection model impliments buildings full of rooms and agents that move with
 ### Buildings.csv
 This file lists names of the buildings/containers that will contain the rooms
 
-| "building name" |
+| building name |
 |--|
 | building A |
 |...|
@@ -51,7 +51,7 @@ In the implimentation where we model a school campus, "outside" is also consider
 
 ### rooms.csv 
 
-| "room name" | room capacity | located building | connected to | travel time | ... |
+| room name | room capacity | located building | connected to | travel time | ... |
 |-------------|---------------|------------------|--------------|-------------|-----|
 |             |               |                  |              |             |     |
 |               |               |               |               |           |       |   
@@ -109,10 +109,8 @@ from the config file, the code generates a table that looks like the following
 ### File_related.py
 This python file contains functions related to opening and reading the csv files.  Theres also some functions that reformats the data into a panda datframe.
 
-
-
 <a id = "corona"></a>
 
-### corona
+### corona.py
 
 The main python file that have the code for the agents and rooms.  Creates, configures and simulate the model that is described in the cvs file.
