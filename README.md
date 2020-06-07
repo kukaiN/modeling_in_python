@@ -37,13 +37,13 @@ The infection model impliments buildings full of rooms and agents that move with
 <a id = "Building"></a> 
 
 ### Buildings.csv
-
-This file is a tabel of the form
+This file lists names of the buildings/containers that will contain the rooms
 
 | "building name" |
 |--|
 | building A |
 |...|
+|   |
 
 The term "Building" isn't 100% accurate, the term container is better.
 In the implimentation where we model a school campus, "outside" is also considered a "building/container" that will contain "roads" that allow travel to a different "building"
@@ -54,6 +54,7 @@ In the implimentation where we model a school campus, "outside" is also consider
 | "room name" | room capacity | located building | connected to | travel time | ... |
 |-------------|---------------|------------------|--------------|-------------|-----|
 |             |               |                  |              |             |     |
+|               |               |               |               |           |       |   
 
 Explanation of column value:
 - **room name** : room name, the names doesn't need to be unique, but it is the best practice to make the name unique so that when you print/extract information, it is easy to interpt the data
@@ -65,24 +66,25 @@ Explanation of column value:
 
 <a id = "agents"></a> 
 
-## Agents.csv
+### Agents.csv
 
 | random | name | age | immunity | initial condition | infected | archetypes |
 |--------|------|-----|----------|-------------------|----------|------------|
 |        |      |     |          |                   |          |            |
+|       |       |   |           |                   |           |           |
 
 Explanation of column value
 - **random** : T or F, if this value is F, then the model will load the data in that row.  If the value is T, then it will make random values for the rest of 
-- name : anything can go in this entry, repetition (same name) is allowed, and the name is just an entry to help distinguish agents
-- age : like name, anything can be put in this entry.
-- immunity : value in range [0, 1], defines the resistance of the agent, you can modify how this value will affect each other by modifying the infection_rule function in the main function.
-- initial condition : name of any room or building that's in either building.csv or rooms.csv.  If the name of the building is given, then it will choose a random room in the building as it's initial spawn point. 
-- infected : True or False, defines if the agent is infected with some disease, in this case the COVID-19 disease.
-- archetypes : put in the archetype that corresponds to the specific agent.  This "archetype" can be configured in the agent_config.json, and depending on the value, the , you can make schedules restrictive by creating a archetype that only have few possible schedule.  more detail on how a schedule for each agent is chosen is written in the schedule section below.
+- **name** : anything can go in this entry, repetition (same name) is allowed, and the name is just an entry to help distinguish agents
+- **age** : like name, anything can be put in this entry.
+- **immunity** : value in range [0, 1], defines the resistance of the agent, you can modify how this value will affect each other by modifying the infection_rule function in the main function.
+- **initial condition** : name of any room or building that's in either building.csv or rooms.csv.  If the name of the building is given, then it will choose a random room in the building as it's initial spawn point. 
+- **infected** : True or False, defines if the agent is infected with some disease, in this case the COVID-19 disease.
+- **archetypes** : put in the archetype that corresponds to the specific agent.  This "archetype" can be configured in the agent_config.json, and depending on the value, the , you can make schedules restrictive by creating a archetype that only have few possible schedule.  more detail on how a schedule for each agent is chosen is written in the schedule section below.
 
 <a id = "ag_config"></a> 
 
-## agents configuration and scheduling:
+### agents configuration and scheduling:
 
 The agent's scedule can be assigned by making a schedule in the file or you can make the code randomly make a schedule from a list of possible options, an example of how it works is below:
 
@@ -98,13 +100,13 @@ from the config file, the code generates a table that looks like the following
 - the term "global" in the archetypes column have a special meaning and it allows any agents to put it in their scedule.
 - the (start, end) tuple is a scedule of the room. if an agent build a random scedule, then it will randomly choose a schedule with no overlapping time slots.
 
-Example: a random schedule for an agent with the type "business major" will be made by taking disjoint time slots from room 101 and room 102, while "athletic" types can choose disjoint time intervals from all rooms.
+**Example**: a random schedule for an agent with the type "business major" will be made by taking disjoint time slots from room 101 and room 102, while "athletic" types can choose disjoint time intervals from all rooms.
 
 
 
 <a id = "file_related"></a> 
 
-## File_related.py
+### File_related.py
 This python file contains functions related to opening and reading the csv files.  Theres also some functions that reformats the data into a panda datframe.
 
 
