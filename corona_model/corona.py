@@ -210,7 +210,7 @@ class disease_model:
 def main():
     model = disease_model()
     model.print_relevant_info()
-    model.update_state()
+    model.update_state(1000)
     model.print_relevant_info()
         
 if __name__ == "__main__":
