@@ -56,11 +56,11 @@ In the implimentation where we model a school campus, "outside" is also consider
 |             |               |                  |              |             |     |
 
 Explanation of column value:
-- room name : room name, the names doesn't need to be unique, but it is the best practice to make the name unique so that when you print/extract information, it is easy to interpt the data
-- room capacity : int, defines the max number of agents that can be in the room
-- located building : name of building which the room is contained in
-- connected to : name of room which the current room is connected to.  If theres a connection between "Room A" and "Room B", and if "Room B" is contained in the "connected to" entry in the row for "Room A", then there's no need to make a row for "Room B" to "Room A". All conections are undirected edges.
-- travel time:  non-negative integer, represents the time required to travel through the edge. 
+- **room name** : room name, the names doesn't need to be unique, but it is the best practice to make the name unique so that when you print/extract information, it is easy to interpt the data
+- **room capacity** : int, defines the max number of agents that can be in the room
+- **located building** : name of building which the room is contained in
+- **connected to** : name of room which the current room is connected to.  If theres a connection between "Room A" and "Room B", and if "Room B" is contained in the "connected to" entry in the row for "Room A", then there's no need to make a row for "Room B" to "Room A". All conections are undirected edges.
+- **travel time**:  non-negative integer, represents the time required to travel through the edge. 
 * more columns can be added to the csv and if you want to use those newly added parameters modify the __init__() for the rooms class and call the new parameter in whatever function for effects to take place.
 
 <a id = "agents"></a> 
@@ -72,7 +72,7 @@ Explanation of column value:
 |        |      |     |          |                   |          |            |
 
 Explanation of column value
-- random : T or F, if this value is F, then the model will load the data in that row.  If the value is T, then it will make random values for the rest of 
+- **random** : T or F, if this value is F, then the model will load the data in that row.  If the value is T, then it will make random values for the rest of 
 - name : anything can go in this entry, repetition (same name) is allowed, and the name is just an entry to help distinguish agents
 - age : like name, anything can be put in this entry.
 - immunity : value in range [0, 1], defines the resistance of the agent, you can modify how this value will affect each other by modifying the infection_rule function in the main function.

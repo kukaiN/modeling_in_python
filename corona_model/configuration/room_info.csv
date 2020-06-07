@@ -1,8 +1,8 @@
-room_name, capacity, located building,connected to,buff,travel time
-kukai's room,20, dorm,hallway A,1,1
-lains room,5, dorm,hallway A,1,1
+room_name, capacity, located building,connected to,travel time
+kukai's room,20, dorm,hallway A,1
+lains room,5, dorm,hallway A,1
 gym,100, gym,road B,10,1
-classroom_A,24, college,college hall A,1,5
-hallway A,100,dorm,road A,2,2
-road A,100,outside,road B,0.5,5
-college hall A,100,college,road B,2,1
+classroom_A,24, college,college hall A,1
+hallway A,100,dorm,road A,2
+road A,100,outside,road B,5
+college hall A,100,college,road B,2
