@@ -46,7 +46,7 @@ class agent:
         """ creates a plausable schedule that matches with the agent's archetype"""
         pass
 
-    def update_agents(self, room_dict, room_sp_dict, curr_time, adj_list):
+    def update_agents(self, room_dict, room_to_id, curr_time, adj_list):
         """function that update the time and the state of the agent, for now the agent is either moving or at rest"""
         threshhold = 0.9
         #print("called1")
@@ -57,29 +57,33 @@ class agent:
            
                 self.destination = random.choice(list(adj_list.keys()))
                 adj_rooms = adj_list[room_dict[self.curr_location]]
-                self.move_to(room_sp_dict, adj_rooms)
-                   
+                loc = self.move_to(room_to_id, adj_rooms)
+                return loc
         if self.state == "moving": # if the agent is moving, then it will keep on moving until it reaches its destination
             adj_rooms = adj_list[room_dict[self.curr_location]]
-            self.move_to(room_sp_dict, adj_rooms)
+            loc = self.move_to(room_to_id, adj_rooms)
             if self.curr_location == self.desitination:
                 self.desitination = None
                 self.state = "stationary"
                 self.arrival_time = curr_time
                 self.minimum_waiting_time = 5
-    
-    def move_to(self, room_name_dict, connected_rooms):
+            return loc
+        loc = (self.curr_location, self.curr_location)
+        return loc
+
+    def move_to(self, room_to_id, adj_list):
         """moves the agent to rooms thats adjacent to the current room"""
-        
-        if self.desitination in connected_rooms:
+        past_location = self.curr_location
+        if self.desitination in adj_list:
             self.curr_location = self.destination
             self.destination = None
             print(f"locations {self.curr_location}, {self.desitination}")
         else:
-            
-            random_room = random.choice(connected_rooms)[0]
+            random_room = random.choice(adj_list)
             print(f"{self.name} moved to {random_room}")
-            self.curr_location = room_name_dict[random_room]
+            self.curr_location = room_to_id[random_room[0]]
+        print("this, ", (past_location, self.curr_location))
+        return (past_location, self.curr_location)
 
 
 class rooms:
@@ -89,10 +93,10 @@ class rooms:
         self.capacity = capacity
         self.agents_in_room = default_agents
 
-    def enter_room(self, id):
+    def enter_room(self, agent_id):
         """ a put the id of the agent that entered the room"""
         if self.check_capacity():
-            self.agents_in_room.append(id)
+            self.agents_in_room.append(agent_id)
 
     def check_capacity(self):
         """return a boolean, return True if theres capacity for one more agent, False if the room is at max capacity 
@@ -102,10 +106,10 @@ class rooms:
         return False
     
     
-    def leave_room(self, id):
+    def leave_room(self, agent_id):
         """ remove the id of the agent that exited the room"""
         if id in self.agents_in_room:
-            self.agents_in_room.remove(id)
+            self.agents_in_room.remove(agent_id)
 
     def update(self, agent_dict):
         """update the room state if needed"""
@@ -132,8 +136,8 @@ class disease_model:
         self.cached_shortestpath = None # coming soon
         
         # make lists and dictionaries that stores refrences to the room or agent objects
-        self.rooms = self.initialize_rooms()
-        self.name_to_room_id = {value:key for key, value in self.rooms.items()}
+        self.id_to_rooms = self.initialize_rooms()
+        self.rooms_to_id = {value:key for key, value in self.id_to_rooms.items()}
         self.room_dict = self.initialize_room_dict()
         self.building_room_list = self.make_building_room()
         self.agents = self.initilize_agents()
@@ -146,9 +150,9 @@ class disease_model:
             keys: room id
             values: agents' id that corresponds to the agents in the room
         """ 
-        print(self.name_to_room_id)
-        temp_dict = dict((self.name_to_room_id[room_name], []) for room_name in self.adjacency_list.keys())
+        temp_dict = dict((self.rooms_to_id[room_name], []) for room_name in self.adjacency_list.keys())
         for index, agent in self.agents.items():
+
             temp_dict[agent.curr_location].append(index)
         print(temp_dict.keys())
         print(temp_dict.values())
@@ -174,7 +178,7 @@ class disease_model:
         temp_dict = dict((building_name, []) for building_name in list(self.building_df["building_name"]))
         print(temp_dict.items())
         for index, room_info in self.room_df.iterrows():
-            temp_dict[room_info["located building"]].append(self.rooms[index])
+            temp_dict[room_info["located building"]].append(index)
         return temp_dict
 
     def initialize_rooms(self):
@@ -231,9 +235,11 @@ class disease_model:
     
     def update_agents(self):
         """function that calls the agents to update its state"""
-        for k, agents in self.agents.items():
-            agents.update_agents(self.rooms, self.name_to_room_id, self.time, self.adjacency_list)
-
+        for index, agents in self.agents.items():
+            loc = agents.update_agents(self.id_to_rooms, self.rooms_to_id, self.time, self.adjacency_list)
+            if loc[0] != loc[1]:
+                self.room_agent_dict[loc[0]].remove(index)
+                self.room_agent_dict[loc[1]].append(index)
     def infection_rule(self):
         """ this function determines how the infection will spread and how strong the infection is,
         the function can be modified to make new rules for infection"""
@@ -255,11 +261,10 @@ class disease_model:
         for index, agent_row in self.agent_df.iterrows(): # go through all rows and make agent objects
             curr_location = agent_row["initial condition"]
             temp_dict[index] = agent(*list(agent_row))
-            
             if curr_location in building_list:
-                temp_dict[index].change_curr_location(self.name_to_room_id[random.choice(self.building_room_list[curr_location])])
+                temp_dict[index].change_curr_location(random.choice(self.building_room_list[curr_location]))
             else:
-                temp_dict[index].change_curr_location(self.name_to_room_id[curr_location])
+                temp_dict[index].change_curr_location(self.rooms_to_id[curr_location])
         return temp_dict
 
     def make_df(self, file_name):
@@ -275,15 +280,15 @@ class disease_model:
         later on this function will be converted to the proper format using __repr__"""
         total_infected = sum([1 for agent in self.agents.values() if agent.infected == "True"])
         print(f"total infected is {total_infected}")
-        print(f" agent's locations is {list(room.agents_in_room for room in self.room_dict.values())}")
-
+        #print(f" agent's locations is {list(room.agents_in_room for room in self.room_dict.values())}")
+        print(f"agent's location is {self.room_agent_dict}")
 
 def main():
     """start a new disease model"""
     
     model = disease_model()
     model.print_relevant_info()
-    model.update_state(10)
+    model.update_state(100)
     model.print_relevant_info()
         
 if __name__ == "__main__":
