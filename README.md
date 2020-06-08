@@ -1,4 +1,4 @@
-# modeling_in_python
+A# modeling_in_python
 COVID model in python
 
 ---
@@ -28,7 +28,10 @@ Libraries used in this model:
 
 The infection model impliments buildings full of rooms and agents that move within the rooms. The building will have different rooms with configurable connections, and the connection represents paths that the agents can take to move to another room. The agent's behavior can be configured to take random or semi-defined schedules and they move between rooms that they're allowed to visit.   
 
-<a id = "configurations"></a> 
+<a id = "configurations"></a>
+
+### Explanation of Running the Code
+<Insert Explanation Here>
 
 ### Explanation of Configuration files
 
@@ -107,10 +110,10 @@ from the config file, the code generates a table that looks like the following
 <a id = "file_related"></a> 
 
 ### File_related.py
-This python file contains functions related to opening and reading the csv files.  Theres also some functions that reformats the data into a panda datframe.
+This python file contains functions related to opening and reading the csv files.  There are also some functions that reformats the data into a panda dataframe.
 
 <a id = "corona"></a>
 
 ### corona.py
 
-The main python file that have the code for the agents and rooms.  Creates, configures and simulate the model that is described in the cvs file.
+The main python file that have the code for the agents and rooms.  Creates, configures and simulate the model that is described in the csv file.
