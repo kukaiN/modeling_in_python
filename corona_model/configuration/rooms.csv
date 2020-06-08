@@ -3,6 +3,8 @@ kukai's room,20, dorm,hallway A,1
 lains room,5, dorm,hallway A,1
 gym,100, gym,road B,10,1
 classroom_A,24, college,college hall A,1
+classroom_B, 24, college, college hall A, 1
 hallway A,100,dorm,road A,2
 road A,100,outside,road B,5
 college hall A,100,college,road B,2
+road B, 100, outside, road A, 2
