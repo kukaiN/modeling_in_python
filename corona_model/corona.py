@@ -4,6 +4,7 @@ import pandas as pd
 import pickle
 import file_related as flr
 import numpy as np
+import bisect
 
 def convert_to_min(time_str):
     """convert time represnted in the following forms to minutes in a day, 
@@ -24,23 +25,20 @@ def convert_to_min(time_str):
 class agent:
     """make an agent that can interact with the room class
     """
-    def __init__(self, rand_bool, name = "SE_lain", age = 22, immunity = 0.1, curr_location = "dorm", infected = False, archetype = "introvert"):
+    def __init__(self, rand_bool, name = "SE_lain", age = 22, immunity = 0.1, curr_location = "dorm", state = "healthy", archetype = "introvert"):
         """takes in the initial parameters"""
         self.name = name
         self.age = age
         self.immunity = immunity
-        self.infected = False
+        self.state = state #this defines the infection state
         self.archetype = archetype
         self.curr_location = curr_location
 
         # the states below are used to tell if the agent is moving or not
-        self.state = "stationary"
+        self.motion = "stationary"
         self.arrival_time = 0
         self.minimum_waiting_time = 0
         self.desitination = None
-
-    def change_curr_location(self, location):
-        self.curr_location = location
 
     def random_schedule(self, archetype_dict = []):
         """ creates a plausable schedule that matches with the agent's archetype"""
@@ -48,25 +46,25 @@ class agent:
 
     def update_agents(self, room_dict, room_to_id, curr_time, adj_list):
         """function that update the time and the state of the agent, for now the agent is either moving or at rest"""
-        threshhold = 0.9
-        #print("called1")
+        threshhold = 0.5
         # if we waited in the room long enough then the agent will move
-        if self.state == "stationary" and curr_time > self.minimum_waiting_time + self.arrival_time:
+        if self.motion == "stationary" and curr_time > self.minimum_waiting_time + self.arrival_time:
             if random.random() < threshhold: # with a certain probabilty the agent will start moving again
-                self.state = "moving"
-           
+                self.motion = "moving"
+
                 self.destination = random.choice(list(adj_list.keys()))
+                self.travel_time = 5
                 adj_rooms = adj_list[room_dict[self.curr_location]]
                 loc = self.move_to(room_to_id, adj_rooms)
                 return loc
-        if self.state == "moving": # if the agent is moving, then it will keep on moving until it reaches its destination
+        if self.motion == "moving" and curr_time > self.travel_time: # if the agent is moving, then it will keep on moving until it reaches its destination
             adj_rooms = adj_list[room_dict[self.curr_location]]
             loc = self.move_to(room_to_id, adj_rooms)
             if self.curr_location == self.desitination:
                 self.desitination = None
-                self.state = "stationary"
+                self.motion = "stationary"
                 self.arrival_time = curr_time
-                self.minimum_waiting_time = 5
+                self.minimum_waiting_time = 45
             return loc
         loc = (self.curr_location, self.curr_location)
         return loc
@@ -77,12 +75,12 @@ class agent:
         if self.desitination in adj_list:
             self.curr_location = self.destination
             self.destination = None
-            print(f"locations {self.curr_location}, {self.desitination}")
+            #print(f"locations {self.curr_location}, {self.desitination}")
         else:
             random_room = random.choice(adj_list)
-            print(f"{self.name} moved to {random_room}")
+            #print(f"{self.name} moved to {random_room}")
             self.curr_location = room_to_id[random_room[0]]
-        print("this, ", (past_location, self.curr_location))
+        #print("this, ", (past_location, self.curr_location))
         return (past_location, self.curr_location)
 
 
@@ -122,12 +120,26 @@ class disease_model:
         start a new infection model, the model will load the data from the csv files in the configuration folder
         if there's a different csv that you're trying to load, then modify the name of the file that is being passed
         """
+        # this is a markov chain represented as a dictionary
+        # key = "name of state", value = list of possible states and the associated probability
+        self.default_agent_state = "healthy"
+        # if you have a probability of staying on the same state, then make that state, the first entry in the list
+        self.agent_markov_states = {
+            "healthy": [(0.9995, "healthy"), (0.00025, "carrier"), (0.00025, "infected")],
+            "carrier": [(0.995, "carrier"), (0.0049, "recovered"), (0.0009, "healthy"), (0.001, "infected") ],
+            "infected" : [(0.9999, "infected"), (0.000099, "recovered"), (0.000001, "dead")], 
+            "dead" : [(1, "dead")],
+            "recovered" : [(0.999, "recovered"), (0.001, "healthy")]
+        }
+        self.check_markov_chain()
+        self.markov_cdf = self.make_markov_to_cdf()
+        print(self.agent_markov_states.values())
         # make panda dataframe from the given csv file
         self.agent_df = self.make_df(agent_info) 
         self.building_df = self.make_df(building_info)
         self.room_df = self.make_df(room_info)
         self.schedule_df = self.make_df(schedule_info)
-    
+
 
         print("*"*20)
         # make an adjacency list from the room_df
@@ -158,7 +170,25 @@ class disease_model:
         print(temp_dict.values())
         print("*"*20)
         return temp_dict
-     
+
+    def make_markov_to_cdf(self, key_loc = 0):
+        temp_dict = dict()
+        for key, value in self.agent_markov_states.items():
+            cdf = [value[0][key_loc]]
+            for ind in range(1, len(value)):
+                cdf.append(cdf[-1] + value[ind][key_loc])
+            temp_dict[key] = cdf
+        print(temp_dict.values())
+        return temp_dict
+        
+
+    def check_markov_chain(self):
+        for _, markov_row in self.agent_markov_states.items():
+            probability_space = sum(markov_state[0] for markov_state in markov_row)
+            if probability_space < 1:
+                print("row of markov matrix doesnt sum to 1")
+                markov_row.append((1-probability_space, self.default_agent_state))
+
     def make_schedule_chart(self):
         """ make a dictionary(key: archetype of agent) --> value: list of ["name of room", [list of time (xx:xxAM, xx:xxAM)] ]"""
         temp_dict = dict()
@@ -168,7 +198,6 @@ class disease_model:
             temp_val.append([schedule["room name"], [tuple(a for a in val.split("|"))  for val in time_periods]])
             temp_dict[schedule["type"]] = temp_val
         return temp_dict
-
 
     def make_building_room(self):
         """make a dictionary of the following:
@@ -231,7 +260,8 @@ class disease_model:
         for t in range(steps):
             self.update_time()
             self.update_agents()
-            self.infection_rule()  
+            if t%10 == 0:
+                self.infection_rule()  
     
     def update_agents(self):
         """function that calls the agents to update its state"""
@@ -240,13 +270,40 @@ class disease_model:
             if loc[0] != loc[1]:
                 self.room_agent_dict[loc[0]].remove(index)
                 self.room_agent_dict[loc[1]].append(index)
+
     def infection_rule(self):
         """ this function determines how the infection will spread and how strong the infection is,
         the function can be modified to make new rules for infection"""
-        for agent in self.agents.values():
-            if random.random()> 0.5:
-                agent.infected = "True"
-
+        rand_vect = np.random.random(len(self.agents))
+        update_dict = dict([(keys, []) for keys in self.agent_markov_states.keys()])
+        for index, agent in enumerate(self.agents.values()):
+            agent_list = self.room_agent_dict[agent.curr_location]
+            # get the number of infected vs not infected
+            infected, population = self.count_within_agents(agent_list, "infected"), len(agent_list)
+            agents_infected = infected/population
+            if agent.state == "healthy" and agents_infected > 0:
+                # add a buff to infection if theres more infected agents in the same room
+                possible_states = self.agent_markov_states[agent.state]
+                random_val = rand_vect[index] #* (1-agent.immunity)
+                ind = bisect.bisect(self.markov_cdf[agent.state], random_val)
+                update_dict[possible_states[ind][1]].append(index)
+                #agent.state = possible_states[ind][1]
+                #print(random_val, 1-agent.immunity)
+                #print(possible_states, random_val, ind, agent.state)
+            else: 
+                possible_states = self.agent_markov_states[agent.state]
+                random_val = rand_vect[index]
+                ind = bisect.bisect(self.markov_cdf[agent.state], random_val)
+                if ind+1 > len(possible_states): ind = -1
+                update_dict[possible_states[ind][1]].append(index)
+                #agent.state = possible_states[ind][1]
+                #print(possible_states, random_val, ind, agent.state)
+        #print(update_dict.keys())
+        #print(update_dict.values())
+        for key,  value in update_dict.items():
+            for agent_id in value:
+                self.agents[agent_id+1].state = key
+            
 
     def update_time(self, time_step = 1):
         """ updates time passed in the model"""
@@ -257,15 +314,15 @@ class disease_model:
         print("*"*20)
         building_list = list(self.building_df["building_name"])
         print(building_list)
-        temp_dict = dict()
+        agent_dict = dict()
         for index, agent_row in self.agent_df.iterrows(): # go through all rows and make agent objects
             curr_location = agent_row["initial condition"]
-            temp_dict[index] = agent(*list(agent_row))
+            agent_dict[index] = agent(*list(agent_row))
             if curr_location in building_list:
-                temp_dict[index].change_curr_location(random.choice(self.building_room_list[curr_location]))
+                agent_dict[index].curr_location = random.choice(self.building_room_list[curr_location])
             else:
-                temp_dict[index].change_curr_location(self.rooms_to_id[curr_location])
-        return temp_dict
+                agent_dict[index].curr_location = self.rooms_to_id[curr_location]
+        return agent_dict
 
     def make_df(self, file_name):
         """ creates a panda dataframe from the content in a csv file"""
@@ -274,22 +331,37 @@ class disease_model:
         print(a.head(3))
         return a
     
+    def count_within_agents(self, agent_list, state_name):
+        return len(list(filter(lambda x: x.state == state_name, [self.agents[val] for val in agent_list]))) 
+
+    def count_agent(self, state_name):
+        return len(list(filter(lambda x: x.state == state_name, self.agents.values() )))
+
     def print_relevant_info(self):
         """ print relevant information about the model and its current state, 
         this is the same as __str__ or __repr__, but this function is for debug purpose,
-        later on this function will be converted to the proper format using __repr__"""
-        total_infected = sum([1 for agent in self.agents.values() if agent.infected == "True"])
-        print(f"total infected is {total_infected}")
+        later on this functio n will be converted to the proper format using __repr__"""
+        infected = self.count_agent("infected")
+        carrier = self.count_agent("carrier")
+        dead = self.count_agent("dead")
+        healthy = self.count_agent("healthy")
+        recovered = self.count_agent("recovered")
+        print(f"time: {self.time} total healthy {healthy} infected: {infected}, carrier: {carrier}, dead: {dead}, recovered: {recovered}")
         #print(f" agent's locations is {list(room.agents_in_room for room in self.room_dict.values())}")
-        print(f"agent's location is {self.room_agent_dict}")
+        #print(f"agent's location is {self.room_agent_dict}")
 
 def main():
     """start a new disease model"""
-    
+    # supceptable, exposed, infected, recovered, dead
+    #
+
     model = disease_model()
     model.print_relevant_info()
-    model.update_state(100)
-    model.print_relevant_info()
-        
+
+    for i in range(100):
+        #model.print_relevant_info()
+        model.update_state(100)
+        model.print_relevant_info()
+            
 if __name__ == "__main__":
     main()

@@ -1,9 +1,55 @@
-random, name,age,  immunity,initial condition,infected, archetypes
-F, kukai,20, 0.1,dorm, True, nerd
-F, lain,21,0.1,dorm, False, nerd
-F, Lain,21,0.1,dorm, False, nerd
-F, Sayo, 19,  0.1,dorm, False, athletic
-F, Alice, 18,  100, dorm, False, athletic
-F, bob, 50,  1, dorm, False, athletic
+random, name,age,  immunity,initial condition,state, archetypes
+F, kukai,20, 0.1,dorm, infected, nerd
+F, lain,21,0.1,dorm, healthy, nerd
+F, Lain,21,0.1,dorm, healthy, nerd
+F, Sayo, 19,  0.1,dorm, healthy, athletic
+F, Alice, 18,  1, dorm, healthy, athletic
+F, bob, 50,  1, dorm, healthy, athletic
+F, kukai,20, 0.1,dorm, healthy, nerd
+F, lain,21,0.1,dorm, healthy, nerd
+F, Lain,21,0.1,dorm, healthy, nerd
+F, Sayo, 19,  0.1,dorm, healthy, athletic
+F, Alice, 18,  1, dorm, healthy, athletic
+F, bob, 50,  1, dorm, healthy, athletic
+F, kukai,20, 0.1,dorm, healthy, nerd
+F, kukai,20, 0.1,dorm, infected, nerd
+F, lain,21,0.1,dorm, healthy, nerd
+F, Lain,21,0.1,dorm, healthy, nerd
+F, Sayo, 19,  0.1,dorm, healthy, athletic
+F, Alice, 18,  1, dorm, healthy, athletic
+F, bob, 50,  1, dorm, healthy, athletic
+F, kukai,20, 0.1,dorm, healthy, nerd
+F, lain,21,0.1,dorm, healthy, nerd
+F, Lain,21,0.1,dorm, healthy, nerd
+F, Sayo, 19,  0.1,dorm, healthy, athletic
+F, Alice, 18,  1, dorm, healthy, athletic
+F, bob, 50,  1, dorm, healthy, athletic
+F, kukai,20, 0.1,dorm, healthy, nerd
+F, kukai,20, 0.1,dorm, infected, nerd
+F, lain,21,0.1,dorm, healthy, nerd
+F, Lain,21,0.1,dorm, healthy, nerd
+F, Sayo, 19,  0.1,dorm, healthy, athletic
+F, Alice, 18,  1, dorm, healthy, athletic
+F, bob, 50,  1, dorm, healthy, athletic
+F, kukai,20, 0.1,dorm, healthy, nerd
+F, lain,21,0.1,dorm, healthy, nerd
+F, Lain,21,0.1,dorm, healthy, nerd
+F, Sayo, 19,  0.1,dorm, healthy, athletic
+F, Alice, 18,  1, dorm, healthy, athletic
+F, bob, 50,  1, dorm, healthy, athletic
+F, kukai,20, 0.1,dorm, healthy, nerd
+F, kukai,20, 0.1,dorm, infected, nerd
+F, lain,21,0.1,dorm, healthy, nerd
+F, Lain,21,0.1,dorm, healthy, nerd
+F, Sayo, 19,  0.1,dorm, healthy, athletic
+F, Alice, 18,  1, dorm, healthy, athletic
+F, bob, 50,  1, dorm, healthy, athletic
+F, kukai,20, 0.1,dorm, healthy, nerd
+F, lain,21,0.1,dorm, healthy, nerd
+F, Lain,21,0.1,dorm, healthy, nerd
+F, Sayo, 19,  0.1,dorm, healthy, athletic
+F, Alice, 18,  1, dorm, healthy, athletic
+F, bob, 50,  1, dorm, healthy, athletic
+F, kukai,20, 0.1,dorm, healthy, nerd
 
 
