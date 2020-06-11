@@ -44,7 +44,7 @@ class agent:
         """ creates a plausable schedule that matches with the agent's archetype"""
         pass
 
-    def update_agents(self, room_dict, room_to_id, curr_time, adj_list):
+    def update_loc(self, curr_time, adj_list):
         """function that update the time and the state of the agent, for now the agent is either moving or at rest"""
         threshhold = 0.5
         # if we waited in the room long enough then the agent will move
@@ -54,12 +54,12 @@ class agent:
 
                 self.destination = random.choice(list(adj_list.keys()))
                 self.travel_time = 5
-                adj_rooms = adj_list[room_dict[self.curr_location]]
-                loc = self.move_to(room_to_id, adj_rooms)
+                adj_rooms = adj_list[self.curr_location]
+                loc = self.move_to(adj_rooms)
                 return loc
         if self.motion == "moving" and curr_time > self.travel_time: # if the agent is moving, then it will keep on moving until it reaches its destination
-            adj_rooms = adj_list[room_dict[self.curr_location]]
-            loc = self.move_to(room_to_id, adj_rooms)
+            adj_rooms = adj_list[self.curr_location]
+            loc = self.move_to(adj_rooms)
             if self.curr_location == self.desitination:
                 self.desitination = None
                 self.motion = "stationary"
@@ -69,7 +69,7 @@ class agent:
         loc = (self.curr_location, self.curr_location)
         return loc
 
-    def move_to(self, room_to_id, adj_list):
+    def move_to(self,  adj_list):
         """moves the agent to rooms thats adjacent to the current room"""
         past_location = self.curr_location
         if self.desitination in adj_list:
@@ -79,7 +79,7 @@ class agent:
         else:
             random_room = random.choice(adj_list)
             #print(f"{self.name} moved to {random_room}")
-            self.curr_location = room_to_id[random_room[0]]
+            self.curr_location = random_room[0]
         #print("this, ", (past_location, self.curr_location))
         return (past_location, self.curr_location)
 
@@ -126,14 +126,13 @@ class disease_model:
         # if you have a probability of staying on the same state, then make that state, the first entry in the list
         self.agent_markov_states = {
             "healthy": [(0.9995, "healthy"), (0.00025, "carrier"), (0.00025, "infected")],
-            "carrier": [(0.995, "carrier"), (0.0049, "recovered"), (0.0009, "healthy"), (0.001, "infected") ],
-            "infected" : [(0.9999, "infected"), (0.000099, "recovered"), (0.000001, "dead")], 
+            "carrier": [(0.995, "carrier"), (0.0049, "recovered"), (0.0005, "healthy"), (0.0005, "infected") ],
+            "infected" : [(0.999, "infected"), (0.00099, "recovered"), (0.00001, "dead")], 
             "dead" : [(1, "dead")],
             "recovered" : [(0.999, "recovered"), (0.001, "healthy")]
         }
         self.check_markov_chain()
         self.markov_cdf = self.make_markov_to_cdf()
-        print(self.agent_markov_states.values())
         # make panda dataframe from the given csv file
         self.agent_df = self.make_df(agent_info) 
         self.building_df = self.make_df(building_info)
@@ -142,14 +141,14 @@ class disease_model:
 
 
         print("*"*20)
-        # make an adjacency list from the room_df
+        # make an adjacency list from the room_df, although it's called list by convention
+        # the adjacency list is implimented as a dictionary
         self.adjacency_list = self.make_adj_list()
-        self.adjacency_list_checker()
+        self.check_adjacency_list()
         self.cached_shortestpath = None # coming soon
         
         # make lists and dictionaries that stores refrences to the room or agent objects
         self.id_to_rooms = self.initialize_rooms()
-        self.rooms_to_id = {value:key for key, value in self.id_to_rooms.items()}
         self.room_dict = self.initialize_room_dict()
         self.building_room_list = self.make_building_room()
         self.agents = self.initilize_agents()
@@ -162,7 +161,7 @@ class disease_model:
             keys: room id
             values: agents' id that corresponds to the agents in the room
         """ 
-        temp_dict = dict((self.rooms_to_id[room_name], []) for room_name in self.adjacency_list.keys())
+        temp_dict = dict((room_id, []) for room_id in self.adjacency_list.keys())
         for index, agent in self.agents.items():
 
             temp_dict[agent.curr_location].append(index)
@@ -227,15 +226,15 @@ class disease_model:
     def make_adj_list(self):
         """ creates an adjacency list of rooms that are in the csv file"""
         adj_dict = dict()
-        for _, row in self.room_df.iterrows():
-            room = row["room_name"]
-            adj_room = row["connected to"]
+        for room_id, row in self.room_df.iterrows():
+            # since the index is the unique id, we find the id of the FIRST room with the same name
+            adj_room = self.room_df.index[self.room_df["room_name"] == row["connected to"]].tolist()[0]
             travel_time  =  row["travel time"]
-            adj_dict[room] = adj_dict.get(room, []) + [(adj_room, travel_time)]
-            adj_dict[adj_room] = adj_dict.get(adj_room,[]) + [(room, travel_time)]
+            adj_dict[room_id] = adj_dict.get(room_id, []) + [(adj_room, travel_time)]
+            adj_dict[adj_room] = adj_dict.get(adj_room,[]) + [(room_id, travel_time)]
         return adj_dict
 
-    def adjacency_list_checker(self):
+    def check_adjacency_list(self):
         """simple checker, that outputs the inconsistencies in the csv files, if any inconsistency exists"""
         global_print = True
         for key, value in self.adjacency_list.items():
@@ -266,7 +265,7 @@ class disease_model:
     def update_agents(self):
         """function that calls the agents to update its state"""
         for index, agents in self.agents.items():
-            loc = agents.update_agents(self.id_to_rooms, self.rooms_to_id, self.time, self.adjacency_list)
+            loc = agents.update_loc(self.time, self.adjacency_list)
             if loc[0] != loc[1]:
                 self.room_agent_dict[loc[0]].remove(index)
                 self.room_agent_dict[loc[1]].append(index)
@@ -321,7 +320,7 @@ class disease_model:
             if curr_location in building_list:
                 agent_dict[index].curr_location = random.choice(self.building_room_list[curr_location])
             else:
-                agent_dict[index].curr_location = self.rooms_to_id[curr_location]
+                agent_dict[index].curr_location = self.room_df[self.room_df].tolist()
         return agent_dict
 
     def make_df(self, file_name):
@@ -357,11 +356,12 @@ def main():
 
     model = disease_model()
     model.print_relevant_info()
-
-    for i in range(100):
+    days = 10
+    time_interval_in_min = 60
+    for day in range(days):
         #model.print_relevant_info()
-        model.update_state(100)
+        #model.update_state(int(24*60/time_interval_in_min))
         model.print_relevant_info()
-            
+           
 if __name__ == "__main__":
     main()
