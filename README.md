@@ -20,11 +20,21 @@ Libraries used in this model:
 - Matplotlib
 - Pandas
 - Numpy
-
+Python standard libraries used in this project:
+- bisect
+- random
 ---
 <a id = "works"></a> 
 
 ## How it Works
+
+This program impliments an agent-based modeling that allows configurable relationships between enclosed areas and autonomous agents.  The enclosed area is a class object that is an abstract representation of "rooms", whatever that means to the user.  The agent's movement within the "rooms" and their behaviors can be fully randomized, strictly scheduled, or anything in between.
+
+The spread of COVID-19 is implimented in this project and if the user wants to model a new system, then they can make a new .csv and load it onto the model.
+
+
+* the term "room" in the following paragraph includes structures like rooms, hallways, cafeteria, gym, parks, soccor fields, and any structures that have an abstract representation with capacity. *
+In the COVID-19 model, we have clusters of rooms that represents a building and the agents move between the rooms and buildings.  The rooms have entry and exit points with adjacent rooms 
 
 The infection model impliments buildings full of rooms and agents that move within the rooms. The building will have different rooms with configurable connections, and the connection represents paths that the agents can take to move to another room. The agent's behavior can be configured to take random or semi-defined schedules and they move between rooms that they're allowed to visit.   
 
