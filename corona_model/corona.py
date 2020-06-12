@@ -12,7 +12,7 @@ def convert_to_min(time_str):
         1.) military time, xx:xx
         2.) time with Meridiem Indicator (AM/PM), xx:xxAM or xx:xxPM
     """
-    meridiem_indicator = time_str[-2:]
+    meridiem_indicator = time_str[-R2:]
     if meridiem_indicator in ["AM", "PM"]: # check if Meridiem Indicator is included
         time_str = time_str[:-2]
     hours, minutes = [int(a) for a in time_str.strip().split(":")]
