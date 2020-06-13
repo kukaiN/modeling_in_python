@@ -1,4 +1,5 @@
 import os
+import platform
 import pandas as pd
 import pickle
 
@@ -26,10 +27,21 @@ def open_csv(filepath, default = ["new here"]):
 def save_pickle(filepath, content):
     content.to_pickle(filepath)
 
-def format_data(filename):
+def format_data(folder, filename):
     """get the relevant data from the file with the corresponding filename, then make a dictionary out of it"""
     _, filepath = get_cd()
-    content = open_csv(filepath+"configuration\\" + filename, [])
+    # we need the os name because different OS uses / or \ to navigate the file system 
+    os_name = platform.system()
+    print(f"your operating system is {os_name}")
+    # get the full path to the file that we're trying to open
+    full_file_name = filepath + folder + "\\" + filename
+    if os_name == "Linux":
+        full_file_name = full_file_name.replace("\\", "/")
+    elif os_name == "Windows":
+        pass
+    elif os_name == "Darwin" or False:
+        full_file_name = full_file_name.replace("\\", "/")
+    content = open_csv(full_file_name, [])
     df_list = [content.columns.values.tolist()]+content.values.tolist()
     df_list = [[txt.strip() if type(txt) == str else txt for txt in lst] for lst in df_list]
     # make a new dataframe from the list
@@ -46,9 +58,15 @@ def get_cd():
     Also does a primative check to see if the path is correct, there has been instances where the CD was different, hence the check.
     """
     scriptpath, filepath = os.path.realpath(__file__), "" # Get the file path to the screenshot image to analize 
+    os_name = platform.system()
+    path_slash = "/" if os_name in ["Linux", 'Darwin'] else "\\"
+    
     for i in range(1,len(scriptpath)+1):
-        if scriptpath[-i] == "\\":
+        if scriptpath[-i] == path_slash:
             scriptpath = scriptpath[0:-i]#current path, relative to root direcotory or C drive
             break
-    if os.getcwd() != scriptpath: filepath = scriptpath + "\\"
+    if os.getcwd() != scriptpath: filepath = scriptpath + path_slash
     return scriptpath, filepath
+
+a = format_data("configuration", "agents.csv")
+print(a)

@@ -115,7 +115,8 @@ class rooms:
             pass
 
 class disease_model:
-    def __init__(self, building_info = "buildings.csv", room_info = "rooms.csv", agent_info = "agents.csv", schedule_info = "schedules.csv"):
+    def __init__(self, config_folder = "configuration", building_info = "buildings.csv", room_info = "rooms.csv", agent_info = "agents.csv", schedule_info = "schedules.csv"):
+        
         """
         start a new infection model, the model will load the data from the csv files in the configuration folder
         if there's a different csv that you're trying to load, then modify the name of the file that is being passed
@@ -134,6 +135,7 @@ class disease_model:
         self.check_markov_chain()
         self.markov_cdf = self.make_markov_to_cdf()
         # make panda dataframe from the given csv file
+        self.config_folder_name = config_folder
         self.agent_df = self.make_df(agent_info) 
         self.building_df = self.make_df(building_info)
         self.room_df = self.make_df(room_info)
@@ -320,12 +322,15 @@ class disease_model:
             if curr_location in building_list:
                 agent_dict[index].curr_location = random.choice(self.building_room_list[curr_location])
             else:
-                agent_dict[index].curr_location = self.room_df[self.room_df].tolist()
+                adj_room = self.room_df.index[self.room_df["room_name"] == row["connected to"]].tolist()[0]
+                a = self.room_df[self.room_df["room_name"] == curr_location].to_list()
+                print(a)
+                agent_dict[index].curr_location = a
         return agent_dict
 
     def make_df(self, file_name):
         """ creates a panda dataframe from the content in a csv file"""
-        a = flr.format_data(file_name)
+        a = flr.format_data(self.config_folder_name, file_name)
         print("this is a preview of the data that you're loading:")
         print(a.head(3))
         return a
