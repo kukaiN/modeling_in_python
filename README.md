@@ -3,6 +3,7 @@ COVID model in python
 
 ---
  - [Dependencies](#depend)
+ - [References to tricks used in my code](#refer)
  - [How it works](#works)
      - [Configurations](#configurations)
          - [building.csv](#building)
@@ -23,6 +24,14 @@ Libraries used in this model:
 Python standard libraries used in this project:
 - bisect
 - random
+
+
+---
+<a id = "refer"></a> 
+
+## References to tricks used in my code:
+OOP tricks in python:
+- __slots__ (https://stackoverflow.com/questions/472000/usage-of-slots)
 ---
 <a id = "works"></a> 
 
