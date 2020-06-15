@@ -14,6 +14,22 @@ def load_pickle(filepath, default):
             pickle.dump(x, f)
     return x
 
+def load_config(folder, filename):
+    """load config information from a txt file"""
+    _, filepath = get_cd()
+    # we need the os name because different OS uses / or \ to navigate the file system 
+    os_name = platform.system()
+    # get the full path to the file that we're trying to open, and depending on the OS, the slashes changes
+    full_file_name = filepath + folder + "\\" + filename
+    if os_name == "Windows": pass
+    else: 
+        # for OS' like linux and mac(Darwin)
+        full_file_name = full_file_name.replace("\\", "/")
+    # get the content of the file and convert it to a list
+    with open(full_file_name) as f:
+        content = [line.strip() for line in f.readlines()]
+    return content
+
 def open_csv(filepath, default = ["new df here"]):
     """returns the content of the csv file if it exists."""
     try:
@@ -35,11 +51,9 @@ def format_data(folder, filename):
     os_name = platform.system()
     # get the full path to the file that we're trying to open, and depending on the OS, the slashes changes
     full_file_name = filepath + folder + "\\" + filename
-    if os_name == "Linux":
-        full_file_name = full_file_name.replace("\\", "/")
-    elif os_name == "Windows":
+    if os_name == "Windows":
         pass
-    elif os_name == "Darwin":
+    else: # for linux and mac(Darwin)
         full_file_name = full_file_name.replace("\\", "/")
     # get the content of the file and convert it to a panda dataframe
     content = open_csv(full_file_name, [])
@@ -52,6 +66,14 @@ def format_data(folder, filename):
     new_df = new_df[1:]
     new_df.columns = new_header
     return new_df
+
+def make_df(folder_name, file_name):
+    """ creates a panda dataframe from the content in a csv file"""
+    a = format_data(folder_name, file_name)
+    a.fillna(0, inplace =True)
+    print("this is a preview of the data that you're loading:")
+    print(a.head(3))
+    return a
 
 
 def get_cd():
@@ -72,5 +94,14 @@ def get_cd():
     if os.getcwd() != scriptpath: filepath = scriptpath + path_slash
     return scriptpath, filepath
 
-a = format_data("configuration", "agents.csv")
-print(a)
+
+def main():
+    # run this to check if the files can be extracted
+    a = format_data("configuration", "agents.csv")
+    print(a)
+    
+
+
+
+if __name__ == "__main__":
+    main()

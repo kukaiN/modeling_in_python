@@ -1,4 +1,4 @@
-room_name, capacity, located building,connected to,travel time
+room_name, capacity, located_building,connected_to,travel_time
 kukai's room,20, dorm,hallway A,1
 lains room,5, dorm,hallway A,1
 gym,100, gym,road B,10

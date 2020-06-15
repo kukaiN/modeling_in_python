@@ -1,4 +1,4 @@
-random, name,age,  immunity,initial condition,state, archetypes
+random, name,age,  immunity,initial_location,state, archetypes
 F, kukai,20, 0.1,kukai's room, infected, nerd
 F, lain,21,0.1,dorm, healthy, nerd
 F, Lain,21,0.1,dorm, healthy, nerd

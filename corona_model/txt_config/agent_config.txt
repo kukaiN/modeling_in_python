@@ -1,0 +1,12 @@
+hello there
+- ewan mcGregor
+
+Immune
+susceptible
+Exposed
+Infected Asymptomatic
+Infected Symptomatic
+Recovered
+
+
+

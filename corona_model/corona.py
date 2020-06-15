@@ -23,10 +23,12 @@ def convert_to_min(time_str):
     
 
 class agent:
-    """make an agent that can interact with the room class
+    """creates an agent that moves between rooms and interacts with each other (indirectly)
     """
-    def __init__(self, rand_bool, name = "SE_lain", age = 22, immunity = 0.1, curr_location = "dorm", state = "healthy", archetype = "introvert"):
-        """takes in the initial parameters"""
+    #__slot__ = ["name", "age", "gender", "immunity", "curr_location", "state", "archetype", "personality"]
+    def __init__(self, param_keys, param_values):
+        #rand_bool, name = "SE_lain", age = 22, immunity = 0.1, curr_location = "dorm", state = "healthy", archetype = "introvert"):
+        
         self.name = name
         self.age = age
         self.immunity = immunity
@@ -83,6 +85,11 @@ class agent:
         #print("this, ", (past_location, self.curr_location))
         return (past_location, self.curr_location)
 
+class buildings:
+    #__slots__ = ["building_name", "small", "medium", "large", "Xlarge", "unspecified"]
+    def __init__(self, param_values):
+        a = 1
+        pass
 
 class rooms:
     def __init__(self, room_name = "unnamed_room", capacity = 20, default_agents = []):

@@ -4,6 +4,7 @@ COVID model in python
 ---
  - [Dependencies](#depend)
  - [References to tricks used in my code](#refer)
+ - [Definitions](#defin)
  - [How it works](#works)
      - [Configurations](#configurations)
          - [building.csv](#building)
@@ -21,6 +22,7 @@ Libraries used in this model:
 - Matplotlib
 - Pandas
 - Numpy
+- network x
 Python standard libraries used in this project:
 - bisect
 - random
@@ -32,7 +34,21 @@ Python standard libraries used in this project:
 ## References to tricks used in my code:
 OOP tricks in python:
 - __slots__ (https://stackoverflow.com/questions/472000/usage-of-slots)
+    - use different column names for every csv
+
+
 ---
+<a id = "defin"></a>
+
+## Definitions
+
+png of nodes and edges
+- egde
+- vertex
+- directed vs undirected
+
+---
+
 <a id = "works"></a> 
 
 ## How it Works
@@ -136,3 +152,18 @@ This python file contains functions related to opening and reading the csv files
 ### corona.py
 
 The main python file that have the code for the agents and rooms.  Creates, configures and simulate the model that is described in the csv file.
+
+current parameters:
+agents: 
+- static: name, age, gender 
+- influence schedule: archetype, 
+- dynamic: immunity, state, motion_state, curr_location, arrival_time, travel_time, minimum_waiting_time, destination
+
+rooms:
+- static: room_name, capacity, limit
+- dynamic: agents_in_room
+
+
+buildings:
+- static: room_list
+- dynamic: building_param
