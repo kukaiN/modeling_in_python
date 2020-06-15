@@ -5,18 +5,13 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as plt_ani
 
 def make_graph(vertices, vertices_label, edges, buildings, building_room, directed=False):
-    print(vertices)
-    print(edges)
     # flip the direction of the building to room, to rooms to building
     print(building_room.values())
     print(building_room.keys())
     rooms_to_building = dict((room_id, building_id) for building_id, rooms in building_room.items() for room_id in rooms)
     print(rooms_to_building.values())
-    if directed: G=nx.DiGraph()
-    else: G = nx.Graph()
-    G.add_nodes_from(vertices)
-    #G.nodes()
-
+    G = nx.DiGraph() if directed else nx.Graph()
+    G.add_nodes_from(vertices) #G.nodes()
     print(rooms_to_building.items())
     G.add_edges_from(edges)
     size_list, label_list, color_list = [], dict(), []
@@ -28,7 +23,6 @@ def make_graph(vertices, vertices_label, edges, buildings, building_room, direct
         label_list[node] = "" if connection < theshold else buildings[rooms_to_building[node]].building_name+" :\n " +vertices_label[node]
         building = rooms_to_building[node]
         color_list.append(colors[building])
-    print(label_list)
     # convert color list to numpy array
     color_list = np.array(color_list)
     print(nx.info(G))
@@ -58,10 +52,13 @@ def draw_timeseries(time_intervals, x_lim, y_lim, data, linestyle = ["r-", "b.",
     plt.ylabel("Agent's conditions")
     plt.title("Agent's state over time")
     le = ax.legend()
-    plt.show()
-
-
+    plt.show()    
+    new_data = [[], []]
+    for index, (entry_name, data_list) in enumerate(data.items()):
+        if index == 2: break
+        new_data[index] = data_list
     
+    show_animation(time_intervals, new_data[0], new_data[1], x_lim, y_lim, len(time_intervals))
 
 def show_animation(time_list, list_1, list_2, x_lim, y_lim, frame_num):
     fig = plt.figure()
@@ -78,20 +75,21 @@ def show_animation(time_list, list_1, list_2, x_lim, y_lim, frame_num):
     def init():
         for line in lines:
             line.set_data([], [])
+        return lines
+
     def animate(i):
         x_list = [time_list[:i], time_list[:i]]
         y_list = [list_1[:i], list_2[:i]]
         for lnum, line in enumerate(lines):
-            line.set_data(xlist[lnum], ylist[lnum])
+            line.set_data(x_list[lnum], y_list[lnum])
         return lines
+        
 
-    ani = plt_ani.animations.FuncAnimation(fig, animate, init_func=init, frames = frame_num, interval = 10, blit=True)
+    ani = plt_ani.FuncAnimation(fig, animate, init_func=init, frames = frame_num, interval = 200)
     plt.show()
-
 
 def main():
     pass
-
 
 
 if __name__ == "__main__":

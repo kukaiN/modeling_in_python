@@ -53,7 +53,7 @@ def main():
     model.initialize_agents()
     model.initialize_storing_parameter(["healthy", "infected", "recovered"])
     model.print_relevant_info()
-    for i in range(10):
+    for i in range(100):
         model.update_time(10)
         model.print_relevant_info()
         model.store_information()
