@@ -1,0 +1,13 @@
+building_name,type,small,medium,large,count
+dorm,dorm,,,,10
+dorm,dorm,,,,10
+dorm,dorm,,,,25
+instructional building,building,,,,5
+instructional building,building,,,,10
+instructional building,building,,,,5
+dining_hall,building,,,,1
+library,building,,,8,1
+gym,building,,,,1
+social space,node,,,,1
+transit space,building,,,,1
+off campus building,node,,,,1
