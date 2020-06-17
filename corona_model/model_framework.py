@@ -6,6 +6,7 @@ import file_related as flr
 import numpy as np
 import bisect
 import visualize as vs
+import modify_df as mod_df
 
 def convert_to_min(time_str):
     """convert time represnted in the following forms to minutes in a day, 
@@ -23,13 +24,10 @@ def convert_to_min(time_str):
     return minutes
 
 def find_tuple(val, item_list, index):
-    """ return the first item in the list of tuple that have val in some index withing the tuple"""
+    """ iterate over the item_list and returns the first tuple with the same value"""
     for tup in item_list:
         if tup[index] == val: return tup
     return None
-
-def generate_path(starting_point, destination, adj_dict):
-    pass
 
 def main():
     """ the main function that starts the model"""
@@ -37,35 +35,41 @@ def main():
     # the info are the specific data for a specific instance of the class
     
     file_loc = {
-    "config_folder"     : "txt_config",
-    "agent_config"      : "agent_config.txt",
-    "room_config"       : "room_config.txt",
-    "building_config"   : "building_config.txt",
-    "schedule_config"   : "schedule_config.txt",
-    
-    "info_folder"       : "configuration",
-    "agent_info"        : "agents.csv",
-    "room_info"         : "rooms.csv",
-    "building_info"     : "buildings.csv",
-    "schedule_info"     : "schedules.csv"
+        "config_folder"     : "txt_config",
+        "agent_config"      : "agent_config.txt",
+        "room_config"       : "room_config.txt",
+        "building_config"   : "building_config.txt",
+        "schedule_config"   : "schedule_config.txt",
+        
+        "info_folder"       : "configuration",
+        "agent_info"        : "agents.csv",
+        "room_info"         : "rooms.csv",
+        "building_info"     : "buildings.csv",
+        "schedule_info"     : "schedules.csv"
     }
-    model = Agent_based_model(file_loc)
+    foldername, filename = "configuration", "new_building.csv"
+    model = Agent_based_model()
+    model.loadData(file_loc, False, foldername, filename)
     model.initialize_agents()
     model.initialize_storing_parameter(["healthy", "infected", "recovered"])
     model.print_relevant_info()
-    for i in range(100):
+    
+    for i in range(10):
         model.update_time(10)
         model.print_relevant_info()
         model.store_information()
     model.visual_over_time()
-    model.visualize_buildings()
-    model.print_relevant_info()
+    #model.visualize_buildings()
+    #model.print_relevant_info()
     #if str(input("does all the information look correct?")) in ["T", "t", "y", "Y", "Yes"]:
     #    pass
-
+    
 
 def agent_class(agent_df, slot_val =  ["name", "age", "gender", "immunity", "curr_location", "motion" "health_state", "archetype", "personality", "arrival_time", "path_to_dest", "waiting_time"]):
-    # meta function used to dynamically assign __slots__
+    """
+        meta function used to dynamically assign __slots__,
+        creates agents from the given df
+    """
     class Agents:
         __slots__ = slot_val
         def __init__(self, values_in_rows):
@@ -73,13 +77,15 @@ def agent_class(agent_df, slot_val =  ["name", "age", "gender", "immunity", "cur
                 self.__setattr__(slot, value)
 
         def update_loc(self, curr_time, adj_dict):
-            """change between moving and stationary states"""
-            threshold = 0.2
+            """
+                change agent's state, either moving or stationary,
+                look at adjacent rooms and move to one of the connected rooms    
+            """
+            threshold = 0.4
             if self.motion == "stationary" and curr_time > self.arrival_time:
                 if random.random() < threshold:
                     rooms = list(adj_dict.keys())
                     self.destination =  np.random.choice(rooms, 1)
-                    print("destination", self.destination)
                     self.move_to(adj_dict)
             elif self.motion == "moving" and curr_time > self.travel_time + self.arrival_time:
                 self.move_to(adj_dict)
@@ -88,6 +94,9 @@ def agent_class(agent_df, slot_val =  ["name", "age", "gender", "immunity", "cur
                 return (self.curr_location, self.curr_location)
 
         def move_to(self, adj_dict):
+            """
+                chooses the random room and moves the agent inside
+            """
             past_location = self.curr_location
             if find_tuple(self.destination, adj_dict[self.curr_location], 1) != None:
                 # the agent reached it's destination, takes a rest
@@ -101,14 +110,17 @@ def agent_class(agent_df, slot_val =  ["name", "age", "gender", "immunity", "cur
                 self.travel_time = next_partition[1]
                 self.curr_location = next_partition[0]
             return (past_location, self.curr_location)
-        
+    
+    # creates the agents and put them in a dictionary
     temp_dict = dict()
     for index, row in agent_df.iterrows():
         temp_dict[index] = Agents(row.values.tolist())
     return temp_dict
 
 def room_class(room_df, slot_val):
-    # meta function used to dynamically assign __slots__
+    """
+        meta function used to dynamically assign __slots__
+    """
     class Partitions:
         __slots__ = slot_val
         def __init__(self, param):
@@ -120,6 +132,9 @@ def room_class(room_df, slot_val):
     return temp_dict
     
 def superstruc_class(struc_df, slot_val):
+    """
+        creates and returns a dictionary that keeps the building class
+    """
     class Superstructure: # buildings
         __slots__ = slot_val
         def __init__(self, struc_param):
@@ -132,15 +147,28 @@ def superstruc_class(struc_df, slot_val):
     return temp_dict
         
 class Agent_based_model:
-    def __init__(self, files = {"config_folder" : "configuration", "agent_config" : "agent_config.txt", "room_config" : "room_config.txt", "building_config" : "building_config.txt", "schedule_config" : "schedule_config.txt",
-    "info_folder" : "configuration", "agent_info" : "agents.csv", "room_info" : "rooms.csv", "building_info" : "buildings.csv", "schedule_info" :"schedules.csv"}):
+    def __init__(self):
         # get the dataframe of individual components
+        self.time = 0
+        self.graph_type = "undirected"
+
+    def loadData(self, files, onefile=False, filename="configuration", folder="new_building.csv"):
+        if onefile:
+            self.building_df, self.room_df = mod_df.mod_building() 
+        else:
+            self.building_df = flr.make_df(files["info_folder"], files["building_info"]) 
+            self.room_df = flr.make_df(files["info_folder"], files["room_info"]) 
         self.agent_df = flr.make_df(files["info_folder"], files["agent_info"]) 
-        self.building_df = flr.make_df(files["info_folder"], files["building_info"]) 
-        self.room_df = flr.make_df(files["info_folder"], files["room_info"]) 
         self.schedule_df = flr.make_df(files["info_folder"], files["schedule_info"]) 
         # get the config of the individual components
+        self.agent_config = flr.load_config(files["config_folder"], files["agent_config"])
+        self.room_config = flr.load_config(files["config_folder"], files["room_config"])
+        self.building_config = flr.load_config(files["config_folder"], files["building_config"])
+        self.schedule_config = flr.load_config(files["config_folder"], files["schedule_config"])
+        self.initialize_other()
 
+
+    def initialize_other(self):
         # add a column to store the id of agents or rooms inside the strucuture
         self.agent_df["curr_location"] = 0
         self.agent_df["motion"] = 0
@@ -150,23 +178,16 @@ class Agent_based_model:
         self.room_df["agents_inside"] = 0
         self.room_df["limit"] = 20
         print("*"*20)
-        self.agent_config = flr.load_config(files["config_folder"], files["agent_config"])
-        self.room_config = flr.load_config(files["config_folder"], files["room_config"])
-        self.building_config = flr.load_config(files["config_folder"], files["building_config"])
-        self.schedule_config = flr.load_config(files["config_folder"], files["schedule_config"])
-        self.graph_type = "undirected"
         self.adjacency_dict = self.make_adj_dict()
         self.buildings = self.make_class(self.building_df, superstruc_class)
         self.rooms = self.make_class(self.room_df, room_class)
         self.agents = self.make_class(self.agent_df, agent_class)
-        self.time = 0
         self.rooms_in_building = dict((building_id, []) for building_id in self.buildings.keys())
         self.building_name_id = dict((getattr(building, "building_name"), building_id) for building_id, building in self.buildings.items())
         self.room_name_id = dict((getattr(room, "room_name"), room_id) for room_id, room in self.rooms.items())
         self.agents_in_room = dict((room_id, []) for room_id in self.rooms.keys())
         self.add_rooms_to_buildings()
-        
-        
+
     def add_rooms_to_buildings(self):
         """add room_id to associated buildings"""
         for room_id, rooms in self.rooms.items():
@@ -176,6 +197,7 @@ class Agent_based_model:
         # convert agent's location to the corresponding room_id and add the agent's id to the room member
         for rooms in self.rooms.values():
             rooms.agents_inside = []
+        num_of_rooms = len(self.rooms)
         for agent_id, agents in self.agents.items():
             initial_location = getattr(agents, "initial_location")
             if initial_location in self.building_name_id.keys():
@@ -188,6 +210,7 @@ class Agent_based_model:
             else:
                 # either the name isnt properly defined or the room_id was given
                 location = initial_location
+                location = random.randint(0, num_of_rooms-1)
             agents.curr_location = location
             self.rooms[location].agents_inside.append(agent_id)
 
@@ -195,6 +218,7 @@ class Agent_based_model:
         """ creates an adjacency list implimented with a dictionary"""
         adj_dict = dict()
         for room_id, row in self.room_df.iterrows():
+            #print(row["connected_to"])
             adj_room = self.room_df.index[self.room_df["room_name"] == row["connected_to"]].tolist()[0]
             travel_time = row["travel_time"]
             adj_dict[room_id] = adj_dict.get(room_id, []) + [(adj_room, travel_time)]

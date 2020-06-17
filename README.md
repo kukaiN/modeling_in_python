@@ -35,7 +35,8 @@ Python standard libraries used in this project:
 OOP tricks in python:
 - __slots__ (https://stackoverflow.com/questions/472000/usage-of-slots)
     - use different column names for every csv
-
+refrence for people who wants to change the visuals
+- https://stackoverflow.com/questions/14283341/how-to-increase-node-spacing-for-networkx-spring-layout
 
 ---
 <a id = "defin"></a>

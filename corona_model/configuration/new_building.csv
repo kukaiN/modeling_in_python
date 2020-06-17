@@ -1,13 +1,13 @@
-building_name,type,count,sl,ml,ll,sc,mc,lc
-dorm,dorm,25,5,5,0,1,2,0
-dorm,dorm,10,15,15,0,1,2,0
-dorm,dorm,10,25,25,0,1,2,0
-instructional building,building,5,3,0,0,20,30,40
-instructional building,building,10,2,3,0,20,30,40
-instructional building,building,5,8,3,3,20,30,40
-dining_hall,node,1,0,0,1,0,0,1000
-library,node,1,0,0,8,0,0,50
-gym,node,1,0,0,8,0,0,40
-social space,node,1,0,100,0,0,0,10
-transit space,node,1,0,0,1,0,0,10000
-off campus vertex,node,1,0,0,1,0,0,10000
+building_name,room_name,type,count,sl,ml,ll,sc,mc,lc,connected_to
+dorm,dorm,dorm,25,5,5,0,1,2,0,transit_space
+dorm,dorm,dorm,10,15,15,0,1,2,0,transit_space
+dorm,dorm,dorm,10,25,25,0,1,2,0,transit_space
+instructional building,class,building,5,3,0,0,20,30,40,transit_space
+instructional building,class,building,10,2,3,0,20,30,40,transit_space
+instructional building,class,building,5,8,3,3,20,30,40,transit_space
+dining_hall,dining_hall,node,1,0,0,1,0,0,1000,transit_space
+library,library,node,1,0,0,8,0,0,50,transit_space
+gym,gym,node,1,0,0,8,0,0,40,transit_space
+social space,party,node,1,0,100,0,0,0,10,transit_space
+transit space,transit_space,node,1,0,0,1,0,0,10000,transit_space
+off campus vertex,parking,node,1,0,0,1,0,0,10000,transit_space
