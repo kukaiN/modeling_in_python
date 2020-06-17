@@ -49,7 +49,7 @@ def main():
     }
     foldername, filename = "configuration", "new_building.csv"
     model = Agent_based_model()
-    model.loadData(file_loc, False, foldername, filename)
+    model.loadData(file_loc, True, foldername, filename)
     model.initialize_agents()
     model.initialize_storing_parameter(["healthy", "infected", "recovered"])
     model.print_relevant_info()
@@ -58,7 +58,7 @@ def main():
         model.update_time(10)
         model.print_relevant_info()
         model.store_information()
-    model.visual_over_time()
+    #model.visual_over_time()
     #model.visualize_buildings()
     #model.print_relevant_info()
     #if str(input("does all the information look correct?")) in ["T", "t", "y", "Y", "Yes"]:
@@ -114,7 +114,11 @@ def agent_class(agent_df, slot_val =  ["name", "age", "gender", "immunity", "cur
                 self.travel_time = next_partition[1]
                 self.curr_location = next_partition[0]
             return (past_location, self.curr_location)
-    
+
+        def make_schedule(self, schedule_list):
+            a = self.personality
+            b = self.archetypes
+
     # creates the agents and put them in a dictionary
     temp_dict = dict()
     for index, row in agent_df.iterrows():
@@ -194,20 +198,71 @@ class Agent_based_model:
         # add a column to store the id of agents or rooms inside the strucuture
         self.agent_df["curr_location"] = 0
         self.agent_df["motion"] = 0
+        self.agent_df["personality"] = 0
         self.agent_df["arrival_time"] = 0
+        self.agent_df["schedule"] = 0
         self.agent_df["travel_time"] = 0
         self.building_df["rooms_inside"] = 0
         self.room_df["agents_inside"] = 0
-        self.room_df["limit"] = 20
+        self.room_df["limit"] = [int(x*0.8 + 0.5) for x in self.room_df["capacity"]] # 80% limit
+        self.room_df["classname"] = 0
         print("*"*20)
         self.adjacency_dict = self.make_adj_dict()
         self.buildings = self.make_class(self.building_df, superstruc_class)
         self.rooms = self.make_class(self.room_df, room_class)
         self.agents = self.make_class(self.agent_df, agent_class)
+        self.random_personality()
+        self.make_schedule()
+        self.make_schedule_part2()
         self.rooms_in_building = dict((building_id, []) for building_id in self.buildings.keys())
         self.building_name_id = dict((getattr(building, "building_name"), building_id) for building_id, building in self.buildings.items())
         self.room_name_id = dict((getattr(room, "room_name"), room_id) for room_id, room in self.rooms.items())
         self.add_rooms_to_buildings()
+
+    def random_personality(self):
+        """
+            randomly assign a major and personality to the agents
+        """
+
+        personalities = ["athletic", "introvert", "party people", "people", "terminators", "aliens"]
+        majors = ["math", "stem", "english", "humanities", "philosophy", "sleeping"]
+        num_agent = len(self.agents)
+        rand_personalities = np.random.choice(personalities, num_agent)
+        rand_majors = np.random.choice(majors, num_agent)
+        for index, agent in enumerate(self.agents.values()):
+            agent.personality = rand_personalities[index]
+            agent.archetypes = rand_majors[index]
+
+    def make_schedule(self):
+        """dedicate a class to rooms"""
+        self.schedule_chart = ["math", "stem", "english", "humanities", "philosophy", "sleeping"]
+        self.schedule_dict = dict((key, []) for key in self.schedule_chart)
+        classrooms_count = len(self.room_df[self.room_df["building_type"] == "classroom"])
+        print(classrooms_count)
+        self.random_class = np.random.choice(self.schedule_chart, classrooms_count)
+        index = 0
+        for room_id, room in self.rooms.items():
+            if room.building_type == "classroom":
+                room.classname = self.random_class[index]
+                self.schedule_dict[room.classname].append(room_id) 
+                index +=1
+
+    def make_schedule_part2(self):
+        print("*"*20)
+        for classes in self.schedule_chart:
+            print(classes)
+            class_probability = [(room.limit, room_id) for room_id, room in self.rooms.items() if room.classname == classes]
+            class_sum = sum([a[0] for a in class_probability])
+            class_room = [a[1] for a in class_probability]
+            class_probability = [a[0]/class_sum for a in class_probability]
+            for key, agent in self.agents.items():
+                if agent.archetypes == classes:
+                    x = np.random.choice(class_room, size = 8, replace=False, p = class_probability)
+                    sc_A, sc_B = x[:4], x[4:]
+                    print(sc_A, sc_B)
+                    agent.schedule = x
+                    #print(x)
+           
 
     def add_rooms_to_buildings(self):
         """add room_id to associated buildings"""
@@ -307,7 +362,7 @@ class Agent_based_model:
         if True:
             pairs = [(room, adj_room[0]) for room, adj_rooms in self.adjacency_dict.items() for adj_room in adj_rooms]
             name_dict = dict((room_id, room.room_name) for room_id, room in self.rooms.items())
-            vs.make_graph(self.rooms.keys(), name_dict, pairs, self.buildings, self.rooms_in_building)
+            vs.make_graph(self.rooms.keys(), name_dict, pairs, self.buildings, self.rooms_in_building, self.rooms)
         
 
     def infection(self):

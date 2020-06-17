@@ -64,7 +64,8 @@ def create_Partitions(df):
                         "capacity" : rows[capacity],
                         "located_building": rows["building_name"],
                         "connected_to": rows["building_name"]+hub_name,
-                        "travel_time": 1               
+                        "travel_time": 1,
+                        "building_type":rows["building_type"]               
                 }
                 row_list.append(dict1)
          
