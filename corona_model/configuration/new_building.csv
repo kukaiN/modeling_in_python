@@ -1,13 +1,13 @@
-building_name,type,small,medium,large,count
-dorm,dorm,,,,10
-dorm,dorm,,,,10
-dorm,dorm,,,,25
-instructional building,building,,,,5
-instructional building,building,,,,10
-instructional building,building,,,,5
-dining_hall,building,,,,1
-library,building,,,8,1
-gym,building,,,,1
-social space,node,,,,1
-transit space,building,,,,1
-off campus building,node,,,,1
+building_name,type,count,sl,ml,ll,sc,mc,lc
+dorm,dorm,25,5,5,0,1,2,0
+dorm,dorm,10,15,15,0,1,2,0
+dorm,dorm,10,25,25,0,1,2,0
+instructional building,building,5,3,0,0,20,30,40
+instructional building,building,10,2,3,0,20,30,40
+instructional building,building,5,8,3,3,20,30,40
+dining_hall,node,1,0,0,1,0,0,1000
+library,node,1,0,0,8,0,0,50
+gym,node,1,0,0,8,0,0,40
+social space,node,1,0,100,0,0,0,10
+transit space,node,1,0,0,1,0,0,10000
+off campus vertex,node,1,0,0,1,0,0,10000
