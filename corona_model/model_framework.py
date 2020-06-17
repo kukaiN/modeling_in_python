@@ -71,6 +71,10 @@ def agent_class(agent_df, slot_val =  ["name", "age", "gender", "immunity", "cur
         creates agents from the given df
     """
     class Agents:
+        """
+            creates an agent that moves between rooms and interacts with each other (indirectly)
+        """
+        #__slot__ = ["name", "age", "gender", "immunity", "curr_location", "state", "archetype", "personality"]
         __slots__ = slot_val
         def __init__(self, values_in_rows):
             for slot, value in zip(self.__slots__, values_in_rows):
@@ -126,6 +130,24 @@ def room_class(room_df, slot_val):
         def __init__(self, param):
             for slot, value in zip(self.__slots__, param):
                 self.__setattr__(slot, value)
+
+        def enter(self, agent_id):
+            """ a put the id of the agent that entered the room"""
+            if self.check_capacity():
+                self.agents_in_room.append(agent_id)
+
+        def check_capacity(self):
+            """return a boolean, return True if theres capacity for one more agent, False if the room is at max capacity 
+            """
+            if len(self.agents_in_room) < self.capacity:
+                return True
+            return False
+    
+        def leave(self, agent_id):
+            """ remove the id of the agent that exited the room"""
+            if agent_id in self.agents_in_room:
+                self.agents_in_room.remove(agent_id)
+        
     temp_dict = dict()
     for index, row in room_df.iterrows():
         temp_dict[index] = Partitions(row.values.tolist())
@@ -185,7 +207,6 @@ class Agent_based_model:
         self.rooms_in_building = dict((building_id, []) for building_id in self.buildings.keys())
         self.building_name_id = dict((getattr(building, "building_name"), building_id) for building_id, building in self.buildings.items())
         self.room_name_id = dict((getattr(room, "room_name"), room_id) for room_id, room in self.rooms.items())
-        self.agents_in_room = dict((room_id, []) for room_id in self.rooms.keys())
         self.add_rooms_to_buildings()
 
     def add_rooms_to_buildings(self):
@@ -248,8 +269,8 @@ class Agent_based_model:
         for agent_id, agent in self.agents.items():
             loc = agent.update_loc(self.time, self.adjacency_dict)
             if loc[0] != loc[1]:
-                self.rooms[loc[0]].agents_in_room.remove(agent_id)
-                self.rooms[loc[1]].agents_in_room.append(agent_id)
+                self.rooms[loc[0]].leave(agent_id)
+                self.rooms[loc[1]].enter(agent_id)
 
     def count_within_agents(self, agent_list, state_name):
         return len(list(filter(lambda x: x.state == state_name, [self.agents[val] for val in agent_list]))) 
