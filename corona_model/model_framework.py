@@ -50,7 +50,7 @@ def main():
     foldername, filename = "configuration", "new_building.csv"
     model = Agent_based_model()
     model.loadData(file_loc, True, foldername, filename)
-    model.initialize_agents()
+    model.initialize()
     model.initialize_storing_parameter(["healthy", "infected", "recovered"])
     model.print_relevant_info()
     
@@ -58,8 +58,8 @@ def main():
         model.update_time(10)
         model.print_relevant_info()
         model.store_information()
-    #model.visual_over_time()
-    #model.visualize_buildings()
+    model.visual_over_time()
+    model.visualize_buildings()
     #model.print_relevant_info()
     #if str(input("does all the information look correct?")) in ["T", "t", "y", "Y", "Yes"]:
     #    pass
@@ -73,6 +73,16 @@ def agent_class(agent_df, slot_val =  ["name", "age", "gender", "immunity", "cur
     class Agents:
         """
             creates an agent that moves between rooms and interacts with each other (indirectly)
+            (1) Room limits
+            (2) State transition times
+            (3) What questions do we want to answer?
+            (a) reduced classroom capacity (b) facemasks (c) building closures (gyms, libraries) (d) no large classes
+            (e) physical distancing
+            (f) movement restrictions
+            (g) quarantine space
+            (h) enhanced detection
+            (i) contact tracing
+
         """
         #__slot__ = ["name", "age", "gender", "immunity", "curr_location", "state", "archetype", "personality"]
         __slots__ = slot_val
@@ -191,10 +201,10 @@ class Agent_based_model:
         self.room_config = flr.load_config(files["config_folder"], files["room_config"])
         self.building_config = flr.load_config(files["config_folder"], files["building_config"])
         self.schedule_config = flr.load_config(files["config_folder"], files["schedule_config"])
-        self.initialize_other()
+        self.initialize_agents()
 
 
-    def initialize_other(self):
+    def initialize(self):
         # add a column to store the id of agents or rooms inside the strucuture
         self.agent_df["curr_location"] = 0
         self.agent_df["motion"] = 0
@@ -204,6 +214,8 @@ class Agent_based_model:
         self.agent_df["travel_time"] = 0
         self.building_df["rooms_inside"] = 0
         self.room_df["agents_inside"] = 0
+        self.room_df["odd_cap"] = 0
+        self.room_df["even_cap"] = 0 
         self.room_df["limit"] = [int(x*0.8 + 0.5) for x in self.room_df["capacity"]] # 80% limit
         self.room_df["classname"] = 0
         print("*"*20)
@@ -213,7 +225,7 @@ class Agent_based_model:
         self.agents = self.make_class(self.agent_df, agent_class)
         self.random_personality()
         self.make_schedule()
-        self.make_schedule_part2()
+        #self.make_schedule_part2()
         self.rooms_in_building = dict((building_id, []) for building_id in self.buildings.keys())
         self.building_name_id = dict((getattr(building, "building_name"), building_id) for building_id, building in self.buildings.items())
         self.room_name_id = dict((getattr(room, "room_name"), room_id) for room_id, room in self.rooms.items())
@@ -257,10 +269,24 @@ class Agent_based_model:
             class_probability = [a[0]/class_sum for a in class_probability]
             for key, agent in self.agents.items():
                 if agent.archetypes == classes:
-                    x = np.random.choice(class_room, size = 8, replace=False, p = class_probability)
-                    sc_A, sc_B = x[:4], x[4:]
+                    x = np.random.choice(class_room, size = 4, replace=False, p = class_probability)
                     print(sc_A, sc_B)
+                    # A is odd
+                    # B is even
                     agent.schedule = x
+                    for room_id in sc_A:
+                        if self.rooms[room_id].odd_capa < self.rooms[room_id].capacity:
+                            self.rooms[room_id].odd_capa +=1
+                        else:
+                            new_room = np.random.choice(class_room, p=class_probability)
+                            while not self.rooms[room_id].odd_capa < self.rooms[room_id].capacity:
+                                new_room = np.random.choice(class_room, p=class_probability)
+                            self.rooms[room_id].opp_capa += 1
+
+                    for room_id in sc_B:
+                        if self.rooms[room_id].even_capa < self.rooms[room_id].capacity:
+                            self.rooms[room_id].even_capa +=1
+                             
                     #print(x)
            
 
@@ -366,7 +392,7 @@ class Agent_based_model:
         
 
     def infection(self):
-        base_p = 0.3 # 0.01
+        base_p = 0.01 # 0.01
         rand_vect = np.random.random(len(self.agents))
         index = 0
         for room in self.rooms.values():
