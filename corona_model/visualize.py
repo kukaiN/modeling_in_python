@@ -18,7 +18,7 @@ def make_graph(vertices, vertices_label, edges, buildings, building_room, room_d
 
     # this part dictates the size and color
     size_list, label_list, color_list = [], dict(), []
-    lables = False
+    lables = True
     colorbar = False
     colors = dict((key, index/len(buildings)) for index, key in enumerate(building_room.keys()))
     type_name = set(b_type.building_type for b_type in buildings.values())

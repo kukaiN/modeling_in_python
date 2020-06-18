@@ -58,7 +58,7 @@ def main():
         model.update_time(10)
         model.print_relevant_info()
         model.store_information()
-    model.visual_over_time()
+    #model.visual_over_time()
     model.visualize_buildings()
     #model.print_relevant_info()
     #if str(input("does all the information look correct?")) in ["T", "t", "y", "Y", "Yes"]:
