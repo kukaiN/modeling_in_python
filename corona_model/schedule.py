@@ -28,16 +28,18 @@ def create_schedule(number_of_agents,agent_archetypes, classes, class_capacity):
         agent_archetype = agent_archetypes[agent_index]
         agent_schedule = [["a" for _ in range(24)] for _ in range(3)]
         for i, sched_type in enumerate(schedule_type):
-            choose_static(static_schedule, static_assignment_order)
-            
+            static = choose_static(static_schedule, static_assignment_order)
             agent_schedule[i][]
 
 
 
         list_of_scedules.append(agent_schedule)
 
-
-
+def choose_static(static_dictionary, static_order):
+    for order_str in static_order:
+        static_list = static_dictionary(order_str)
+        for tup in static_dictionary
+            durration, start_time
 def main():
     agent_types = ["athletes", "stem", "party", "introverts", "terminators", "aliens"]
     num_agent = 2000
