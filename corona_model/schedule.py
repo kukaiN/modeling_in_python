@@ -1,13 +1,12 @@
 import numpy as np
+import matplotlib.pyplot as plt
 # the code works but a bit slow, so open for change
 
 
-def create_schedule(number_of_agents,agent_archetypes, classes, class_cap, modulo=24):
+def create_schedule(number_of_agents,agent_archetypes,classrooms, capacity, class_dict, modulo=24):
     """
         create a list of schedules for each agents, 
         agent_archetype dictates the distribution and types of random values to fill the empty slots after assigning the static portion
-        classes and class_cap are the names/ids of the classes and it's associated class_capacity
-    
     """
     # the key is the name of the schedule, the value is a list of tuples (duration, starting time, end time), 
     # if the duration is less than the total interval, then it will choose a starting and end time inside the interval
@@ -42,6 +41,17 @@ def create_schedule(number_of_agents,agent_archetypes, classes, class_cap, modul
     }
     
     list_of_scedules = []
+    class_list = [classrooms[index] for index, val in enumerate(capacity) for _ in range(int(val))]
+    odd_class_list = class_list[:]
+    np.random.shuffle(odd_class_list)
+    even_class_list =  class_list[:]
+    np.random.shuffle(even_class_list)
+
+    odd_index = 0
+    odd_jump = 0
+    even_index = 0
+    even_jump = 0
+
     for agent_index in range(number_of_agents): # iterate over each agents
         # create a mask that splits the classes into odd and even schedules
         mask = np.concatenate([np.ones(class_per_agent, dtype=bool), np.zeros(total_class_slots-class_per_agent, dtype=bool)])
@@ -58,22 +68,30 @@ def create_schedule(number_of_agents,agent_archetypes, classes, class_cap, modul
         for i, sched_type in enumerate(schedule_type):
             if sched_type in ["Odd","O"]: # creates the odd day schedule
                 odd_mask = {"classes" : odd_classes}
-                agent_schedule[i] = choose_static(agent_schedule[i], static_schedule, odd_priorities, mask= odd_mask)
+                odd_jump = len(odd_classes)
+                odd_class = odd_class_list[odd_index:odd_index+odd_jump]
+                odd_index+=odd_jump
+                agent_schedule[i] = choose_static(agent_schedule[i], static_schedule, odd_priorities, class_name=odd_class, archetype=agent_archetype , sp_key="classes", sp_dict=class_dict, mask=odd_mask)
+                
             elif sched_type in ["Even", "E"]: # create the even days
                 even_mask = {"classes" : even_classes}
-                agent_schedule[i] = choose_static(agent_schedule[i], static_schedule, even_priorities, mask=even_mask)
+                even_jump = len(even_classes)
+                even_class = even_class_list[even_index:even_index+even_jump]
+                even_index+=even_jump
+                agent_schedule[i] = choose_static(agent_schedule[i], static_schedule, even_priorities, class_name=even_class, archetype=agent_archetype,sp_key="classes", sp_dict=class_dict, mask=even_mask)
+                
             else: # this takes care of the weekend schedule
                 agent_schedule[i] = choose_static(agent_schedule[i], static_schedule, weekend_priority)
-
+            print(agent_schedule)
             # fill the empty slots with random values with some distribution
             agent_schedule[i] = fill_random_with_CDF(agent_schedule[i], 0, dynamic_schedule, dynamic_probabilites[agent_archetype])
                 
         # add i-th agent's schedule to the schedule list
         list_of_scedules.append(agent_schedule)
-
+        break
     return list_of_scedules
 
-def choose_static(schedule, static_dictionary, priority_queue, modulo=24, mask=None):
+def choose_static(schedule, static_dictionary, priority_queue, modulo=24,class_name=None,sp_key=None, sp_dict=None,archetype=None ,mask=None):
     """
         given a scheudule and a priority queue, 
         it takes the next highest priority item and checks for conflicts and the event is added to the schedule only if there's no confict
@@ -82,6 +100,9 @@ def choose_static(schedule, static_dictionary, priority_queue, modulo=24, mask=N
         note: this isnt a greedy schedule, it just assign an event if time is available. 
     """
     # iterate in highest priority to lowest priority
+    
+    
+    
     for priority_item in priority_queue:
         static_list = static_dictionary[priority_item]
         if mask != None:
@@ -89,7 +110,7 @@ def choose_static(schedule, static_dictionary, priority_queue, modulo=24, mask=N
             if priority_item in mask.keys():
                 static_list = [val for index, val in enumerate(static_list) if index in mask[priority_item]]
         # go over the time interval(s) for the event
-        for tup in static_list:
+        for index, tup in enumerate(static_list):
             duration, start, end = tup 
             # take a slice of the schedule and cut it so its [start, ...., end], since index is time, theres cases where the index wraps around due to modulo
             timeslot = (schedule[start:] + schedule[:end]) if start > end else schedule[start:end]
@@ -98,8 +119,24 @@ def choose_static(schedule, static_dictionary, priority_queue, modulo=24, mask=N
             if availability != []:
                 # choose a random starting possition and assign the event for the duration of the event 
                 x = np.random.choice(availability)
-                for i in range(duration):
-                    schedule[(start+x+i)%modulo] = priority_item
+                if sp_key == None:
+                    for i in range(duration):
+                        schedule[(start+x+i)%modulo] = priority_item
+                elif sp_key == priority_item:
+                    # we need to rename what ever this event is by checking into a room with enrollment < capacity
+                    # value is a tuple :(capacity, curr_enrollment)
+                    #available = [key for key, value in sp_dict[archetype].items() if value[0] > value[1]]
+                    #class_key = np.random.choice(available)
+                    # increase enrollment by 1
+                    #sp_dict[archetype][class_key][1] = sp_dict[archetype][class_key][1] + 1  
+                    for i in range(duration):
+                        if index >= len(class_name):
+                            print(static_list)
+                            print(duration, sp_key, archetype, schedule)
+                            print(priority_item, index, tup, class_name)
+                            print(index, class_name)
+                        a = class_name[index]
+                        schedule[(start+x+i)%modulo] = a
     return schedule
             
 def fill_random_with_CDF(schedule_list, replace_val, random_values, associated_probabilities = []):
@@ -138,17 +175,29 @@ def get_availability(partial_interval, duration):
         # else is that the value of a at that index stays 0
     return [time-duration+1 for time, val in enumerate(a) if val >= duration]
 
+def aperature()
+
+
+
 def main():
     # test schedule parameters for this file
-    agent_types = ["athletes", "stem", "party", "introverts", "terminators", "aliens"]
+    agent_types = ["athletes", "stem", "party", "introverts", "terminators", "aliens", "other"]
     num_agent = 2000
     mod_time = 24
-    random_people = np.random.choice(agent_types, size=num_agent, replace=True)
-    classrooms = [[a for a in range(0, 150)] for _ in range(2)]
+    randomized_agents = np.random.choice(agent_types, size=num_agent, replace=True)
+    # 150 classrooms with 20~50 agent capacity
+    classrooms = [a for a in range(0, 150)]
     classroom_capacity = np.random.choice(range(20, 50), size=len(classrooms), replace=True)
     classroom_enrollment = np.zeros(shape=np.shape(classroom_capacity))
     # create schedules
-    schedule = create_schedule(num_agent, random_people, classrooms, classroom_capacity, modulo=mod_time)
+    
+    
+    class_dict = dict()
+    for key in agent_types:
+        class_dict[key] = {class_key: [cap, enrollment] for (class_key, cap, enrollment) in zip(classrooms, classroom_capacity, classroom_enrollment)}
+    
+    schedule = create_schedule(num_agent, randomized_agents, classrooms, classroom_capacity, class_dict, modulo=mod_time)
+
     # print the first 5 agent's schedule for n unique days
     print(schedule[:5])
 

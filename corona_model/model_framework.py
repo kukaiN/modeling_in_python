@@ -50,7 +50,7 @@ def main():
     foldername, filename = "configuration", "new_building.csv"
     model = Agent_based_model()
     model.loadData(file_loc, True, foldername, filename)
-    model.initialize()
+    model.initialize_agents()
     model.initialize_storing_parameter(["healthy", "infected", "recovered"])
     model.print_relevant_info()
     
@@ -201,7 +201,7 @@ class Agent_based_model:
         self.room_config = flr.load_config(files["config_folder"], files["room_config"])
         self.building_config = flr.load_config(files["config_folder"], files["building_config"])
         self.schedule_config = flr.load_config(files["config_folder"], files["schedule_config"])
-        self.initialize_agents()
+        self.initialize()
 
 
     def initialize(self):
@@ -219,6 +219,7 @@ class Agent_based_model:
         self.room_df["limit"] = [int(x*0.8 + 0.5) for x in self.room_df["capacity"]] # 80% limit
         self.room_df["classname"] = 0
         print("*"*20)
+        self.
         self.adjacency_dict = self.make_adj_dict()
         self.buildings = self.make_class(self.building_df, superstruc_class)
         self.rooms = self.make_class(self.room_df, room_class)
