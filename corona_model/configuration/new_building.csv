@@ -1,13 +1,13 @@
-building_name,room_name,building_type,count,sl,ml,ll,sc,mc,lc,connected_to
-dorm,dorm,dorm,25,5,5,0,1,2,0,transit_space
-dorm,dorm,dorm,10,15,15,0,1,2,0,transit_space
-dorm,dorm,dorm,10,25,25,0,1,2,0,transit_space
-instructional building,class,classroom,5,3,0,0,20,30,40,transit_space
-instructional building,class,classroom,10,2,3,0,20,30,40,transit_space
-instructional building,class,classroom,5,8,3,3,20,30,40,transit_space
-dining_hall,dining_hall,dining_hall,1,0,0,1,0,0,1000,transit_space
-library,library,library,1,0,0,8,0,0,50,transit_space
-gym,gym,gym,1,0,0,8,0,0,40,transit_space
-social space,party,social_space,1,0,100,0,0,0,10,transit_space
-transit space,transit_space,transit,1,0,0,1,0,0,10000,transit_space
-off campus vertex,parking,node,1,0,0,1,0,0,10000,transit_space
+building_name,room_name,building_type,count,sl,ml,ll,sc,mc,lc,connected_to, base_p
+dorm,dorm,dorm,25,5,5,0,1,2,0,transit_space, 10000
+dorm,dorm,dorm,10,15,15,0,1,2,0,transit_space, 10000
+dorm,dorm,dorm,10,25,25,0,1,2,0,transit_space, 10000
+instructional building,class,classroom,5,3,0,0,20,30,40,transit_space, 500
+instructional building,class,classroom,10,2,3,0,20,30,40,transit_space, 500
+instructional building,class,classroom,5,8,3,3,20,30,40,transit_space,500
+dining_hall,dining_hall,dining_hall,1,0,0,1,0,0,1000,transit_space, 1000
+library,library,library,1,0,0,8,0,0,50,transit_space, 100
+gym,gym,gym,1,0,0,8,0,0,40,transit_space, 1000
+social space,party,social_space,1,0,100,0,0,0,10,transit_space,1000
+transit space,transit_space,transit,1,0,0,1,0,0,10000,transit_space,1
+off campus vertex,parking,node,1,0,0,1,0,0,10000,transit_space, 0
