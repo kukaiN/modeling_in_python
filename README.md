@@ -28,6 +28,11 @@ Python standard libraries used in this project:
 - random
 
 
+## outputs:
+![graph_output](IMAGES/Figure_1.png)
+
+![building_network](IMAGES/Figure_2.png)
+
 ---
 <a id = "refer"></a> 
 
