@@ -2,99 +2,97 @@ import networkx as nx
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-import matplotlib.animation as plt_ani
+import matplotlib.animation as animation
 
-def make_graph(vertices, vertices_label, edges, buildings, building_room, room_dict, directed=False):
+def makeGraph(vertices, vertexLabels, edges, buildings, buildingRoom, roomDict, directed=False):
     """
         get the partitions and their adjacency list to create a graph
         The graph will show the label of partitions that have more edges than the threshold 
     """
     theshold = 10 # rooms
     # flip the direction of the building to room, to rooms to building
-    rooms_to_building = dict((room_id, building_id) for building_id, rooms in building_room.items() for room_id in rooms)
+    roomsToBuilding = dict((roomId, buildingId) for buildingId, rooms in buildingRoom.items() for roomId in rooms)
     G = nx.DiGraph() if directed else nx.Graph()
     G.add_nodes_from(vertices) #G.nodes()
     G.add_edges_from(edges)
 
     # this part dictates the size and color
-    size_list, label_list, color_list = [], dict(), []
-    lables = True
+    sizeList, colorList, labelList = [], [], dict()
+    lables = False
     colorbar = False
-    colors = dict((key, index/len(buildings)) for index, key in enumerate(building_room.keys()))
-    type_name = set(b_type.building_type for b_type in buildings.values())
-    type_count = len(type_name)
+    colors = dict((key, index/len(buildings)) for index, key in enumerate(buildingRoom.keys()))
+    typeName = set(bType.building_type for bType in buildings.values())
+    typeCount = len(typeName)
     
-    type_color = dict((key, index/type_count) for index, key in enumerate(sorted(type_name)))
-    based_on_type = True
+    typeColor = dict((key, index/typeCount) for index, key in enumerate(sorted(typeName)))
+    basedOnType = True
     cmap = mpl.cm.get_cmap("gist_rainbow")
     for node in nx.nodes(G):
         connection = len(list(nx.neighbors(G, node)))
-        if room_dict[node].capacity > 5000:
-            size_list.append(300)
+        if roomDict[node].capacity > 5000:
+            sizeList.append(300)
         else:
-            coeff = 1
-            if connection < 20:
-                coeff = 2
-            size_list.append(int((coeff*connection*6000)/len(vertices)))
-        building = rooms_to_building[node]
+            coeff = 2 if connection < 20 else 1 
+            sizeList.append(int((coeff*connection*6000)/len(vertices)))
+        building = roomsToBuilding[node]
         if lables:
-            label_list[node] = "" if connection < theshold else buildings[building].building_name+" :\n " +vertices_label[node]
+            labelList[node] = "" if connection < theshold else buildings[building].building_name+" :\n " +vertexLabels[node]
         else: 
-            label_list[node] = ""
-        if based_on_type:
-            color_list.append(type_color[buildings[building].building_type])
+            labelList[node] = ""
+        if basedOnType:
+            colorList.append(typeColor[buildings[building].building_type])
         else:
-            color_list.append(colors[building])
+            colorList.append(colors[building])
     
     pos = nx.spring_layout(G,k=0.05,  scale = 2)
     print(nx.info(G))
-    print("labels for vertices:", [names for names in label_list.values() if names != ""])
+    print("labels for vertices:", [names for names in labelList.values() if names != ""])
     f = plt.figure(1)
     ax = f.add_subplot(1, 1, 1)
-    handle_list = []
-    for key, color_val in sorted(type_color.items()):
-        ax.plot([0], [0], color=cmap(color_val), label=key)
-        a = mpl.patches.Patch(color=cmap(color_val), label=key)
-        handle_list.append(a)
+    handleList = []
+    for key, colorVal in sorted(typeColor.items()):
+        ax.plot([0], [0], color=cmap(colorVal), label=key)
+        a = mpl.patches.Patch(color=cmap(colorVal), label=key)
+        handleList.append(a)
     
     ec = nx.draw_networkx_edges(G, pos, alpha=0.2)
-    nc = nx.draw_networkx_nodes(G, pos, with_labels=True, node_size=size_list, node_color=np.array(color_list), alpha=0.7,  cmap="gist_rainbow")
-    lc = nx.draw_networkx_labels(G, pos, labels=label_list, font_size= 10)
+    nc = nx.draw_networkx_nodes(G, pos, with_labels=True, node_size=sizeList, 
+                node_color=np.array(colorList), alpha=0.7,  cmap="gist_rainbow")
+    lc = nx.draw_networkx_labels(G, pos, labels=labelList, font_size= 10)
     if colorbar: 
         plt.colorbar(nc)
     plt.axis("off")
-    plt.legend(handles=handle_list)
+    plt.legend(handles=handleList)
     plt.tight_layout()
     plt.show()
 
-def draw_timeseries(time_intervals, x_lim, y_lim, data, linestyle = ["r-", "b.", "g--"]):
+def timeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle = ["r-", "b.", "g--"]):
     fig, ax= plt.subplots(figsize = (10, 5))
-    plt.xlim(x_lim[0], x_lim[1])
-    plt.ylim(y_lim[0], y_lim[1])
-    for entry_name, data_list in data.items():
-        plt.plot(time_intervals, data_list, label = entry_name)
+    plt.xlim(xLim[0], xLim[1])
+    plt.ylim(yLim[0], yLim[1])
+    animateData = [[] for _ in data.items()]
+    for index, (name, dataList) in enumerate(data.items()):
+        print(index, name, data)
+        animateData[index] = dataList
+        plt.plot(timeIntervals, dataList, label=name)
     plt.xlabel("Time")
     plt.ylabel("Agent's conditions")
     plt.title("Agent's state over time")
     leg = ax.legend()
+    # show static graph
     plt.show()    
-    new_data = [[], []]
-    for index, (entry_name, data_list) in enumerate(data.items()):
-        if index == 2: break
-        new_data[index] = data_list
-    
-    show_animation(time_intervals, new_data[0], new_data[1], x_lim, y_lim, len(time_intervals))
+    # show animated graph
+    showAnimation(timeIntervals, animateData[0], animateData[1], xLim, yLim, len(timeIntervals))
 
-def show_animation(time_list, list_1, list_2, x_lim, y_lim, frame_num):
-    # dont know how the funcAnimation works, so ill cite the documents latter
+def showAnimation(timeList, list_1, list_2, xLim, yLim, frames):   
     fig = plt.figure()
-    ax1 = plt.axes(xlim=x_lim, ylim=y_lim)
+    ax1 = plt.axes(xlim=xLim, ylim=yLim)
     line = ax1.plot([], [], lw=2)
     plt.xlabel("time")
     plt.ylabel("# of agents")
-    plot_color, lines = ["red", "blue"], []
-    for index in range(2):
-        lobj = ax1.plot([], [], lw=2, color=plot_color[index])[0]
+    plotColor, lines = ["red", "blue"], []
+    for i in range(2):
+        lobj = ax1.plot([], [], lw=2, color=plotColor[i])[0]
         lines.append(lobj)
 
     def init():
@@ -103,14 +101,13 @@ def show_animation(time_list, list_1, list_2, x_lim, y_lim, frame_num):
         return lines
 
     def animate(i):
-        x_list = [time_list[:i], time_list[:i]]
-        y_list = [list_1[:i], list_2[:i]]
-        for lnum, line in enumerate(lines):
-            line.set_data(x_list[lnum], y_list[lnum])
+        xList = [timeList[:i], timeList[:i]]
+        yList = [list_1[:i], list_2[:i]]
+        for lNum, line in enumerate(lines):
+            line.set_data(xList[lNum], yList[lNum])
         return lines
         
-
-    ani = plt_ani.FuncAnimation(fig, animate, init_func=init, frames = frame_num, interval = 200)
+    ani = animation.FuncAnimation(fig, animate, init_func=init, frames = frames, interval = 200)
     plt.show()
 
 def main():
