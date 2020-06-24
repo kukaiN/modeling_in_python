@@ -31,6 +31,7 @@ Python standard libraries used in this project:
 ## outputs:
 ![graph_output](IMAGES/Figure_1.png)
 
+Graphical representation of 
 ![building_network](IMAGES/Figure_2.png)
 
 ---

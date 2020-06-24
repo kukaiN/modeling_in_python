@@ -51,42 +51,48 @@ def createPartitions(df):
         the default header is ["room_name", "capacity", "located_building", "connected_to", "travel_time"]
 
     """
-    leaves, capacities = ["sl", "ml", "ll"] , ["sc", "mc", "lc"]
+    leaves = ["leaf_S", "leaf_M", "leaf_L"]
+    capacities = ["cap_S", "cap_M", "cap_L"]
+    limits = ["enroll_S", "enroll_M", "enroll_L"]
     nameStr, connection = "room_name", "connected_to"
     rowList, colName = [], list(df.columns.values)
-    
+    hubName = "_hub"
     for index, rows in df.iterrows(): # iterate over each structure
-        for leafName, capacity in zip(leaves, capacities):# create the small, medium, large
+        for leafName, capacity, limit in zip(leaves, capacities, limits):# create the small, medium, large
             for _ in range(rows[leafName]): # for each size make the corresponding rooms
-                hubName = "_hub"# if rows["room_name"] != "transit_space" else ""
-                
-                dict1 = {"room_name": rows["room_name"], 
+                dict1 = {nameStr: rows[nameStr], 
                         "capacity" : rows[capacity],
+                        "limit" : rows[limit],
                         "located_building": rows["building_name"],
                         "connected_to": rows["building_name"]+hubName,
                         "travel_time": 1,
-                        "building_type":rows["building_type"]               
+                        "building_type":rows["building_type"],
+                        "Kv":rows["Kv"]             
                 }
                 rowList.append(dict1)
-         
+        hubDict = {
+            nameStr: rows[nameStr] + hubName, 
+            "capacity" : rows["hubCapacity"],
+            "limit": rows["hubCapacity"],
+            "located_building": rows["building_name"],
+            "connected_to": "transit_space_hub",
+            "travel_time": 1,
+            "building_type":rows["building_type"],
+            "Kv":rows["hubKv"]
+        }
         # add the hallways, for each building 
-        flippedHub =dict(rowList[-1])
-        flippedHub[nameStr], flippedHub["connected_to"] = flippedHub["connected_to"], "transit_space_hub"
-        rowList.append(flippedHub)
-    #row_list.append({"room_name":"transit_space", "capacity": 1000, "located_building": "transit_space", "connected_to": "transit_space", "travel_time": 1})
+        previousRoom = dict(rowList[-1])
+        hubDict[nameStr] = previousRoom["connected_to"]
+        rowList.append(hubDict)
     return pd.DataFrame(rowList)
 
-def mod_building():
-    original_df = flr.make_df("configuration", "new_building.csv")
+def mod_building(fileName, folder):
+    original_df = flr.make_df(folder,fileName)
     building_df = assignUniqueName(createSuperStruc(original_df), "building_name")
     building_df.index+=1
-    print(building_df)
     room_df = createPartitions(building_df)
     room_df = assignUniqueName(room_df, "room_name")
-    print(room_df)
     room_df.index +=1
-  
-    print(room_df.loc[room_df["located_building"] == "dorm17"])
     return building_df, room_df
     
 def main():

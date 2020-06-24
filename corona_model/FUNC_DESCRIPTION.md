@@ -19,3 +19,19 @@ for _ in range(10):
 
 
 2.) 
+
+
+
+
+
+schedule creator
+
+
+| Classroom | Capacity | available days |
+|-----------|----------|----------------|
+| A | 5 | O, E |
+| B | 5| O, E |
+| C | 5|O, E |
+| D | 5 |O, E |
+
+

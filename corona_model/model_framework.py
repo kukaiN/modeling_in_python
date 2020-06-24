@@ -5,9 +5,11 @@ import pickle
 import fileRelated as flr
 import numpy as np
 import bisect
+import numpy as np
 import visualize as vs
 import modifyDf as mod_df
 import schedule
+import time
 
 def convertToMin(timeStr):
     """convert time represnted in the following forms to minutes in a day, 
@@ -30,6 +32,8 @@ def findInTuple(val, itemList, index):
         if tup[index] == val: return tup
     return None
 
+
+
 def main():
     """ the main function that starts the model"""
     # the "config" and "info" are different, config tells the code what values/range are allowed for a variable.
@@ -49,23 +53,42 @@ def main():
         "schedule_info"     : "schedules.csv"
     }
     folderName, fileName = "configuration", "new_building.csv"
-    model = AgentBasedModel()
-    model.loadData(fileLoc, True, folderName, fileName)
-    model.initialize()
-    model.initializeAgents()
-    model.initializeStoringParameter(["healthy", "infected", "recovered"])
+    loadDill = False
+    saveDill = False
+    pickleName = flr.fullPath("coronaModel.pkl", "picklefile")
+    if not loadDill:
+        model = AgentBasedModel()
+        model.loadDefaultData(fileLoc)
+        model.loadBuilder("newBuilding.csv")
+        model.loadAgent("newAgent.csv")
+        model.generateAgentFromDf()
+        model.initializeWorld()
+        model.startLog()
+        model.initializeAgents()
+        if saveDill:
+            flr.saveUsingDill(pickleName, model)
+            # save an instance for faster loading
+            return 0
+    else:
+        model = flr.loadUsingDill(pickleName)
+        print("loaded pickled object successfully")
+    model.initilize_infection()
+    
+    # make schedules for each agents, outside of pickle for testing and for randomization
+    model.makeSchedule()
+    model.initializeRandomSchedule()
+    model.initializeStoringParameter(["susceptible","exposed", "infected Asymptomatic" ,"infected Symptomatic", "recovered"], 
+                                        steps=1)
     model.printRelevantInfo()
     
-    for i in range(10):
+    for i in range(60):
         # change to steps
         model.updateSteps(10)
         model.printRelevantInfo()
-        model.storeInformation()
+    model.printLog()
     model.visualOverTime()
-    model.visualizeBuildings()
-    #model.printRelevantInfo()
-    #if str(input("does all the information look correct?")) in ["T", "t", "y", "Y", "Yes"]:
-    #    pass
+    #model.visualizeBuildings()
+    
    
 def agentFactory(agent_df, slotVal =  ["name", "age", "gender", "immunity", "curr_location", "motion" "health_state", "archetype", "personality", "arrival_time", "path_to_dest", "waiting_time"]):
     """
@@ -88,23 +111,41 @@ def agentFactory(agent_df, slotVal =  ["name", "age", "gender", "immunity", "cur
                 look at adjacent rooms and move to one of the connected rooms    
             """
             threshold = 0.4
+            curr_room = self.currLocation
             if self.motion == "stationary" and currTime > self.arrivalTime:
-                if random.random() < threshold:
+                if True: #purly deterministic #random.random() < threshold:
                     rooms = list(adjDict.keys())
-                    self.destination =  np.random.choice(rooms, 1)
+                    self.destination = self.checkschedule(currTime) 
+                  
                     self.moveTo(adjDict)
             elif self.motion == "moving" and currTime > self.travelTime + self.arrivalTime:
                 self.moveTo(adjDict)
                 self.arrivalTime = currTime
             else: 
                 return (self.currLocation, self.currLocation)
+            return (curr_room, self.currLocation)
 
-        def move_to(self, adjDict):
+        def checkschedule(self, currTime):
+            # there are 24*7 hours in a week
+            # currTime%24*7 will give you the time in terms of week, then // 24 give you days
+            # if the value is greater than 5, then its a weekday
+            # if currTime is odd, then its a odd day and vise versa with even days
+            dayOfWeek = (currTime%(24*7))//24
+            hourOfDay = currTime%24
+            if dayOfWeek > 5: # its a weekday
+                return self.schedule[2][hourOfDay]
+            elif dayOfWeek & 1: # bit and, its an odd day
+                return self.schedule[1][hourOfDay]
+            else: # its an even day
+                return self.schedule[0][hourOfDay]
+
+        
+        def moveTo(self, adjDict):
             """
                 chooses the random room and moves the agent inside
             """
             pastLocation = self.currLocation
-            if findTuple(self.destination, adjDict[self.currLocation], 1) != None:
+            if findInTuple(self.destination, adjDict[self.currLocation], 1) != None:
                 # the agent reached it's destination, takes a rest
                 self.currLocation = self.destination
                 self.destination = None
@@ -112,14 +153,23 @@ def agentFactory(agent_df, slotVal =  ["name", "age", "gender", "immunity", "cur
             else: # the agent is still moving
                 self.motion = "moving"
                 # choose a random room and go to it
-                nextPartition = np.random.choice(adjDict[self.currLocation])
-                self.travelTime = nextPartition[1]
+                
+                adjDict[self.currLocation]
+                index = random.randrange(len(adjDict[self.currLocation]))
+              
+                nextPartition = adjDict[self.currLocation][index]
+              
+                self.travelTime = 10#nextPartition[1]
                 self.currLocation = nextPartition[0]
             return (pastLocation, self.currLocation)
 
-        def makeSchedule(self, scheduleList):
-            a = self.personality
-            b = self.archetypes
+        def __repr__(self):
+            repr_list = [val for val in self.__slots__]
+            return repr_list.join() 
+        
+        def __str__(self):
+            repr_list = [val for val in self.__slots__]
+            return repr_list.join() 
 
     # creates the agents and put them in a dictionary
     tempDict = dict()
@@ -143,19 +193,19 @@ def roomFactory(room_df, slotVal):
         def enter(self, agentId):
             """ a put the id of the agent that entered the room"""
             if self.checkCapacity():
-                self.agentsInRoom.append(agentId)
+                self.agentsInside.append(agentId)
 
         def checkCapacity(self):
             """return a boolean, return True if theres capacity for one more agent, False if the room is at max capacity 
             """
-            if len(self.agentsInRoom) < self.capacity:
+            if len(self.agentsInside) < self.capacity:
                 return True
             return False
     
         def leave(self, agentId):
             """ remove the id of the agent that exited the room"""
-            if agentId in self.agentsInRoom:
-                self.agentsInRoom.remove(agentId)
+            if agentId in self.agentsInside:
+                self.agentsInside.remove(agentId)
         
     tempDict = dict()
     for index, row in room_df.iterrows():
@@ -181,40 +231,56 @@ class AgentBasedModel:
     def __init__(self):
         # get the dataframe of individual components
         self.time = 0
-        self.directedGraph = True
+        self.storeVal = False
+        self.directedGraph = False
+        self.randSchedule = False
 
-    def loadData(self, files, oneFile=False, fileName="configuration", folder="new_building.csv"):
-        """load the data in a csv and load it as a panda dataframe"""
-        if oneFile:
-            self.building_df, self.room_df = mod_df.mod_building() 
-        else:
-            self.building_df = flr.make_df(files["info_folder"], files["building_info"]) 
-            self.room_df = flr.make_df(files["info_folder"], files["room_info"]) 
+
+    # initialization
+    def loadDefaultData(self, files):
+        """load the data in a csv and load it as a panda dataframe"""    
+        self.building_df = flr.make_df(files["info_folder"], files["building_info"]) 
+        self.room_df = flr.make_df(files["info_folder"], files["room_info"]) 
         self.agent_df = flr.make_df(files["info_folder"], files["agent_info"]) 
         self.schedule_df = flr.make_df(files["info_folder"], files["schedule_info"]) 
         # get the config of the individual components
+    
+    def loadDefaultConfig(self, files):
+        """
+        there is no use for this right now
+        """
         self.agent_config = flr.loadConfig(files["config_folder"], files["agent_config"])
         self.room_config = flr.loadConfig(files["config_folder"], files["room_config"])
         self.building_config = flr.loadConfig(files["config_folder"], files["building_config"])
         self.schedule_config = flr.loadConfig(files["config_folder"], files["schedule_config"])
         
-    def initialize(self):
+    def loadAgent(self, fileName, folderName="configuration"):
+        self.agent_df = flr.make_df(folderName, fileName)
+    
+    def loadBuilder(self, filename, folderName="configuration"):
+        self.building_df, self.room_df = mod_df.mod_building(filename, folderName)
+    
+    
+    def initializeWorld(self):
         # add a column to store the id of agents or rooms inside the strucuture
-        for agentAttribute in ["currLocation", "motion", "personality", "arrivalTime", "schedule", "travelTime"]:
+        for agentAttribute in ["archetypes", "destination", "currLocation","state_persistance","lastUpdate", "personality", "arrivalTime", "schedule", "travelTime"]:
             self.agent_df[agentAttribute] = 0 
+        self.agent_df["motion"] = "stationary"
+        
+        
         self.building_df["rooms_inside"] = 0
-        for roomVal in ["agents_inside", "odd_cap", "even_cap", "classname"]:
+        
+        for roomVal in ["agentsInside", "odd_cap", "even_cap", "classname"]:
             self.room_df[roomVal] = 0
-        self.room_df["limit"] = [int(x*0.8 + 0.5) for x in self.room_df["capacity"]] # 80% limit
         print("*"*20)
         self.adjacencyDict = self.makeAdjDict()
         self.buildings = self.makeClass(self.building_df, superStrucFactory)
         self.rooms = self.makeClass(self.room_df, roomFactory)
         self.agents = self.makeClass(self.agent_df, agentFactory)
         self.randomPersonality()
-        self.makeSchedule()
         self.roomsInBuilding = dict((buildingId, []) for buildingId in self.buildings.keys())
         self.buildingNameId = dict((getattr(building, "building_name"), buildingId) for buildingId, building in self.buildings.items())
+        self.buildingTypeId = dict((getattr(building, "building_type"), buildingId) for buildingId, building in self.buildings.items())
         self.roomNameId = dict((getattr(room, "room_name"), roomId) for roomId, room in self.rooms.items())
         self.addRoomsToBuildings()
 
@@ -232,47 +298,116 @@ class AgentBasedModel:
             agent.personality = randPersonalities[index]
             agent.archetypes = randMajors[index]
 
-    def makeSchedule(self):
-        """dedicate a class to rooms"""
-        self.scheduleChart = ["math", "stem", "english", "humanities", "philosophy", "sleeping"]
-        self.scheduleDict = dict((key, []) for key in self.scheduleChart)
-        classroomsCount = len(self.room_df[self.room_df["building_type"] == "classroom"])
-        print(classroomsCount)
-        self.randomClass = np.random.choice(self.scheduleChart, classroomsCount)
-        index = 0
-        for room_id, room in self.rooms.items():
-            if room.building_type == "classroom":
-                room.classname = self.randomClass[index]
-                self.scheduleDict[room.classname].append(room_id) 
-                index +=1
-
-
-
+    
     def addRoomsToBuildings(self):
         """add room_id to associated buildings"""
         for roomId, rooms in self.rooms.items():
             self.roomsInBuilding[self.buildingNameId[rooms.located_building]].append(roomId) 
 
+    def generateAgentFromDf(self, counterColumn="totalCount"):
+        """use this to multiple the number of agents, multiplies by looking at the counterColumn"""
+        slotVal = self.agent_df.columns.values.tolist()
+        if counterColumn in slotVal:
+            slotVal.remove(counterColumn)
+        tempList = []
+        for _, row in self.agent_df.iterrows():
+            counter = row[counterColumn]
+            rowCopy = row.drop(counterColumn).to_dict()
+            tempList+=[rowCopy for _ in range(counter)]
+        self.agent_df = pd.DataFrame(tempList)     
+        
+
     def initializeAgents(self):
         # convert agent's location to the corresponding room_id and add the agent's id to the room member
         for rooms in self.rooms.values():
-            rooms.agents_inside = []
+            rooms.agentsInside = []
         numOfRooms = len(self.rooms)
-        for agentId, agents in self.agents.items():
-            initialLoc = getattr(agents, "initial_location")
-            if initialLoc in self.buildingNameId.keys():
+        for agentId, agent in self.agents.items():
+            initialLoc = getattr(agent, "initial_location")
+            if initialLoc in self.buildingNameId.keys(): # if location is under building name
                 # randomly choose rooms from the a building
                 possibleRooms = self.roomsInBuilding[self.buildingNameId[initialLoc]]
                 location = np.random.choice(possibleRooms)
-            elif initialLoc in self.roomNameId.keys():
+            elif initialLoc in self.buildingTypeId.keys(): # if location is under building type
+                
+                possibleRooms = self.roomsInBuilding[self.buildingTypeId[initialLoc]]
+                location = np.random.choice(possibleRooms)
+            elif initialLoc in self.roomNameId.keys(): # if the room is specified
                 # convert the location name to the corresponding id
                 location = self.roomNameId[initialLoc]
             else:
+                print("something wrong")
                 # either the name isnt properly defined or the room_id was given
                 location = initialLoc
                 location = random.randint(0, numOfRooms-1)
-            agents.currLocation = location
-            self.rooms[location].agents_inside.append(agentId)
+            agent.currLocation = location
+            agent.initial_location = location
+            self.rooms[location].agentsInside.append(agentId)
+
+    def makeSchedule(self):
+        """part 1, dedicate a class to rooms"""
+        
+        self.numAgent = len(self.agents.items())
+        archetypeList = [agent.archetypes for agent in self.agents.values()]
+        classIds = list(roomId for roomId, room in self.rooms.items() if room.building_type == "classroom")
+        capacities = list(self.rooms[classId].capacity for classId in classIds)
+        # modify the following to blacklist or whitelist agents from rooms, then pass it to create scheudule
+        """
+        classDict = dict()
+        for key in agentTypes:
+            classDict[key] = {classKey: [cap, enrollment] for (classKey, cap, enrollment) in zip(classrooms, classCapacity, classEnrollment)}
+        """
+        self.scheduleList = schedule.createSchedule(self.numAgent, archetypeList,classIds,capacities)
+        self.replaceStaticEntries()
+          
+
+    def replaceStaticEntries(self):
+        """
+        part 2
+        replaces the static locations with the corresponding Ids
+        """
+        for i, agent in enumerate(self.agents.values()):
+            self.scheduleList[i] = self.replaceEntry(self.scheduleList[i], "sleep", getattr(agent, "currLocation"))
+
+    def initializeRandomSchedule(self,t=-1, agentTypes=[]):
+        """random schedule part 1"""
+        self.randSchedule = True if t < 0 else False 
+        self.activityList = ["eating", "gym", "study", "off_campus"]
+        self.buildingList = ["dining_hall", "gym", "library", "node"]
+        self.activityCount = schedule.countSchedule(self.scheduleList, self.activityList)
+        self.activityLocList = [self.findMatchingRooms("building_type", loc) for loc in self.buildingList]
+        self.randomSchedule = [np.random.choice(possibleLoc, size=self.activityCount[i], replace=True) 
+                                for i, possibleLoc in enumerate(self.activityLocList)]
+        self.agentTypeCount = dict()
+        for agentType in agentTypes:
+            self.agentTypeCount[agentType] = self.countAgents(agentType, "type")
+        
+        self.replaceScheduleValues()
+
+    def replaceScheduleValues(self, agentTypes = []):
+        """
+            random schedule part 2
+            if t = -1, then the scheudule doesnt change, 
+            if t is greater than 0, then the schedule changes with that frequency 
+        """
+        self.randomSchedule = [np.random.choice(possibleLoc, size=self.activityCount[i], replace=True) 
+                                for i, possibleLoc in enumerate(self.activityLocList)]
+        indices = [0 for _ in range(len(self.activityLocList))]
+        for scheduleIndex, agent in self.agents.items():
+            scheduleChart = self.scheduleList[scheduleIndex]
+            # replace and randomize the rest
+            for index, location in enumerate(self.randomSchedule):
+                for i, row in enumerate(scheduleChart):
+                    for j, content in enumerate(row):
+                        if content == self.activityList[index]:
+                            scheduleChart[i][j] = location[indices[index]]
+                            indices[index]+=1
+            agent.schedule = scheduleChart
+            
+
+    def replaceEntry(self, schedule, antecedent, replacement):
+        """ replace entry with a different value"""
+        return [[a if a != antecedent else replacement for a in row] for row in schedule]
 
     def makeAdjDict(self):
         """ creates an adjacency list implimented with a dictionary"""
@@ -293,50 +428,165 @@ class AgentBasedModel:
         print(f"creating {numObj} {className} class objects, each obj will have __slots__ = {slotVal}")
         return tempDict
 
+
+
+    def findMatchingRooms(self, roomParam, roomVal, strType=False):
+        """returns a list of room IDs that have a specific value for one of its parameter"""
+        if strType: # case insensitive
+            return [roomId for roomId, room in self.rooms.items() if getattr(room, roomParam).strip().lower() == roomVal.strip().lower()]
+        else:
+            return [roomId for roomId, room in self.rooms.items() if getattr(room, roomParam) == roomVal]
+
+
+    # update functions
     def updateSteps(self, step = 1):
         """ 
         a function that updates the time and calls other update functions, 
         you can also set how many steps to update"""
         for t in range(step):
+            
             self.time+=1
+            if self.time % (24*7) == 0:
+                self.replaceScheduleValues()
+                print(self.scheduleList[0])
             self.updateAgent()
-            self.infection()
+            if 22 > self.time%24 > 8:
+                self.infection()
+            if self.storeVal and self.time%self.timeIncrement == 0:
+                self.storeInformation()
+            self.logData()
+
+    def startLog(self):
+        self.building_log = dict((key,[]) for key in self.buildings.keys())
+        self.room_log = dict((key,[]) for key in self.rooms.keys())
+        self.room_cap_log = dict((key,[]) for key in self.rooms.keys())
+
+    def logData(self):
+        sus = "susceptible"
+        exp = "exposed"
+        infA = "infected Asymptomatic"
+        infS = "infected Symptomatic"
+        rec = "recovered"
+        for roomId, room in self.rooms.items():
+            total_infected = sum(self.countWithinAgents(room.agentsInside, stateName) for stateName in [exp, infA, infS])
+            self.room_log[roomId].append(total_infected)
+        
+        for roomId, room in self.rooms.items():
+            self.room_cap_log[roomId].append(len(room.agentsInside))
+
+    def printLog(self):
+        for key, value in self.room_cap_log.items():
+            if self.rooms[key].building_type == "gym":
+                a = np.array(value).reshape((-1,24))
+                x, y = a.shape
+                zzz = np.sum(a, axis=0)
+                print("gym", zzz)
 
     def updateAgent(self):
         """call the update function on each person"""
+        count = 0
+        
         for agentId, agent in self.agents.items():
+      
             loc = agent.updateLoc(self.time, self.adjacencyDict)
             if loc[0] != loc[1]:
                 self.rooms[loc[0]].leave(agentId)
                 self.rooms[loc[1]].enter(agentId)
+                count+=1
+      
 
+      # handles the infection
+    
+    def initilize_infection(self):
+        sus = "susceptible"
+        sp = "state_persistance"
+        exp = "exposed"
+        for agent in self.agents.values():
+            agent.state = sus
+            # negative means it goes for infinity
+            agent.state_persistance = -1
+        seed_num = 20
+        for agent_num in np.random.choice(range(1, len(self.agents.keys())),size=seed_num):
+            self.agents[agent_num].state = exp
+            
+    
+    def infection(self):
+        sus = "susceptible"
+        exp = "exposed"
+        infA = "infected Asymptomatic"
+        infS = "infected Symptomatic"
+        rec = "recovered"
+        transition = {
+            exp:4*24,
+            infA:4*24,
+            infS:7*24,
+            rec:-1
+            }
+        transition_probability = {
+            exp: [(infA, 1)],
+            infA: [(infS, 0.5), (rec, 1)],
+            infS: [(rec, 1)]
+        }
+        baseP = 0.01 # 0.01
+        randVec = np.random.random(len(self.agents))
+        index = 0
+        for room in self.rooms.values():
+            totalInfected = sum(self.countWithinAgents(room.agentsInside, strVal) for strVal in [exp, infA, infS])
+            for agentId in room.agentsInside:
+                if room.capacity == 0: print(room.room_name, room.located_building)
+                if self.agents[agentId].state == sus and randVec[index] < (baseP*room.Kv*totalInfected)/room.limit: 
+                    self.agents[agentId].state = exp
+                    self.agents[agentId].state_persistance = transition[exp]
+                    self.agents[agentId].lastUpdate = self.time
+                else:
+                    state = self.agents[agentId].state
+                    if self.agents[agentId].lastUpdate + self.agents[agentId].state_persistance > self.time and transition[state] > 0:
+                        cdf = 0
+                        for tup in transition_probability[state]:
+                            if tup[1] > randVec[index] >= cdf:
+                                cdf+=tup[1]
+                                next_state = tup[0] 
+                        self.agents[agentId].state = next_state
+                        self.agents[agentId].state_persistance = transition[state] 
+                index +=1    
+
+    # functions used to store or print information
     def countWithinAgents(self, agentList, stateName):
         return len(list(filter(lambda x: x.state == stateName, [self.agents[val] for val in agentList]))) 
 
-    def countAgents(self, stateName):
-        return len(list(filter(lambda x: x.state == stateName, self.agents.values() )))
+    def countAgents(self, stateVal, attributeName="state"):
+        return len(list(filter(lambda x: getattr(x, attributeName) == stateVal, self.agents.values() )))
 
     def printRelevantInfo(self):
         """ print relevant information about the model and its current state, 
         this is the same as __str__ or __repr__, but this function is for debug purpose,
         later on this functio n will be converted to the proper format using __repr__"""
-        infected = self.countAgents("infected")
-        carrier = self.countAgents("carrier")
-        dead = self.countAgents("dead")
-        healthy = self.countAgents("healthy")
-        recovered = self.countAgents("recovered")
-        print(f"time: {self.time} total healthy {healthy} infected: {infected}, carrier: {carrier}, dead: {dead}, recovered: {recovered}")
-        #print(f" agent's locations is {list(room.agents_in_room for room in self.room_dict.values())}")
-        #print(f"agent's location is {self.room_agent_dict}")
+        sus = "susceptible"
+        exp = "exposed"
+        infA = "infected Asymptomatic"
+        infS = "infected Symptomatic"
+        rec = "recovered"
+        susc = self.countAgents(sus)
+        expo = self.countAgents(exp)
+        ia = self.countAgents(infA)
+        ias = self.countAgents(infS)
+        recovered = self.countAgents(rec)
+        print(f"time: {self.time}, Susceptible {susc} E: {expo}, I Asympto: {ia}, I Sympto: {ias}, recovered: {recovered}")
     
-    def initializeStoringParameter(self, listOfStatus):
+    def initializeStoringParameter(self, listOfStatus, steps=10):
+        """
+            tell the code which values to keep track of. 
+            t defines the frequency of keeping track of the information
+        """
+        self.storeVal = True
+        self.timeIncrement = steps 
         self.parameters = dict((param, []) for param in listOfStatus)
         self.timeSeries = []
 
     def storeInformation(self):
         self.timeSeries.append(self.time)
         for param in self.parameters.keys():
-            self.parameters[param].append(self.countAgents(param))
+            self.parameters[param].append(self.countAgents(param, attributeName="state"))
 
     def visualOverTime(self):
         vs.timeSeriesGraph(self.timeSeries, (0, self.time+1), (0,len(self.agents)), self.parameters)
@@ -347,25 +597,17 @@ class AgentBasedModel:
             nameDict = dict((roomId, room.room_name) for roomId, room in self.rooms.items())
             vs.makeGraph(self.rooms.keys(), nameDict, pairs, self.buildings, self.roomsInBuilding, self.rooms)
         
-
-    def infection(self):
-        baseP = 0.001 # 0.01
-        randVec = np.random.random(len(self.agents))
-        index = 0
-        for room in self.rooms.values():
-            totalInfected = self.countWithinAgents(room.agents_inside, "infected")
-            for agentId in room.agents_inside:
-                if self.agents[agentId].state == "healthy" and randVec[index] < baseP*totalInfected/room.limit: 
-                    self.agents[agentId].state = "infected"
-                else:
-                    state = self.agents[agentId].state
-                    if state == "infected":
-                        if randVec[index] < 0.05:
-                            self.agents[agentId].state = "recovered"
-                index +=1    
-
+  
+    # need to build
     def MMs_QueueingModel(self, lambda_val, mean):
         pass
+
+
+
+    # need to build
+    def define_offcampus(self):
+        for agent in self.agent():
+            pass
 
 if __name__ == "__main__":
     main()    

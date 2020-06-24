@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 # the code works but a bit slow, so open for change
 
 
-def createSchedule(numOfAgents,agentArchetypes,classrooms, capacity, classDict, modulo=24):
+def createSchedule(numOfAgents,agentArchetypes,classrooms, capacity, classAllowedTypeDict=None, modulo=24):
     """
         create a list of schedules for each agents, 
         agent_archetype dictates the distribution and types of random values to fill the empty slots after assigning the static portion
@@ -19,16 +19,15 @@ def createSchedule(numOfAgents,agentArchetypes,classrooms, capacity, classDict, 
     }
 
     # define the parameters relating to choosing classes
-    classPerAgent = 4
+    
     OE_slots = 4 # both odd and even slots are 4
     totalClassSlots = 8
-    possibleClasses = np.array(range(1, totalClassSlots + 1), dtype=int)
     timeslotsPerDay = 24 # 24 hours in a day
     # define the number and name of unique schedules
     # change to ["mon", "tues", ..." sunday"] to create differnt schedules for a week, this can be expanded
     scheduleType = ["Odd", "Even", "Weekends"] 
     # define the priorities of assigning a schedules for odd days, even days, and weekends
-    OEW_priority = [["sleep", "classes", "eating"], ["sleep", "classes", "eating"],  ["sleep", "eating"]]
+    OEW_priority = [["sleep", "eating"], ["sleep", "eating"],  ["sleep", "eating"]]
     # dynamic schedules are types of schedules that will be used to fill empty slots in the schedules
     dynamicSchedule = ["study", "gym", "off_campus"]
     dynamicProbabilites = {
@@ -40,39 +39,28 @@ def createSchedule(numOfAgents,agentArchetypes,classrooms, capacity, classDict, 
     
     listOfScedules = []
     classList = [classrooms[index] for index, val in enumerate(capacity) for _ in range(int(val))]
-    oddClassList = classList[:]
-    np.random.shuffle(oddClassList)
-    evenClassList =  classList[:]
-    np.random.shuffle(evenClassList)
-    
-    # odd ones have index 0, even is 1
-    OE_classList = [oddClassList, evenClassList]
-    OE_index = [0, 0]
+    masks = createMask(numOfAgents)
+    maskSum = np.sum(masks, axis=0, dtype=int)
 
+    maskCurrIndex = np.zeros(maskSum.shape, dtype = int)
+    x, y = maskSum.shape
+    classes = [[np.random.permutation(classList) for _ in range(y)] for _ in range(x)]
+  
     for index in range(numOfAgents): # iterate over each agents
         # create a mask that splits the classes into odd and even schedules
-        mask = np.concatenate([np.ones(classPerAgent, dtype=bool), np.zeros(totalClassSlots-classPerAgent, dtype=bool)])
-        np.random.shuffle(mask)
-        classes = possibleClasses[mask]
-        oddClass, evenClass = [a%OE_slots for a in classes if a <= OE_slots], [b%OE_slots for b in classes if b > OE_slots]
-        OE_mask = [{"classes" : oddClass}, {"classes" : evenClass}]
-        jump = [len(oddClass), len(evenClass)]
+        # NoteToSelf: put classPerAgent and totalClassStots inside the loop for randomization 
+        agentSchedule = [[0 for _ in range(timeslotsPerDay)] for _ in range(len(scheduleType))]
+        agentSchedule = assignClasses(agentSchedule, masks[index], classes, maskCurrIndex)
+        maskCurrIndex+=masks[index]
+
         # check if the agent's type is defined or not
         archetype = agentArchetypes[index]
         if archetype not in dynamicProbabilites.keys():
             archetype = "other"
-        # each agent will have a 24 hour schedule and is initially empty
-        agentSchedule = [[0 for _ in range(timeslotsPerDay)] for _ in range(len(scheduleType))]
+        
         # assign a schedule for each unique schedule
-        for i, routineName in enumerate(scheduleType):
-            if i < 2: # creates the odd and even day schedule
-                OE_class = OE_classList[i][OE_index[i]:OE_index[i]+jump[i]]
-                OE_index[i]+=jump[i]
-                agentSchedule[i] = chooseStatic(agentSchedule[i], staticSchedule, OEW_priority[i], 
-                                className=OE_class, archetype=archetype , spKey="classes", 
-                                spDict=classDict, mask=OE_mask[i])
-            else: # this takes care of the weekend schedule
-                agentSchedule[i] = chooseStatic(agentSchedule[i], staticSchedule, OEW_priority[i])
+        for i, routineName in enumerate(scheduleType): # odd, even, weekends
+            agentSchedule[i] = chooseStatic(agentSchedule[i], staticSchedule, OEW_priority[i])
             # fill the empty slots with random values with some distribution
             agentSchedule[i] = fillRandomWithCDF(agentSchedule[i], 0, dynamicSchedule, dynamicProbabilites[archetype])
                 
@@ -85,7 +73,7 @@ def chooseStatic(schedule, staticDict, priorityQueue, modulo=24,className=None,s
         given a scheudule and a priority queue, 
         it takes the next highest priority item and checks for conflicts and the event is added to the schedule only if there's no confict
         if the duration of the event is less than the time interval, 
-        then the evnt is placed at a random time such that its between the interval and end before or at the end time
+        then the event is placed at a random time such that its between the interval and end before or at the end time
         note: this isnt a greedy schedule, it just assign an event if time is available. 
     """
     # iterate in highest priority to lowest priority
@@ -145,8 +133,34 @@ def getAvailability(partialInterval, duration):
         # else is that the value of a at that index stays 0
     return [time-duration+1 for time, val in enumerate(a) if val >= duration]
 
+def countSchedule(schedule, countParam):
+    storingList = [0 for _ in countParam]
+    for agent_schedule in schedule:
+        for daily_schedule in agent_schedule:
+            for activity in daily_schedule:
+                if activity in countParam:
+                    storingList[countParam.index(activity)]+=1
+    return storingList
 
+def createMask(agentNumber, schedulePerAgent = 2):
+    """return a 3d object in np"""
+    mask = np.concatenate([np.ones(4, dtype=bool), np.zeros(4, dtype=bool)])
+    newmask = np.array([np.random.permutation(mask).reshape(2,-1) for _ in range(agentNumber)], dtype=bool)
+    return newmask
 
+def assignClasses(agentSchedule, masks, classes, indexMatrix):
+    """ assign classes to a schedule"""
+    durr = 2
+    base = 10
+    for index in range(len(masks)): # odd vs even
+        chair = classes[index]
+        maskRow = indexMatrix[index]
+        for i, val in enumerate(masks[index]):
+            if val:
+                indexVal = maskRow[i]
+                for k in range(durr):
+                    agentSchedule[index][base+(2*i)+k] = chair[i][indexVal]
+    return agentSchedule
 
 def main():
     # test schedule parameters for this file
@@ -168,6 +182,8 @@ def main():
 
     # print the first 5 agent's schedule for n unique days
     print(schedule[:5])
+
+    createMask(numAgent)
 
 if __name__ == "__main__":
     main()

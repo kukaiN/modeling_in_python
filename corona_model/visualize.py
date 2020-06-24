@@ -72,7 +72,6 @@ def timeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle = ["r-", "b.", "g
     plt.ylim(yLim[0], yLim[1])
     animateData = [[] for _ in data.items()]
     for index, (name, dataList) in enumerate(data.items()):
-        print(index, name, data)
         animateData[index] = dataList
         plt.plot(timeIntervals, dataList, label=name)
     plt.xlabel("Time")
@@ -82,17 +81,27 @@ def timeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle = ["r-", "b.", "g
     # show static graph
     plt.show()    
     # show animated graph
-    showAnimation(timeIntervals, animateData[0], animateData[1], xLim, yLim, len(timeIntervals))
+    showAnimation(timeIntervals, animateData, xLim, yLim, len(timeIntervals))
 
-def showAnimation(timeList, list_1, list_2, xLim, yLim, frames):   
+def get_cmap(n, name='hsv'):
+    '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
+    RGB color; the keyword argument name must be a standard mpl colormap name.'''
+    return plt.cm.get_cmap(name, n)
+
+def showAnimation(timeList, dataList, xLim, yLim, frames):   
     fig = plt.figure()
     ax1 = plt.axes(xlim=xLim, ylim=yLim)
-    line = ax1.plot([], [], lw=2)
+    # plot parameter is dimension x dimension2 # position of plot, and linewidth
+    line = ax1.plot(len(dataList), 1, 1, lw=2)
+    #line = ax1.plot([], [], lw=2)
     plt.xlabel("time")
     plt.ylabel("# of agents")
-    plotColor, lines = ["red", "blue"], []
-    for i in range(2):
-        lobj = ax1.plot([], [], lw=2, color=plotColor[i])[0]
+    dataSize = len(dataList)
+    cmap = get_cmap(dataSize+1)
+    lines = []
+    
+    for i in range(dataSize):
+        lobj = ax1.plot([], [], lw=2, c=cmap(i))[0]
         lines.append(lobj)
 
     def init():
@@ -101,14 +110,15 @@ def showAnimation(timeList, list_1, list_2, xLim, yLim, frames):
         return lines
 
     def animate(i):
-        xList = [timeList[:i], timeList[:i]]
-        yList = [list_1[:i], list_2[:i]]
+        xList = [timeList[:i] for _ in range(dataSize)]
+        yList = [list_1[:i] for list_1 in dataList]
         for lNum, line in enumerate(lines):
             line.set_data(xList[lNum], yList[lNum])
         return lines
         
     ani = animation.FuncAnimation(fig, animate, init_func=init, frames = frames, interval = 200)
     plt.show()
+
 
 def main():
     pass

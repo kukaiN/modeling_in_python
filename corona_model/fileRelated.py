@@ -2,8 +2,9 @@ import os
 import platform
 import pandas as pd
 import pickle
+import dill
 
-def loadPickle(filePath, default):
+def loadPickle(filePath, default=["default"]):
     """load an existing pickle file or make a pickle with default data and return the pickled data"""
     try:
         with open(filePath, "rb") as f:
@@ -14,19 +15,41 @@ def loadPickle(filePath, default):
             pickle.dump(content, f)
     return content
 
-def loadConfig(folder, fileName):
-    """load config information from a txt file"""
+def savedf2Pickle(filePath, content):
+    content.to_pickle(filePath)
+
+def pickleModel(filePath, content):
+    with open(filePath, "wb") as fileLoc:
+        pickle.dump(content, fileLoc)
+        print("pickling success")
+
+def loadUsingDill(filepath):
+    with open(filepath, "rb") as f:
+        print("unpickling content in {filepath}")
+        return dill.load(f)
+
+def saveUsingDill(filepath, content):
+    with open(filepath, "wb") as f:
+        dill.dump(content, f)
+        print(f"successfully saved {content} at {filepath}")
+
+def fullPath(fileName, folder=""):
     _, filePath = get_cd()
     # we need the os name because different OS uses / or \ to navigate the file system 
     osName = platform.system()
     # get the full path to the file that we're trying to open, and depending on the OS, the slashes changes
-    fullFileName = filePath + folder + "\\" + fileName
+    fullLocName = filePath + folder + "\\" + fileName
     if osName == "Windows": pass
     else: 
         # for OS' like linux and mac(Darwin)
-        fullFileName = fullFileName.replace("\\", "/")
+        fullLocName = fullLocName.replace("\\", "/")
+    return fullLocName
+
+def loadConfig(folder, fileName):
+    """load config information from a txt file"""
+    fullName = fullPath(fileName, folder)
     # get the content of the file and convert it to a list
-    with open(fullFileName) as f:
+    with open(fullName) as f:
         content = [line.strip() for line in f.readlines()]
     return content
 
@@ -41,22 +64,12 @@ def openCsv(filePath, default = ["new df here"]):
             content.toCsv(filePath, index=False, header=False)
     return content
     
-def savePickle(filePath, content):
-    content.to_pickle(filePath)
 
 def formatData(folder, fileName):
     """get the relevant data from the file with the corresponding filename, then make a dictionary out of it"""
-    _, filePath = get_cd()
-    # we need the os name because different OS uses / or \ to navigate the file system 
-    osName = platform.system()
-    # get the full path to the file that we're trying to open, and depending on the OS, the slashes changes
-    fullFileName = filePath + folder + "\\" + fileName
-    if osName == "Windows":
-        pass
-    else: # for linux and mac(Darwin)
-        fullFileName = fullFileName.replace("\\", "/")
+    fullName = fullPath(fileName, folder)
     # get the content of the file and convert it to a panda dataframe
-    content = openCsv(fullFileName, [])
+    content = openCsv(fullName, [])
     df_list = [content.columns.values.tolist()]+content.values.tolist()
     # remove white spaces in font and back of all entries
     df_list = [[txt.strip() if type(txt) == str else txt for txt in lst] for lst in df_list]
