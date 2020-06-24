@@ -349,7 +349,7 @@ class AgentBasedModel:
         
         self.numAgent = len(self.agents.items())
         archetypeList = [agent.archetypes for agent in self.agents.values()]
-        classIds = list(roomId for roomId, room in self.rooms.items() if room.building_type == "classroom")
+        classIds = list(roomId for roomId, room in self.rooms.items() if room.building_type == "classroom" and not room.room_name.endswith("hub"))
         capacities = list(self.rooms[classId].capacity for classId in classIds)
         # modify the following to blacklist or whitelist agents from rooms, then pass it to create scheudule
         """
@@ -357,6 +357,7 @@ class AgentBasedModel:
         for key in agentTypes:
             classDict[key] = {classKey: [cap, enrollment] for (classKey, cap, enrollment) in zip(classrooms, classCapacity, classEnrollment)}
         """
+        print([self.rooms[classId].room_name for classId in classIds])
         self.scheduleList = schedule.createSchedule(self.numAgent, archetypeList,classIds,capacities)
         self.replaceStaticEntries()
           
@@ -433,9 +434,9 @@ class AgentBasedModel:
     def findMatchingRooms(self, roomParam, roomVal, strType=False):
         """returns a list of room IDs that have a specific value for one of its parameter"""
         if strType: # case insensitive
-            return [roomId for roomId, room in self.rooms.items() if getattr(room, roomParam).strip().lower() == roomVal.strip().lower()]
+            return [roomId for roomId, room in self.rooms.items() if getattr(room, roomParam).strip().lower() == roomVal.strip().lower() and not getattr(room, "room_name").endswith("hub")]
         else:
-            return [roomId for roomId, room in self.rooms.items() if getattr(room, roomParam) == roomVal]
+            return [roomId for roomId, room in self.rooms.items() if getattr(room, roomParam) == roomVal and not getattr(room, "room_name").endswith("hub")]
 
 
     # update functions
@@ -475,12 +476,22 @@ class AgentBasedModel:
             self.room_cap_log[roomId].append(len(room.agentsInside))
 
     def printLog(self):
+        for agentId in self.room(self.roomNameId("gym")).agentsInside:
+            print(self.agents[agentId].motion)
+        
+        for i in range(1, 10):
+            sche = self.agents[i].schedule
+            for row in sche:
+                print(self.getRoomNames(row))
         for key, value in self.room_cap_log.items():
             if self.rooms[key].building_type == "gym":
                 a = np.array(value).reshape((-1,24))
                 x, y = a.shape
                 zzz = np.sum(a, axis=0)
                 print("gym", zzz)
+
+    def getRoomNames(self, listOfRoomsId):
+        return list(self.rooms[roomId].room_name for roomId in listOfRoomsId)
 
     def updateAgent(self):
         """call the update function on each person"""
@@ -530,8 +541,9 @@ class AgentBasedModel:
         baseP = 0.01 # 0.01
         randVec = np.random.random(len(self.agents))
         index = 0
-        for room in self.rooms.values():
-            totalInfected = sum(self.countWithinAgents(room.agentsInside, strVal) for strVal in [exp, infA, infS])
+        for roomId, room in self.rooms.items():
+            #totalInfected = sum(self.countWithinAgents(room.agentsInside, strVal) for strVal in [exp, infA, infS])
+            totalInfected = self.infectivityPerRoom(roomId)
             for agentId in room.agentsInside:
                 if room.capacity == 0: print(room.room_name, room.located_building)
                 if self.agents[agentId].state == sus and randVec[index] < (baseP*room.Kv*totalInfected)/room.limit: 
@@ -550,6 +562,27 @@ class AgentBasedModel:
                         self.agents[agentId].state_persistance = transition[state] 
                 index +=1    
 
+
+    def infectivityPerRoom(self, roomId, states = [ "exposed", "infected Asymptomatic", "infected Symptomatic"]):
+        agentsInRoom = self.rooms[roomId].agentsInside
+        contribution = 0 
+        for agentId in agentsInRoom:
+            agentState = self.agents[agentId].state
+            lastUpdate = self.agents[agentId].lastUpdate
+            contribution+= self.infectionContribution(agentState, lastUpdate)
+        return contribution
+
+    def infectionContribution(self, state, lastUpdate):
+        if state == "exposed":
+            return (self.time - lastUpdate)/2
+        elif state == "infected Asymptomatic":
+            return (self.time - lastUpdate)*2
+        elif state == "infected Symptomatic":
+            return 10/(self.time - lastUpdate)
+        else:
+            return 0
+
+                
     # functions used to store or print information
     def countWithinAgents(self, agentList, stateName):
         return len(list(filter(lambda x: x.state == stateName, [self.agents[val] for val in agentList]))) 
