@@ -476,7 +476,7 @@ class AgentBasedModel:
             self.room_cap_log[roomId].append(len(room.agentsInside))
 
     def printLog(self):
-        for agentId in self.room(self.roomNameId("gym")).agentsInside:
+        for agentId in self.rooms[self.roomNameId("gym")].agentsInside:
             print(self.agents[agentId].motion)
         
         for i in range(1, 10):
