@@ -27,11 +27,13 @@ for _ in range(10):
 ## Schedule creation
 
 O = odd days, E = even days, W = weekends
+
 what an empty schedule looks like:
-[
-    O: [0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0]
-    E: [0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0]
-    W: [0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0]
+
+[<br/>
+    O: [0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0]<br/>
+    E: [0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0]<br/>
+    W: [0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0]<br/>
 ]
 
 
@@ -45,10 +47,10 @@ what an empty schedule looks like:
 From the information above, we make a new list
 the new list will contain repeating room names (repeat for capacity #)
 
-Odd days: [A, A, A, A, A, B, B, B, B, B, C, C, C, C, C, D, D, D, D, D]
+Odd days: [A, A, A, A, A, B, B, B, B, B, C, C, C, C, C, D, D, D, D, D]<br/>
 Even days: [A, A, A, A, A, B, B, B, B, B, C, C, C, C, C]
 
 Then each agent will have a boolean mask that looks like the one below
-* the number of T and F is configurable *
-    [   [T, F, T, F],
+*the number of T and F is configurable *
+    [   [T, F, T, F],<br/>
         [F, F, T, T]]
