@@ -22,7 +22,7 @@ for _ in range(10):
 
 
 
-
+---
 
 ## Schedule creation
 
@@ -34,6 +34,8 @@ what an empty schedule looks like (3 rows for O, E, and W):
 [0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0]<br/>
 [0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0 ,0]]
 
+
+The classroom availability and capacity:
 
 | Classroom | Capacity | available days |
 |-----------|----------|----------------|
@@ -48,7 +50,7 @@ the new list will contain repeating room names (repeat for capacity #)
 Odd days: [A, A, A, A, A, B, B, B, B, B, C, C, C, C, C, D, D, D, D, D]<br/>
 Even days: [A, A, A, A, A, B, B, B, B, B, C, C, C, C, C]
 
-Then each agent will have a boolean mask that looks like the one below
-*the number of T and F is configurable *
+Then each agent will have a boolean mask that looks like the one below<br/>
+*the number of T and F is configurable *<br/>
     [   [T, F, T, F],<br/>
         [F, F, T, T]]
