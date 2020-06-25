@@ -110,18 +110,27 @@ def agentFactory(agent_df, slotVal =  ["name", "age", "gender", "immunity", "cur
                 change agent's state, either moving or stationary,
                 look at adjacent rooms and move to one of the connected rooms    
             """
-            threshold = 0.4
+           
             curr_room = self.currLocation
-            if self.motion == "stationary" and currTime > self.arrivalTime:
-                if True: #purly deterministic #random.random() < threshold:
-                    rooms = list(adjDict.keys())
-                    self.destination = self.checkschedule(currTime) 
-                  
-                    self.moveTo(adjDict)
-            elif self.motion == "moving" and currTime > self.travelTime + self.arrivalTime:
-                self.moveTo(adjDict)
+            if self.motion == "stationary" and currTime >= self.arrivalTime:
+                
+                if True: #purly deterministic 
+                    self.destination = self.checkschedule(currTime)
+                    
+                    nextNode,lastNode  = adjDict[curr_room][0][0], adjDict[self.destination][0][0] 
+                    if curr_room == self.destination:
+                        self.path = []
+                    elif nextNode == lastNode: # moving between the same superstructure
+                        self.path = [nextNode]
+                    else: # required to move across the transit hub
+                        [nextNode, self.transit, lastNode] 
+                    
+                    self.move(adjDict)
+            elif self.motion == "moving" and currTime >= self.travelTime + self.arrivalTime:
+                self.move(adjDict)
                 self.arrivalTime = currTime
             else: 
+                
                 return (self.currLocation, self.currLocation)
             return (curr_room, self.currLocation)
 
@@ -140,28 +149,32 @@ def agentFactory(agent_df, slotVal =  ["name", "age", "gender", "immunity", "cur
                 return self.schedule[0][hourOfDay]
 
         
-        def moveTo(self, adjDict):
+        def move(self, adjDict):
             """
                 chooses the random room and moves the agent inside
             """
             pastLocation = self.currLocation
-            if findInTuple(self.destination, adjDict[self.currLocation], 1) != None:
+            if self.destination in [a[0] for a in adjDict[self.currLocation]]:
                 # the agent reached it's destination, takes a rest
                 self.currLocation = self.destination
                 self.destination = None
+                self.path = []
+                self.motion = "stationary"
+                #print("found destinations")
+            elif self.path == []:
+                pass
                 self.motion = "stationary"
             else: # the agent is still moving
                 self.motion = "moving"
-                # choose a random room and go to it
-                
-                adjDict[self.currLocation]
-                index = random.randrange(len(adjDict[self.currLocation]))
-              
-                nextPartition = adjDict[self.currLocation][index]
-              
-                self.travelTime = 10#nextPartition[1]
-                self.currLocation = nextPartition[0]
+                self.currLocation = self.path.pop()
+                self.travelTime = 0
             return (pastLocation, self.currLocation)
+   
+        def getNextLocation(self):
+            pass
+
+        def simulate(self, numSimulation, steps):
+            print(f"starting {numSimulation} simulation for {steps}")
 
         def __repr__(self):
             repr_list = [val for val in self.__slots__]
@@ -263,10 +276,10 @@ class AgentBasedModel:
     
     def initializeWorld(self):
         # add a column to store the id of agents or rooms inside the strucuture
-        for agentAttribute in ["archetypes", "destination", "currLocation","state_persistance","lastUpdate", "personality", "arrivalTime", "schedule", "travelTime"]:
+        for agentAttribute in ["archetypes","path", "destination", "currLocation","state_persistance","lastUpdate", "personality", "arrivalTime", "schedule", "travelTime"]:
             self.agent_df[agentAttribute] = 0 
         self.agent_df["motion"] = "stationary"
-        
+       
         
         self.building_df["rooms_inside"] = 0
         
@@ -276,13 +289,21 @@ class AgentBasedModel:
         self.adjacencyDict = self.makeAdjDict()
         self.buildings = self.makeClass(self.building_df, superStrucFactory)
         self.rooms = self.makeClass(self.room_df, roomFactory)
-        self.agents = self.makeClass(self.agent_df, agentFactory)
-        self.randomPersonality()
+        
         self.roomsInBuilding = dict((buildingId, []) for buildingId in self.buildings.keys())
         self.buildingNameId = dict((getattr(building, "building_name"), buildingId) for buildingId, building in self.buildings.items())
         self.buildingTypeId = dict((getattr(building, "building_type"), buildingId) for buildingId, building in self.buildings.items())
         self.roomNameId = dict((getattr(room, "room_name"), roomId) for roomId, room in self.rooms.items())
+        self.setTransitHub()
         self.addRoomsToBuildings()
+        self.agents = self.makeClass(self.agent_df, agentFactory)
+        self.randomPersonality()
+
+
+    def setTransitHub(self):
+        transit_id = self.roomNameId["transit_space_hub"]
+        print("adj", self.adjacencyDict[transit_id])
+        self.agent_df["transit"] = transit_id
 
     def randomPersonality(self):
         """
@@ -299,6 +320,7 @@ class AgentBasedModel:
             agent.archetypes = randMajors[index]
 
     
+
     def addRoomsToBuildings(self):
         """add room_id to associated buildings"""
         for roomId, rooms in self.rooms.items():
@@ -357,7 +379,8 @@ class AgentBasedModel:
         for key in agentTypes:
             classDict[key] = {classKey: [cap, enrollment] for (classKey, cap, enrollment) in zip(classrooms, classCapacity, classEnrollment)}
         """
-        print([self.rooms[classId].room_name for classId in classIds])
+        # print class names
+        #print([self.rooms[classId].room_name for classId in classIds])
         self.scheduleList = schedule.createSchedule(self.numAgent, archetypeList,classIds,capacities)
         self.replaceStaticEntries()
           
@@ -377,6 +400,7 @@ class AgentBasedModel:
         self.buildingList = ["dining_hall", "gym", "library", "node"]
         self.activityCount = schedule.countSchedule(self.scheduleList, self.activityList)
         self.activityLocList = [self.findMatchingRooms("building_type", loc) for loc in self.buildingList]
+        print(len(self.activityLocList))
         self.randomSchedule = [np.random.choice(possibleLoc, size=self.activityCount[i], replace=True) 
                                 for i, possibleLoc in enumerate(self.activityLocList)]
         self.agentTypeCount = dict()
@@ -438,6 +462,10 @@ class AgentBasedModel:
         else:
             return [roomId for roomId, room in self.rooms.items() if getattr(room, roomParam) == roomVal and not getattr(room, "room_name").endswith("hub")]
 
+    def convertToRoomName(self, idList):
+        return [[self.rooms[roomId].room_name for roomId in row] for row in idList]
+        
+
 
     # update functions
     def updateSteps(self, step = 1):
@@ -445,12 +473,13 @@ class AgentBasedModel:
         a function that updates the time and calls other update functions, 
         you can also set how many steps to update"""
         for t in range(step):
-            
+            print(self.agents[1].currLocation)
             self.time+=1
             if self.time % (24*7) == 0:
                 self.replaceScheduleValues()
-                print(self.scheduleList[0])
-            self.updateAgent()
+                print(self.convertToRoomName(self.scheduleList[0]))
+            for _ in range(4):
+                self.updateAgent()
             if 22 > self.time%24 > 8:
                 self.infection()
             if self.storeVal and self.time%self.timeIncrement == 0:
@@ -463,6 +492,34 @@ class AgentBasedModel:
         self.room_cap_log = dict((key,[]) for key in self.rooms.keys())
 
     def logData(self):
+        """
+            1-1094 dorm
+            1326 social_space_hub
+            1327 transit_space
+            1328 transit_space_hub
+            1329 parking
+            1330 offCampus_hub
+            1206 dining_hall
+            1207 dining_hall_hub
+            1208 library
+            1209 library2
+            1210 library3
+            1211 library4
+            1212 library5
+            1213 library6
+            1214 library7
+            1215 library8
+            1216 library_hub
+            1217 gym
+            1218 gym2
+            1219 gym3
+            1220 gym4
+            1221 gym5
+            1222 gym6
+            1223 gym7
+            1224 gym8
+            1225 gym_hub
+        """
         sus = "susceptible"
         exp = "exposed"
         infA = "infected Asymptomatic"
@@ -473,10 +530,12 @@ class AgentBasedModel:
             self.room_log[roomId].append(total_infected)
         
         for roomId, room in self.rooms.items():
+            #if "gym" in room.room_name:
+            #    print(room.room_name, len(room.agentsInside))
             self.room_cap_log[roomId].append(len(room.agentsInside))
 
     def printLog(self):
-        for agentId in self.rooms[self.roomNameId("gym")].agentsInside:
+        for agentId in self.rooms[self.roomNameId["gym"]].agentsInside:
             print(self.agents[agentId].motion)
         
         for i in range(1, 10):
@@ -489,6 +548,12 @@ class AgentBasedModel:
                 x, y = a.shape
                 zzz = np.sum(a, axis=0)
                 print("gym", zzz)
+
+        for roomId, room in self.rooms.items():
+            if room.building_type in ["classroom"]:
+                pass
+            else:
+                print(roomId, room.room_name)
 
     def getRoomNames(self, listOfRoomsId):
         return list(self.rooms[roomId].room_name for roomId in listOfRoomsId)
@@ -519,7 +584,9 @@ class AgentBasedModel:
         seed_num = 20
         for agent_num in np.random.choice(range(1, len(self.agents.keys())),size=seed_num):
             self.agents[agent_num].state = exp
-            
+    
+    def findR0(self):
+        print("findinf R0")
     
     def infection(self):
         sus = "susceptible"
@@ -634,7 +701,6 @@ class AgentBasedModel:
     # need to build
     def MMs_QueueingModel(self, lambda_val, mean):
         pass
-
 
 
     # need to build
