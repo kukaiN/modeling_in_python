@@ -13,9 +13,13 @@ def createSchedule(numOfAgents,agentArchetypes,classrooms, capacity, classAllowe
         - agentArchetypes: list or tup, A list that maps the i-th string to the i-th Agent, should store valid archetype string
         - classrooms: List of classroomIds, length = the number of classes
         - capacity: List that contains the capacity that corresponds to the classrooms in the classrooms parameter
-        - classAllowedTypeDict:  
+        - classAllowedTypeDict: paramter that might be removed
+        - modulo: a mod b, this is the value for b, and used to mod time
 
         Return Value:
+        - listOfSchedules: a list where the i-th value is the schedule for the i-th agent
+            - A single schedule looks like [[n names or ID], [n names or ID], ... ]
+            - n is the number of time slices, so a 24 hour schedule have n = 24
     """
     # the key is the name of the schedule, the value is a list of tuples (duration, starting time, end time), 
     # if the duration is less than the total interval, then it will choose a starting and end time inside the interval
