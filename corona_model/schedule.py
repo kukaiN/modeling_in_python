@@ -92,7 +92,7 @@ def chooseStatic(schedule, staticDict, priorityQueue, modulo=24):
         Parameters:
         - schedule: a schedule for a single agent
         - staticDict: a dictionary, keys are the name of the activity or class; Value is a list filled with (durration, starting time, end time) of the activity
-        - priorityQueue: 
+        - priorityQueue: a queue that stores the 
         - modulo: mod value for time, use 24 for 24 hour schedules
 
         Return value:
