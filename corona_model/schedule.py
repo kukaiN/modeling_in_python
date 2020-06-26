@@ -7,6 +7,15 @@ def createSchedule(numOfAgents,agentArchetypes,classrooms, capacity, classAllowe
     """
         create a list of schedules for each agents, 
         agent_archetype dictates the distribution and types of random values to fill the empty slots after assigning the static portion
+    
+        Parameters:
+        - numberOfAgents: int, the number of schedules that you want to make
+        - agentArchetypes: list or tup, A list that maps the i-th string to the i-th Agent, should store valid archetype string
+        - classrooms: List of classroomIds, length = the number of classes
+        - capacity: List that contains the capacity that corresponds to the classrooms in the classrooms parameter
+        - classAllowedTypeDict:  
+
+        Return Value:
     """
     # the key is the name of the schedule, the value is a list of tuples (duration, starting time, end time), 
     # if the duration is less than the total interval, then it will choose a starting and end time inside the interval
