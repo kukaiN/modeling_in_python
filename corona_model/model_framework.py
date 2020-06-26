@@ -372,7 +372,7 @@ class AgentBasedModel:
         self.numAgent = len(self.agents.items())
         archetypeList = [agent.archetypes for agent in self.agents.values()]
         classIds = list(roomId for roomId, room in self.rooms.items() if room.building_type == "classroom" and not room.room_name.endswith("hub"))
-        capacities = list(self.rooms[classId].capacity for classId in classIds)
+        capacities = list(self.rooms[classId].limit for classId in classIds)
         # modify the following to blacklist or whitelist agents from rooms, then pass it to create scheudule
         """
         classDict = dict()
@@ -493,6 +493,10 @@ class AgentBasedModel:
 
     def logData(self):
         """
+            agent archetype:
+            stem, humanities, art
+            class: distribution 2 for sure, 2 left over
+            
             1-1094 dorm
             1326 social_space_hub
             1327 transit_space

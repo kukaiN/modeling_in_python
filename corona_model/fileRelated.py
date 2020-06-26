@@ -5,7 +5,13 @@ import pickle
 import dill
 
 def loadPickle(filePath, default=["default"]):
-    """load an existing pickle file or make a pickle with default data and return the pickled data"""
+    """
+        load an existing pickle file or make a pickle with default data and return the pickled data
+        
+        Parameters:
+        - filePath: the absolute path or the relative path
+        - default: default value if the file isnt found or if there was a problem with getting the content
+    """
     try:
         with open(filePath, "rb") as f:
             content = pickle.load(f)
@@ -16,24 +22,31 @@ def loadPickle(filePath, default=["default"]):
     return content
 
 def savedf2Pickle(filePath, content):
+    """
+        save a dataframe to a .pkl file
+
+        Parameters:
+        - filePath:
+        - content: 
+    """
     content.to_pickle(filePath)
 
-def pickleModel(filePath, content):
-    with open(filePath, "wb") as fileLoc:
-        pickle.dump(content, fileLoc)
-        print("pickling success")
-
 def loadUsingDill(filepath):
+    """
+    same as pickle version, open and retrieve the contents 
+    but allows opening a pre-saved complex Class object with less problems"""
     with open(filepath, "rb") as f:
         print("unpickling content in {filepath}")
         return dill.load(f)
 
 def saveUsingDill(filepath, content):
+    """same as pickle version, save the content in the provided location"""
     with open(filepath, "wb") as f:
         dill.dump(content, f)
         print(f"successfully saved {content} at {filepath}")
 
 def fullPath(fileName, folder=""):
+    """given the folder and the file name, it returns a string object that have the right type of slash"""
     _, filePath = get_cd()
     # we need the os name because different OS uses / or \ to navigate the file system 
     osName = platform.system()
