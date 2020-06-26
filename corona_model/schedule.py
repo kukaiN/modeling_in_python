@@ -54,7 +54,7 @@ def createSchedule(numOfAgents,agentArchetypes,classrooms, capacity, classAllowe
     classList = [classrooms[index] for index, val in enumerate(capacity) for _ in range(int(val))]
     masks = createMask(numOfAgents)
     maskSum = np.sum(masks, axis=0, dtype=int)
-
+    
     maskCurrIndex = np.zeros(maskSum.shape, dtype = int)
     x, y = maskSum.shape
     classes = [[np.random.permutation(classList) for _ in range(y)] for _ in range(x)]
@@ -90,12 +90,13 @@ def chooseStatic(schedule, staticDict, priorityQueue, modulo=24):
         note: this isnt a greedy schedule, it just assign an event if time is available. 
 
         Parameters:
-        - schedule:
-        - staticDict:
-        - priorityQueue:
-        - modulo:
+        - schedule: a schedule for a single agent
+        - staticDict: a dictionary, keys are the name of the activity or class; Value is a list filled with (durration, starting time, end time) of the activity
+        - priorityQueue: 
+        - modulo: mod value for time, use 24 for 24 hour schedules
 
         Return value:
+        - a renewed schedule, although pass by reference causes the original to be changed, the renewed one is returned just in case
       
     """
     # iterate in highest priority to lowest priority
