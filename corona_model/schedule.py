@@ -23,6 +23,22 @@ def pickClass(tickets,ASched,BSched):
    if found == 0:
       return False
 
+## NOTES
+##
+## schedule.py returns the list of schedules in the following form:
+## [S1,S2,S3,....S2000]
+## Where Si is the schedule for student i
+##
+## Each schedule Si has the Following format:
+## [A,B,W]
+## That is, the schedule for day A, the schedule for Day B, and the schedule for the weekend
+##
+## Each of the A,B,W schedules is of length 24, of the following form:
+## ['sleep',...,'sleep','dining',(0,1),(0,1),'dining','library','gym',.....]
+##
+## The possible options inside of the schedule:
+## 'gym', 'library','social','dining','sleep','dorm'
+   
 
 def main():
     #Params
@@ -41,6 +57,7 @@ def main():
     randomizedAgents.extend(list(itertools.repeat("A",500)))
     OnorOff = list(itertools.repeat("On",1500))
     OnorOff.extend(list(itertools.repeat("Off",500)))
+    random.shuffle(OnorOff)
 
     #Define the classtimes
     class_times = [10,12,14,16]
@@ -72,14 +89,12 @@ def main():
                     for m in range(0,small_class_size):
                         stem_tickets.append((classroom_counter,building_counter,"STEM",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,small_building_size[1]): #medium classrooms in small STEM buildings
             for	k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
                     for	m in range(0,medium_class_size):
                         stem_tickets.append((classroom_counter,building_counter,"STEM",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,small_building_size[2]): #large classrooms in small STEM buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
@@ -94,14 +109,12 @@ def main():
                     for	m in range(0,small_class_size):
                         stem_tickets.append((classroom_counter,building_counter,"STEM",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,medium_building_size[1]): #medium classrooms in medium STEM buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
                     for m in range(0,medium_class_size):
                         stem_tickets.append((classroom_counter,building_counter,"STEM",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,medium_building_size[2]): #large classrooms in medium STEM buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
@@ -116,14 +129,12 @@ def main():
                     for m in range(0,small_class_size):
                         stem_tickets.append((classroom_counter,building_counter,"STEM",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,large_building_size[1]): #medium classrooms in large STEM buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
                     for m in range(0,medium_class_size):
                         stem_tickets.append((classroom_counter,building_counter,"STEM",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,large_building_size[2]): #large classrooms in large STEM buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
@@ -142,14 +153,12 @@ def main():
                     for m in range(0,small_class_size):
                        hum_tickets.append((classroom_counter,building_counter,"Hum",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,small_building_size[1]): #medium classrooms in small Hum  buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
                     for m in range(0,medium_class_size):
                         hum_tickets.append((classroom_counter,building_counter,"Hum",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,small_building_size[2]): #large classrooms in small Hum buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
@@ -164,14 +173,12 @@ def main():
                     for m in range(0,small_class_size):
                         hum_tickets.append((classroom_counter,building_counter,"Hum",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,medium_building_size[1]): #medium classrooms in medium Hum  buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
                     for m in range(0,medium_class_size):
                         hum_tickets.append((classroom_counter,building_counter,"Hum",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,medium_building_size[2]): #large classrooms in medium Hum buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
@@ -186,14 +193,12 @@ def main():
                     for m in range(0,small_class_size):
                         hum_tickets.append((classroom_counter,building_counter,"Hum",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,large_building_size[1]): #medium classrooms in large Hum  buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
                     for m in range(0,medium_class_size):
                         hum_tickets.append((classroom_counter,building_counter,"Hum",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,large_building_size[2]): #large classrooms in large Hum buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
@@ -211,14 +216,12 @@ def main():
                     for m in range(0,small_class_size):
                         arts_tickets.append((classroom_counter,building_counter,"Arts",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,small_building_size[1]): #medium classrooms in small Arts  buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
                     for m in range(0,medium_class_size):
                         arts_tickets.append((classroom_counter,building_counter,"Arts",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,small_building_size[2]): #large classrooms in small Arts buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
@@ -233,14 +236,12 @@ def main():
                     for m in range(0,small_class_size):
                         arts_tickets.append((classroom_counter,building_counter,"Arts",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,medium_building_size[1]): #medium classrooms in medium Arts buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
                     for m in range(0,medium_class_size):
                         arts_tickets.append((classroom_counter,building_counter,"Arts",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,medium_building_size[2]): #large classrooms in medium Arts buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
@@ -255,14 +256,12 @@ def main():
                     for m in range(0,small_class_size):
                         arts_tickets.append((classroom_counter,building_counter,"Hum",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,large_building_size[1]): #medium classrooms in large Arts  buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
                     for m in range(0,medium_class_size):
                         arts_tickets.append((classroom_counter,building_counter,"Hum",class_times[k],class_days[l]))
             classroom_counter+=1
-        building_counter+=1
         for j in range(0,large_building_size[2]): #large classrooms in large Arts buildings
             for k in range(0,len(class_times)):
                 for l in range(0,len(class_days)):
@@ -281,10 +280,13 @@ def main():
     print(len(hum_tickets))
     print(len(arts_tickets))
 
+    print(classroom_counter)
+    print(building_counter)
+    
     schedule = []
 
     #Assign the in-division courses first
-    for i in range(0,numAgent):
+    for i in range(0,numAgent): #i is my variable for the agent ID
         if OnorOff[i] == "On":
            mySchedA=['sleep']*8 + [None]*14 + ['sleep']*2 #Initialize the schedule
            mySchedB=['sleep']*8 + [None]*14 + ['sleep']*2
@@ -348,8 +350,8 @@ def main():
         foundClasses = 0
         tried = [0,0,0]
         while foundClasses <= 2 and min(tried)<2: #Then I still need to find another class
-           i = random.randint(1,3)
-           if i == 1:
+           m = random.randint(1,3)
+           if m == 1:
               tried[0]+=1
               j = pickClass(stem_tickets,mySchedA,mySchedB)
               if j != False:
@@ -361,7 +363,7 @@ def main():
                     mySchedB[stem_tickets[j][3]+1] = (stem_tickets[j][0],stem_tickets[j][1])
                  stem_tickets.pop(j)
                  foundClasses += 1
-           elif i ==2:
+           elif m ==2:
               tried[1]+=1
               j = pickClass(hum_tickets,mySchedA,mySchedB)
               if j != False:
@@ -393,7 +395,7 @@ def main():
            #Day A has one visit to the dining Hall
            meal = False
            while meal == False:
-              x = random.int([8,9,10,11,12,13,14,15,17,18,19,20])
+              x = random.choice([8,9,10,11,12,13,14,15,17,18,19,20])
               if mySchedA[x] == None:
                  meal = True
                  mySchedA[x] = 'dining'
@@ -401,7 +403,7 @@ def main():
            #Day B has one visit to the dining Hall
            meal = False
            while meal == False:
-              x = random.int([8,9,10,11,12,13,14,15,17,18,19,20])
+              x = random.choice([8,9,10,11,12,13,14,15,17,18,19,20])
               if mySchedB[x] == None:
                  meal = True
                  mySchedB[x] = 'dining'
@@ -469,11 +471,50 @@ def main():
 
 
         #Decide if we're going to the Gym each day
-
+        if random.random() < g: #add a gym to Day A
+           AvailableSlots = [m for m in range(len(mySchedA)) if mySchedA[m] == None]
+           if len(AvailableSlots) != 0:
+              gymtime = random.choice(AvailableSlots)
+              mySchedA[gymtime] = 'gym'
+        if random.random() < g: #add a gym to Day B
+           AvailableSlots = [m for m in range(len(mySchedB)) if mySchedB[m] == None]
+           if len(AvailableSlots) != 0:
+              gymtime = random.choice(AvailableSlots)
+              mySchedB[gymtime] = 'gym'
+        if OnorOff[i] == "On" and random.random() < g: #add a gym to Day W
+           AvailableSlots = [m for m in range(len(mySchedW)) if mySchedW[m] == None]
+           if len(AvailableSlots) != 0:
+              gymtime = random.choice(AvailableSlots)
+              mySchedW[gymtime] = 'gym'
         
         #Now pick all extras: Social,Library,and Hanging out in Dorm
-
-
+        AvailableSlots = [m for m in range(len(mySchedA)) if mySchedA[m] == None]
+        for x in AvailableSlots: #for each available slot fill it in with something
+           Task = random.random()
+           if Task < l: #this is an l, for library
+              mySchedA[x] = 'library'
+           elif Task < l+s:
+              mySchedA[x] = 'social'
+           else:
+              mySchedA[x] = 'dorm'
+        AvailableSlots = [m for m in range(len(mySchedB)) if mySchedB[m] == None]
+        for x in AvailableSlots:
+           Task = random.random()
+           if Task < l:
+              mySchedB[x] = 'library'
+           elif Task < l+s:
+              mySchedB[x] = 'social'
+           else:
+              mySchedB[x] = 'dorm'
+        AvailableSlots = [m for m in range(len(mySchedW)) if mySchedW[m] == None]
+        for x in AvailableSlots:
+           Task = random.random()
+           if Task < l:
+              mySchedW[x] = 'library'
+           elif Task < l+s:
+              mySchedW[x] = 'social'
+           else:
+              mySchedW[x] = 'dorm'
         
 
         #All done!
