@@ -81,21 +81,26 @@ def createSchedule(numOfAgents,agentArchetypes,classrooms, capacity, classAllowe
         listOfScedules.append(agentSchedule)
     return listOfScedules
 
-def chooseStatic(schedule, staticDict, priorityQueue, modulo=24,className=None,spKey=None, spDict=None,archetype=None ,mask=None):
+def chooseStatic(schedule, staticDict, priorityQueue, modulo=24):
     """
         given a scheudule and a priority queue, 
         it takes the next highest priority item and checks for conflicts and the event is added to the schedule only if there's no confict
         if the duration of the event is less than the time interval, 
         then the event is placed at a random time such that its between the interval and end before or at the end time
         note: this isnt a greedy schedule, it just assign an event if time is available. 
+
+        Parameters:
+        - schedule:
+        - staticDict:
+        - priorityQueue:
+        - modulo:
+
+        Return value:
+      
     """
     # iterate in highest priority to lowest priority
     for priorityItem in priorityQueue:
         staticList = staticDict[priorityItem]
-        if mask != None:
-            # mask for this scheduling exists, so apply the mask to get the new list
-            if priorityItem in mask.keys():
-                staticList = [val for index, val in enumerate(staticList) if index in mask[priorityItem]]
         # go over the time interval(s) for the event
         for index, tup in enumerate(staticList):
             duration, start, end = tup 
@@ -106,7 +111,7 @@ def chooseStatic(schedule, staticDict, priorityQueue, modulo=24,className=None,s
             if availability != []:
                 # choose a random starting possition and assign the event for the duration of the event 
                 x = np.random.choice(availability)
-                itemName = className[index] if spKey == priorityItem else priorityItem
+                itemName = priorityItem
                 for i in range(duration):
                         schedule[(start+x+i)%modulo] = itemName
     return schedule
