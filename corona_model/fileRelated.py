@@ -26,27 +26,44 @@ def savedf2Pickle(filePath, content):
         save a dataframe to a .pkl file
 
         Parameters:
-        - filePath:
-        - content: 
+        - filePath: the location of the file, either the relative path or the absolute path
+        - content: the content to be saved, an error will occur if the content is a complex class, in that case use the equivalent dill function 
     """
     content.to_pickle(filePath)
 
-def loadUsingDill(filepath):
+def loadUsingDill(filePath):
     """
-    same as pickle version, open and retrieve the contents 
-    but allows opening a pre-saved complex Class object with less problems"""
-    with open(filepath, "rb") as f:
-        print("unpickling content in {filepath}")
+        same as pickle version, open and retrieve the contents 
+        but allows opening a pre-saved complex Class object with less problems
+    
+        Parameters:
+        - filePath: the location of the file, either the relative path or the absolute path
+    """
+    with open(filePath, "rb") as f:
+        print("unpickling content in {filePath}")
         return dill.load(f)
 
-def saveUsingDill(filepath, content):
-    """same as pickle version, save the content in the provided location"""
-    with open(filepath, "wb") as f:
+def saveUsingDill(filePath, content):
+    """
+        same as pickle version, save the content in the provided location
+
+        Parameters:
+        - filePath: the location of the file, either the relative path or the absolute path
+        - content: the content to be saved, allows complex class instance   
+    """
+    with open(filePath, "wb") as f:
         dill.dump(content, f)
-        print(f"successfully saved {content} at {filepath}")
+        print(f"successfully saved {content} at {filePath}")
 
 def fullPath(fileName, folder=""):
-    """given the folder and the file name, it returns a string object that have the right type of slash"""
+    """
+        given the folder and the file name, it returns a string object that have the right type of slash
+
+        Parameters:
+        - fileName:
+        - folder:
+
+    """
     _, filePath = get_cd()
     # we need the os name because different OS uses / or \ to navigate the file system 
     osName = platform.system()
