@@ -141,7 +141,7 @@ def agentFactory(agent_df, slotVal =  ["name", "age", "gender", "immunity", "cur
             # if currTime is odd, then its a odd day and vise versa with even days
             dayOfWeek = (currTime%(24*7))//24
             hourOfDay = currTime%24
-            if dayOfWeek > 5: # its a weekday
+            if dayOfWeek > 5: # its a weekend
                 return self.schedule[2][hourOfDay]
             elif dayOfWeek & 1: # bit and, its an odd day
                 return self.schedule[1][hourOfDay]
@@ -311,7 +311,7 @@ class AgentBasedModel:
         """
 
         personalities = ["athletic", "introvert", "party people", "people", "terminators", "aliens"]
-        majors = ["math", "stem", "english", "humanities", "philosophy", "sleeping"]
+        majors = ["stem", "humanities", "arts"]
         numAgent = len(self.agents)
         randPersonalities = np.random.choice(personalities, numAgent)
         randMajors = np.random.choice(majors, numAgent)
