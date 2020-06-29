@@ -42,9 +42,11 @@ def pickClass(tickets,ASched,BSched):
 
 def main():
     #Params
-    g = 0.5 # the probability of going to the gym on any particular day
-    s = 0.2 # the probability of going to a social space
-    l = 0.4 # the probability of going to the library
+    g = 0.15 # the probability of going to the gym on any particular day
+    s = 0.25 # the probability of going to a social space
+    l = 0.3 # the probability of going to the library
+    sp = 0.4 #the probability of going to a social space, as an off-campus student
+    lp = 0.6 #the probability or going to the library, as an off-campus student
     d = 1 - s - l # the probability of going back to your dorm
 
    
@@ -491,30 +493,42 @@ def main():
         AvailableSlots = [m for m in range(len(mySchedA)) if mySchedA[m] == None]
         for x in AvailableSlots: #for each available slot fill it in with something
            Task = random.random()
-           if Task < l: #this is an l, for library
+           if OnorOff[i] == "On" and Task < l: #this is an l, for library
               mySchedA[x] = 'library'
-           elif Task < l+s:
+           elif OnorOff[i] == "On" and Task < l+s:
               mySchedA[x] = 'social'
-           else:
+           elif OnorOff[i] == "On":
               mySchedA[x] = 'dorm'
+           elif Task < lp:
+              mySchedA[x] = 'library'
+           else:
+              mySchedA[x] = 'social'
         AvailableSlots = [m for m in range(len(mySchedB)) if mySchedB[m] == None]
         for x in AvailableSlots:
            Task = random.random()
-           if Task < l:
+           if OnorOff[i] == "On" and Task < l:
               mySchedB[x] = 'library'
-           elif Task < l+s:
+           elif OnorOff[i] == "On" and Task < l+s:
               mySchedB[x] = 'social'
-           else:
+           elif OnorOff[i] == "On":
               mySchedB[x] = 'dorm'
+           elif Task < lp:
+              mySchedB[x] = 'library'
+           else:
+              mySchedB[x] = 'social'
         AvailableSlots = [m for m in range(len(mySchedW)) if mySchedW[m] == None]
         for x in AvailableSlots:
            Task = random.random()
-           if Task < l:
+           if OnorOff[i] == "On" and Task < l:
               mySchedW[x] = 'library'
-           elif Task < l+s:
+           elif OnorOff[i] == "On" or Task < l+s:
               mySchedW[x] = 'social'
-           else:
+           elif OnorOff[i] == "On":
               mySchedW[x] = 'dorm'
+           elif Task < lp:
+              mySchedW[x] = 'lirary'
+           else:
+              mySchedW[x] = 'social'
         
 
         #All done!

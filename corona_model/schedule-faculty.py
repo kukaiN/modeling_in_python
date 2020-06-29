@@ -46,7 +46,7 @@ def main():
 
    
     # Create Agents
-    total_num_classes = (10000)/8
+    total_num_classes = 760
     numAgent = round((total_num_classes)/2)
     modTime = 24
     randomizedAgents = list(itertools.repeat("S",round(numAgent/2)))
