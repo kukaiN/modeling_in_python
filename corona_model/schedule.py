@@ -42,14 +42,15 @@ def createSchedule(numOfAgents,agentArchetypes,classrooms, capacity, classAllowe
     # define the priorities of assigning a schedules for odd days, even days, and weekends
     OEW_priority = [["sleep", "eating"], ["sleep", "eating"],  ["sleep", "eating"]]
     # dynamic schedules are types of schedules that will be used to fill empty slots in the schedules
-    dynamicSchedule = ["study", "gym", "off_campus"]
+    dynamicSchedule = ["study", "gym", "off_campus"] #dorm, change to "social"
     dynamicProbabilites = {
         "stem" : [0.5, 0.2, 0.3],
         "athletes" : [0.1, 0.5, 0.4],
         "party": [0.1, 0.2, 0.7],
-        "other" : [1/3 for _ in range(3)]
+        "other" : [0.3, 0.15, 0.55] 
     }
-    
+    # dorm is the rest [0.3, 0.15, 0.25]
+
     listOfScedules = []
     classList = [classrooms[index] for index, val in enumerate(capacity) for _ in range(int(val))]
     masks = createMask(numOfAgents)
