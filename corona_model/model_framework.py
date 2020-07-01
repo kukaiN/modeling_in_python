@@ -10,6 +10,7 @@ import visualize as vs
 import modifyDf as mod_df
 import schedule
 import time
+import itertools
 
 def convertToMin(timeStr):
     """convert time represnted in the following forms to minutes in a day, 
@@ -32,7 +33,18 @@ def findInTuple(val, itemList, index):
         if tup[index] == val: return tup
     return None
 
-
+def runSimulation(modelfile, simulationN= 10, runtime = 200):
+    for n in range(simulationN):
+        model = flr.loadUsingDill(pickleName)
+        print("loaded pickled object successfully")
+        model.initilize_infection()
+        model.makeSchedule()
+        model.initializeRandomSchedule()
+    
+        model.initializeStoringParameter(["susceptible","exposed", "infected Asymptomatic0", "infected Asymptomatic1" ,"infected Symptomatic", "recovered", "quarantined"], 
+                                        steps=1)
+        model.updateSteps(runtime)
+        model.printRelevantInfo()
 
 def main():
     """ the main function that starts the model"""
@@ -78,6 +90,12 @@ def main():
             "recovered" : ["recovered"],
             },
 
+
+        "Agent_extraParam": ["archetypes","path", "destination", "currLocation",
+                            "state_persistance","lastUpdate", "personality", 
+                            "arrivalTime", "schedule", "travelTime", "compliance", "officeAttendee"],
+
+        "Room_extraParam":  ["agentsInside", "odd_cap", "even_cap", "classname"],
         "quarantineSamplingProbability" : 0.03,
 
         "transitionTime" : {
@@ -88,7 +106,7 @@ def main():
             rec:-1,
             qua:24*14
             },
-        
+        "transitName": "transit_space_hub",
         "transitionProbability" : {
             exp: [(infA0, 0.75), (infA1, 1)],
             infA1: [(rec, 1)],
@@ -116,6 +134,8 @@ def main():
         model.initializeWorld()
         model.startLog()
         model.initializeAgents()
+        model.agentAssignBool(0.2, attrName="compliance")
+        model.agentAssignBool(0.2, attrName="officeAttendee")
         if saveDill:
             flr.saveUsingDill(pickleName, model)
             # save an instance for faster loading
@@ -128,12 +148,16 @@ def main():
     # make schedules for each agents, outside of pickle for testing and for randomization
     model.makeSchedule()
     model.initializeRandomSchedule()
-    model.start_intervention([1, 2, 3])
+    
+    #model.onetime_check()
+    
+    #model.start_intervention([1, 2, 3])
+    
     model.initializeStoringParameter(["susceptible","exposed", "infected Asymptomatic0", "infected Asymptomatic1" ,"infected Symptomatic", "recovered", "quarantined"], 
                                         steps=1)
     model.printRelevantInfo()
     
-    for i in range(20):
+    for i in range(10):
       
         model.updateSteps(10)
         model.printRelevantInfo()
@@ -371,14 +395,14 @@ class AgentBasedModel:
         # add a column to store the id of agents or rooms inside the strucuture
         
         # these are required values added to the df so that they can be used to store information and relationships 
-        for agentAttribute in ["archetypes","path", "destination", "currLocation","state_persistance","lastUpdate", "personality", "arrivalTime", "schedule", "travelTime"]:
+        for agentAttribute in self.config["Agent_extraParam"]:
             self.agent_df[agentAttribute] = 0 
         self.agent_df["motion"] = "stationary"
        
         
         self.building_df["rooms_inside"] = 0
         
-        for roomVal in ["agentsInside", "odd_cap", "even_cap", "classname"]:
+        for roomVal in self.config["Room_extraParam"]:
             self.room_df[roomVal] = 0
         print("*"*20)
         self.adjacencyDict = self.makeAdjDict()
@@ -399,14 +423,14 @@ class AgentBasedModel:
         # create agents
         self.agents = self.makeClass(self.agent_df, agentFactory)
         # not used, but assign random personality to agents
-        self.randomPersonality()
+        #self.randomPersonality()
 
 
     def setTransitHub(self):
         """
         fix a transit hub, used for inter-building travel
         """
-        transit_id = self.roomNameId["transit_space_hub"]
+        transit_id = self.roomNameId[self.config["transitName"]]
         print("adj", self.adjacencyDict[transit_id])
         self.agent_df["transit"] = transit_id
 
@@ -424,7 +448,17 @@ class AgentBasedModel:
             agent.personality = randPersonalities[index]
             agent.archetypes = randMajors[index]
 
-    
+    def agentAssignBool(self, percent = 0, attrName="officeAttendee", replacement=False):
+        """Assign True or false to Agent's office attend boolean value """
+        # check if its a decimal or probability
+        if percent > 1: percent/=100
+        size = int(len(self.agents) * percent)
+        sample = np.random.choice(list(self.agents.keys()), size=size, replace=replacement)
+        sample_compliment = list(set(self.agents.keys()) - set(sample))
+        for index in sample:
+            setattr(self.agents[index], attrName,True)
+        for index in sample_compliment:
+            setattr(self.agents[index], attrName, False)
 
     def addRoomsToBuildings(self):
         """add room_id to associated buildings"""
@@ -473,8 +507,7 @@ class AgentBasedModel:
             else:
                 print("something wrong")
                 # either the name isnt properly defined or the room_id was given
-                location = initialLoc
-                location = random.randint(0, numOfRooms-1)
+                pass
             agent.currLocation = location
             agent.initial_location = location
             self.rooms[location].agentsInside.append(agentId)
@@ -500,7 +533,46 @@ class AgentBasedModel:
         #print([self.rooms[classId].room_name for classId in classIds])
         self.scheduleList = schedule.createSchedule(self.numAgent, archetypeList,classIds,capacities)
         self.replaceStaticEntries()
-          
+    
+    def onetime_check(self):
+        classList = []
+        agentList = []
+        for roomId, room in self.rooms.items():
+            if room.building_type == "classroom":
+                classList.append(roomId)
+        for agentId, agent in self.agents.items():
+            if agent.Agent_type == "faculty":
+                agentList.append(agentId)
+        print("classroom", classList)
+        print("faculty", agentList)
+        for i in range(2100, 2110):
+            print(self.convertToRoomName(self.agents[i].schedule))
+        mkey = max(self.agents.keys())
+        print(self.convertToRoomName(self.agents[mkey].schedule))
+
+    def check_faculty(self):
+        #print(self.agents[2200].Agent_type, self.rooms[self.agents[2200].currLocation].room_name)
+        for roomId, room in self.rooms.items():
+            if len(self.rooms[roomId].agentsInside) > 0 and room.building_type == "classroom":
+                faculty = [agentId for agentId in self.rooms[roomId].agentsInside 
+                        if "faculty" in self.agents[agentId].Agent_type] 
+                if len(faculty) > 0:
+                    non_faculty = [agentId for agentId in self.rooms[roomId].agentsInside 
+                                    if self.agents[agentId].officeAttendee and agentId not in faculty]
+                    officeHourAgents = non_faculty+faculty
+                    agentsOnsite = len(officeHourAgents)
+                    baseP = self.config["baseP"]
+                    randVec = np.random.random(len(faculty)*len(non_faculty))
+                    for i, tup in enumerate(itertools.product(faculty, non_faculty)):
+                        contribution = self.infectionWithinPopulation(officeHourAgents)
+                        if randVec[i] < (3*baseP*contribution)/agentsOnsite:
+                            for agentId in tup:
+                                print("proffesor gave corona")
+                                if self.agents[agentId].state == self.config["sus"]:
+                                    self.agents[agentId].state = self.config["exp"]
+                                    self.agents[agentId].state_persistance = self.config["transitionTime"]["exposed"]
+                                    self.agents[agentId].lastUpdate = self.time
+
 
     def replaceStaticEntries(self):
         """
@@ -649,10 +721,11 @@ class AgentBasedModel:
             for _ in range(4):
                 self.updateAgent()
                 if 22 > self.time%24 > 8:
-                    self.infection(self.config["trackLocation"])
+                    self.infection()
             # infection occurs between 8AM and 10PM
             if 22 > self.time%24 > 8:
                 self.infection()
+                self.check_faculty()
             # store values with some increment
             if self.storeVal and self.time%self.timeIncrement == 0:
                 self.storeInformation()
@@ -710,8 +783,8 @@ class AgentBasedModel:
         """
             print the logs, only for debug purpose
         """
-        stationary = self.countAgents("stationary", attributeName="motion")
-        motion = self.countAgents("motion", attributeName="motion")
+        stationary = self.countAgents("stationary", attrName="motion")
+        motion = self.countAgents("motion", attrName="motion")
         print(f"stationary: {stationary}, motion: motion {motion}")
         # print the schedule of agents with IDs 1~9
         for i in range(1, 5):
@@ -721,20 +794,25 @@ class AgentBasedModel:
         
         # convert the log to 24 hour bits and get the daily activity
         timeInterval = 24
-        max_per_buildingType = dict()
-        average_use_per_buildingType = dict()
+        maxDict = dict()
+        scheduleDict = dict()
         for key, value in self.room_cap_log.items():
-            if self.rooms[key].building_type not in max_per_buildingType.keys():
-                max_per_buildingType[value.building_type] = 0
-            if self.rooms[key].building_type == "gym":
-                if len(value)%timeInterval !=0:
-                    remainder = len(value)%timeInterval
-                    value+=[0 for _ in range(timeInterval - remainder)]
-                maxpeople = max(value)
-                a = np.array(value).reshape((-1,timeInterval))
-                x, y = a.shape
-                totalPerHour = np.sum(a, axis=0)
-                print(self.rooms[key].room_name, a)
+            buildingType = self.rooms[key].building_type 
+
+            if len(value)%timeInterval !=0:
+                remainder = len(value)%timeInterval
+                value+=[0 for _ in range(timeInterval - remainder)]
+            
+            a = np.array(value).reshape((-1,timeInterval))
+            maxDict[buildingType] = max(maxDict.get(buildingType, 0), max(value))
+            scheduleDict[self.rooms[key].room_name] = a
+
+        for key, value in scheduleDict.items():
+            if "gym" in key:
+                print(key, value)
+        for key, value in maxDict.items():
+            if "gym" in key:
+                print(key, value)
         
     def getRoomNames(self, listOfRoomsId):
         """ probably a duplicate function"""
@@ -808,16 +886,20 @@ class AgentBasedModel:
                 index +=1    
 
     def infectionInRoom(self, roomId):
-        contribution = 0 
-        for agentId in self.rooms[roomId].agentsInside:
+        contribution = self.infectionWithinPopulation(self.rooms[roomId].agentsInside)
+        return contribution
+
+    def infectionWithinPopulation(self, agentIds):
+        contribution = 0
+        for agentId in agentIds:
             agentState = self.agents[agentId].state
             lastUpdate = self.agents[agentId].lastUpdate
+            compliance = self.agents[agentId].compliance
             contribution+= self.infectionContribution(agentState, lastUpdate)
-            if self.intervention1 and self.time > self.intervention1_startTime:
+            if compliance and self.intervention1 and self.time > self.intervention1_startTime:
                 contribution*= self.maskP
         return contribution
 
-    # fin
     def infectionContribution(self, state, lastUpdate):
         if "infected Asymptomatic" in state:
             return 50#(self.time - lastUpdate)*2
@@ -828,11 +910,11 @@ class AgentBasedModel:
 
 
 
-    def countWithinAgents(self, agentList, stateName):
-        return len(list(filter(lambda x: x.state == stateName, [self.agents[val] for val in agentList]))) 
+    def countWithinAgents(self, agentList, stateVal, attrName="state"):
+        return len(list(filter(lambda x: getattr(x, attrName) == stateVal, [self.agents[val] for val in agentList]))) 
 
-    def countAgents(self, stateVal, attributeName="state"):
-        return len(list(filter(lambda x: getattr(x, attributeName) == stateVal, self.agents.values() )))
+    def countAgents(self, stateVal, attrName="state"):
+        return len(list(filter(lambda x: getattr(x, attrName) == stateVal, self.agents.values() )))
 
     # fin
     def printRelevantInfo(self):
@@ -848,6 +930,16 @@ class AgentBasedModel:
         quar = self.countAgents("quarantined")
         print(f"time: {self.time}, Sus {susc} E: {expo}, I Asympto: {ia0}, IAsym: {ia1}, I Sympto: {ias}, rec: {recovered}, quar: {quar}")
     
+    def returnRelevantInfo(self):
+        susc = self.countAgents("susceptible")
+        expo = self.countAgents("exposed")
+        ia0 = self.countAgents("infected Asymptomatic0")
+        ia1 = self.countAgents("infected Asymptomatic1")
+        ias = self.countAgents("infected Symptomatic")
+        recovered = self.countAgents("recovered")
+        quar = self.countAgents("quarantined")
+        return [susc, expo, ia0, ia1, ias, recovered, quar]
+
     def initializeStoringParameter(self, listOfStatus, steps=10):
         """
             tell the code which values to keep track of. 
@@ -861,7 +953,7 @@ class AgentBasedModel:
     def storeInformation(self):
         self.timeSeries.append(self.time)
         for param in self.parameters.keys():
-            self.parameters[param].append(self.countAgents(param, attributeName="state"))
+            self.parameters[param].append(self.countAgents(param, attrName="state"))
 
     def visualOverTime(self):
         vs.timeSeriesGraph(self.timeSeries, (0, self.time+1), (0,len(self.agents)), self.parameters)

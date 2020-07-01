@@ -59,12 +59,13 @@ def createSchedule(numOfAgents,agentArchetypes,classrooms, capacity, classAllowe
     maskCurrIndex = np.zeros(maskSum.shape, dtype = int)
     x, y = maskSum.shape
     classes = [[np.random.permutation(classList) for _ in range(y)] for _ in range(x)]
-  
+    print(f"creating schedule for {numOfAgents} agents, {len(agentArchetypes)}, {len(classrooms)}, {len(capacity)}")
     for index in range(numOfAgents): # iterate over each agents
         # create a mask that splits the classes into odd and even schedules
         # NoteToSelf: put classPerAgent and totalClassStots inside the loop for randomization 
         agentSchedule = [[0 for _ in range(timeslotsPerDay)] for _ in range(len(scheduleType))]
         agentSchedule = assignClasses(agentSchedule, masks[index], classes, maskCurrIndex)
+     
         maskCurrIndex+=masks[index]
 
         # check if the agent's type is defined or not
