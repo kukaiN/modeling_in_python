@@ -21,7 +21,7 @@ def pickClass(tickets,ASched,BSched):
             return q
       q+=1
    if found == 0:
-      return False
+      return None
 
 ## NOTES
 ##
@@ -118,16 +118,17 @@ def main():
        #classroom
        #assign classroom
        if randomizedAgents[i] == "S":
-          if len(stem_tickets) > 0 and stem_tickets[0][3] == "A":
-             mySchedA[stem_tickets[0][2]] = stem_tickets[0][1]
-             mySchedA[stem_tickets[0][2] + 1] = stem_tickets[0][1]
-             stem_tickets.pop(0)
-          elif len(stem_tickets) > 0:
-             mySchedB[stem_tickets[0][2]] = stem_tickets[0][1]
-             mySchedB[stem_tickets[0][2]+1] = stem_tickets[0][1]
-             stem_tickets.pop(0)
           j = pickClass(stem_tickets,mySchedA,mySchedB)
-          if j != False:
+          if j != None:
+             if stem_tickets[j][3] == "A":
+                mySchedA[stem_tickets[j][2]] = stem_tickets[j][1]
+                mySchedA[stem_tickets[j][2] + 1] = stem_tickets[j][1]
+             else:
+                mySchedB[stem_tickets[j][2]] = stem_tickets[j][1]
+                mySchedB[stem_tickets[j][2]+1] = stem_tickets[j][1]
+             stem_tickets.pop(j)
+          j = pickClass(stem_tickets,mySchedA,mySchedB)
+          if j != None:
              if stem_tickets[j][3] == "A":
                 mySchedA[stem_tickets[j][2]] = stem_tickets[j][1]
                 mySchedA[stem_tickets[j][2]+1] = stem_tickets[j][1]
@@ -136,16 +137,17 @@ def main():
                 mySchedB[stem_tickets[j][2]] = stem_tickets[j][1]
              stem_tickets.pop(j)
        elif randomizedAgents[i] == "H":
-          if len(hum_tickets) > 0 and hum_tickets[j][3] == "A":
-             mySchedA[hum_tickets[0][2]] = hum_tickets[0][1]
-             mySchedA[hum_tickets[0][2]+1] = hum_tickets[0][1]
-             hum_tickets.pop(0)
-          elif len(hum_tickets) > 0:
-             mySchedB[hum_tickets[0][2]] = hum_tickets[0][1]
-             mySchedB[hum_tickets[0][2]+1] = hum_tickets[0][1]
-             hum_tickets.pop(0)
           j = pickClass(hum_tickets,mySchedA,mySchedB)
-          if j != False:
+          if j != None:
+             if hum_tickets[j][3] == "A":
+                mySchedA[hum_tickets[j][2]] = hum_tickets[j][1]
+                mySchedA[hum_tickets[j][2]+1] = hum_tickets[j][1]
+             else:
+                mySchedB[hum_tickets[j][2]] = hum_tickets[j][1]
+                mySchedB[hum_tickets[j][2]+1] = hum_tickets[j][1]
+             hum_tickets.pop(j)
+          j = pickClass(hum_tickets,mySchedA,mySchedB)
+          if j != None:
              if hum_tickets[j][3] == "A":
                 mySchedA[hum_tickets[j][2]] = hum_tickets[j][1]
                 mySchedA[hum_tickets[j][2]+1] = hum_tickets[j][1]
@@ -154,16 +156,17 @@ def main():
                 mySchedB[hum_tickets[j][2]] = hum_tickets[j][1]
              hum_tickets.pop(j)
        else:
-          if len(arts_tickets)>0 and arts_tickets[0][3] == "A":
-             mySchedA[arts_tickets[0][2]] = arts_tickets[0][1]
-             mySchedA[arts_tickets[0][2]+1] = arts_tickets[0][1]
-             arts_tickets.pop(0)
-          elif len(arts_tickets)>0:
-             mySchedB[arts_tickets[0][2]] = arts_tickets[0][1]
-             mySchedB[arts_tickets[0][2]+1] = arts_tickets[0][1]
-             arts_tickets.pop(0)
+          j = pickClass(arts_tickets,mySchedA,mySchedB)
+          if j != None:
+             if arts_tickets[j][3] == "A":
+                mySchedA[arts_tickets[j][2]] = arts_tickets[j][1]
+                mySchedA[arts_tickets[j][2]+1] = arts_tickets[j][1]
+             else:
+                mySchedB[arts_tickets[j][2]] = arts_tickets[j][1]
+                mySchedB[arts_tickets[j][2]+1] = arts_tickets[j][1]
+             arts_tickets.pop(j)
           j = pickClass(arts_tickets, mySchedA, mySchedB)
-          if j != False:
+          if j != None:
              if arts_tickets[j][3] == "A":
                 mySchedA[arts_tickets[j][2]] = arts_tickets[j][1]
                 mySchedA[arts_tickets[j][2]+1] = arts_tickets[j][1]
