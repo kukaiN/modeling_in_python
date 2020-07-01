@@ -21,7 +21,7 @@ def pickClass(tickets,ASched,BSched):
             return j
       j+=1
    if found == 0:
-      return False
+      return None
 
 ## NOTES
 ##
@@ -295,68 +295,84 @@ def main():
         else:
            mySchedA=['Off']*9 + [None]*9 + ['Off']*6
            mySchedB=['Off']*9 + [None]*9 + ['Off']*6
-           
-        if randomizedAgents[i] == 'S':
-            TOD = stem_tickets[0][3]
-            if stem_tickets[0][4] == "A":
-                mySchedA[TOD] = (stem_tickets[0][0],stem_tickets[0][1]) #store the class ID and the building ID
-                mySchedA[TOD+1] = (stem_tickets[0][0],stem_tickets[0][1])
-            else:
-                mySchedB[TOD] = (stem_tickets[0][0],stem_tickets[0][1])
-                mySchedB[TOD+1] = (stem_tickets[0][0],stem_tickets[0][1])
-            stem_tickets.pop(0)
-            j = pickClass(stem_tickets,mySchedA,mySchedB)
-            if stem_tickets[j][4] == "A":
-                mySchedA[stem_tickets[j][3]] = (stem_tickets[j][0],stem_tickets[j][1])
-                mySchedA[stem_tickets[j][3]+1] = (stem_tickets[j][0],stem_tickets[j][1])
-            else:
-                mySchedB[stem_tickets[j][3]] = (stem_tickets[j][0],stem_tickets[j][1])
-                mySchedB[stem_tickets[j][3]+1] = (stem_tickets[j][0],stem_tickets[j][1])
-            stem_tickets.pop(j)
-        elif randomizedAgents[i] == 'H':
-            TOD = hum_tickets[0][3]
-            if hum_tickets[0][4] == "A":
-                mySchedA[TOD] = (hum_tickets[0][0],hum_tickets[0][1])
-                mySchedA[TOD+1] = (hum_tickets[0][0],hum_tickets[0][1])
-            else:
-                mySchedB[TOD] =(hum_tickets[0][0],hum_tickets[0][1])
-                mySchedB[TOD+1] =(hum_tickets[0][0],hum_tickets[0][1])
-            hum_tickets.pop(0)
-            j=pickClass(hum_tickets,mySchedA,mySchedB)
-            if hum_tickets[j][4] == "A":
-                mySchedA[hum_tickets[j][3]] = (hum_tickets[j][0],hum_tickets[j][1])
-                mySchedA[hum_tickets[j][3]+1] = (hum_tickets[j][0],hum_tickets[j][1])
-            else:
-                mySchedB[hum_tickets[j][3]] = (hum_tickets[j][0],hum_tickets[j][1])
-                mySchedB[hum_tickets[j][3]+1] = (hum_tickets[j][0],hum_tickets[j][1])
-            hum_tickets.pop(j)
-        else:
-            TOD = arts_tickets[0][3]
-            if arts_tickets[0][4] == "A":
-                mySchedA[TOD] = (arts_tickets[0][0],arts_tickets[0][1])
-                mySchedA[TOD+1] = (arts_tickets[0][0],arts_tickets[0][1])
-            else:
-                mySchedB[TOD] =	(arts_tickets[0][0],arts_tickets[0][1])
-                mySchedB[TOD+1] = (arts_tickets[0][0],arts_tickets[0][1])
-            arts_tickets.pop(0)
-            j=pickClass(arts_tickets,mySchedA,mySchedB)
-            if arts_tickets[j][4] == "A":
-                mySchedA[arts_tickets[j][3]] =(arts_tickets[0][0],arts_tickets[0][1])
-                mySchedA[arts_tickets[j][3]+1] =(arts_tickets[0][0],arts_tickets[0][1])
-            else:
-                mySchedB[arts_tickets[j][3]] =(arts_tickets[0][0],arts_tickets[0][1])
-                mySchedB[arts_tickets[j][3]+1] =(arts_tickets[0][0],arts_tickets[0][1])
-            arts_tickets.pop(j)
-            
-        #done with the initial major classes, now pick two additional classes
+
         foundClasses = 0
+        if randomizedAgents[i] == 'S':
+           j = pickClass(stem_tickets,mySchedA,mySchedB)
+           if j != None:
+              TOD = stem_tickets[j][3]
+              if stem_tickets[j][4] == "A":
+                 mySchedA[TOD] = (stem_tickets[j][0],stem_tickets[j][1]) #store the class ID and the building ID
+                 mySchedA[TOD+1] = (stem_tickets[j][0],stem_tickets[j][1])
+              else:
+                 mySchedB[TOD] = (stem_tickets[j][0],stem_tickets[j][1])
+                 mySchedB[TOD+1] = (stem_tickets[j][0],stem_tickets[j][1])
+              stem_tickets.pop(j)
+              foundClasses+=1
+           j = pickClass(stem_tickets,mySchedA,mySchedB)
+           if j != None:
+              if stem_tickets[j][4] == "A":
+                 mySchedA[stem_tickets[j][3]] = (stem_tickets[j][0],stem_tickets[j][1])
+                 mySchedA[stem_tickets[j][3]+1] = (stem_tickets[j][0],stem_tickets[j][1])
+              else:
+                 mySchedB[stem_tickets[j][3]] = (stem_tickets[j][0],stem_tickets[j][1])
+                 mySchedB[stem_tickets[j][3]+1] = (stem_tickets[j][0],stem_tickets[j][1])
+              stem_tickets.pop(j)
+              foundClasses+=1
+        elif randomizedAgents[i] == 'H':
+            j = pickClass(hum_tickets,mySchedA,mySchedB)
+            if j != None:
+               TOD = hum_tickets[j][3]
+               if hum_tickets[j][4] == "A":
+                  mySchedA[TOD] = (hum_tickets[j][0],hum_tickets[j][1])
+                  mySchedA[TOD+1] = (hum_tickets[j][0],hum_tickets[j][1])
+               else:
+                  mySchedB[TOD] =(hum_tickets[j][0],hum_tickets[j][1])
+                  mySchedB[TOD+1] =(hum_tickets[j][0],hum_tickets[j][1])
+               hum_tickets.pop(j)
+               foundClasses+=1
+            j=pickClass(hum_tickets,mySchedA,mySchedB)
+            if j != None:
+               if hum_tickets[j][4] == "A":
+                  mySchedA[hum_tickets[j][3]] = (hum_tickets[j][0],hum_tickets[j][1])
+                  mySchedA[hum_tickets[j][3]+1] = (hum_tickets[j][0],hum_tickets[j][1])
+               else:
+                  mySchedB[hum_tickets[j][3]] = (hum_tickets[j][0],hum_tickets[j][1])
+                  mySchedB[hum_tickets[j][3]+1] = (hum_tickets[j][0],hum_tickets[j][1])
+               hum_tickets.pop(j)
+               foundClasses+=1
+        else:
+            j = pickClass(arts_tickets,mySchedA,mySchedB)
+            if j != None:
+               TOD = arts_tickets[j][3]
+               if arts_tickets[j][4] == "A":
+                  mySchedA[TOD] = (arts_tickets[j][0],arts_tickets[j][1])
+                  mySchedA[TOD+1] = (arts_tickets[j][0],arts_tickets[j][1])
+               else:
+                  mySchedB[TOD] = (arts_tickets[j][0],arts_tickets[j][1])
+                  mySchedB[TOD+1] = (arts_tickets[j][0],arts_tickets[j][1])
+               arts_tickets.pop(j)
+               foundClasses+=1
+            j=pickClass(arts_tickets,mySchedA,mySchedB)
+            if j != None:
+               if arts_tickets[j][4] == "A":
+                  mySchedA[arts_tickets[j][3]] =(arts_tickets[j][0],arts_tickets[j][1])
+                  mySchedA[arts_tickets[j][3]+1] =(arts_tickets[j][0],arts_tickets[j][1])
+               else:
+                  mySchedB[arts_tickets[j][3]] =(arts_tickets[j][0],arts_tickets[j][1])
+                  mySchedB[arts_tickets[j][3]+1] =(arts_tickets[j][0],arts_tickets[j][1])
+               arts_tickets.pop(j)
+               foundClasses+=1
+
+
+        #done with the initial major classes, now pick two additional classes
         tried = [0,0,0]
-        while foundClasses <= 2 and min(tried)<2: #Then I still need to find another class
+        while foundClasses < 4 and min(tried)<=2: #Then I still need to find another class
            m = random.randint(1,3)
            if m == 1:
               tried[0]+=1
               j = pickClass(stem_tickets,mySchedA,mySchedB)
-              if j != False:
+              if j != None:
                  if stem_tickets[j][4] == "A":
                     mySchedA[stem_tickets[j][3]] = (stem_tickets[j][0],stem_tickets[j][1])
                     mySchedA[stem_tickets[j][3]+1] = (stem_tickets[j][0],stem_tickets[j][1])
@@ -368,7 +384,7 @@ def main():
            elif m ==2:
               tried[1]+=1
               j = pickClass(hum_tickets,mySchedA,mySchedB)
-              if j != False:
+              if j != None:
                  if hum_tickets[j][4] == "A":
                     mySchedA[hum_tickets[j][3]] = (hum_tickets[j][0],hum_tickets[j][1])
                     mySchedA[hum_tickets[j][3]+1] = (hum_tickets[j][0],hum_tickets[j][1])
@@ -380,17 +396,17 @@ def main():
            else:
               tried[2]+=1
               j = pickClass(arts_tickets,mySchedA,mySchedB)
-              if j != False:
+              if j != None:
                  if arts_tickets[j][4] == "A":
-                    mySchedA[arts_tickets[j][3]] =(arts_tickets[0][0],arts_tickets[0][1])
-                    mySchedA[arts_tickets[j][3]+1] =(arts_tickets[0][0],arts_tickets[0][1])
+                    mySchedA[arts_tickets[j][3]] =(arts_tickets[j][0],arts_tickets[j][1])
+                    mySchedA[arts_tickets[j][3]+1] =(arts_tickets[j][0],arts_tickets[j][1])
                  else:
-                    mySchedB[arts_tickets[j][3]] =(arts_tickets[0][0],arts_tickets[0][1])
-                    mySchedB[arts_tickets[j][3]+1] =(arts_tickets[0][0],arts_tickets[0][1])
+                    mySchedB[arts_tickets[j][3]] =(arts_tickets[j][0],arts_tickets[j][1])
+                    mySchedB[arts_tickets[j][3]+1] =(arts_tickets[j][0],arts_tickets[j][1])
                  arts_tickets.pop(j)
                  foundClasses +=1
 
-
+        print(foundClasses)
         #Now pick dining hall
         if OnorOff[i] == "Off": #off campus student
            mySchedW = ["Off"]*24
