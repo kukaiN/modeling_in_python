@@ -278,13 +278,14 @@ def main():
     random.shuffle(stem_tickets)
     random.shuffle(hum_tickets)
     random.shuffle(arts_tickets)
+    """
     print(len(stem_tickets))
     print(len(hum_tickets))
     print(len(arts_tickets))
 
     print(classroom_counter)
     print(building_counter)
-    
+    """
     schedule = []
 
     #Assign the in-division courses first
