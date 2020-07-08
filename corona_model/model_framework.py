@@ -558,12 +558,16 @@ class AgentBasedModel:
         # finished assigning schedule to each agent
         self.replaceScheduleEntry("sleep") # this gets rid of "sleep"
         self.replaceScheduleEntry("Off") #this gets rid of "off"
+        self.replaceScheduleEntry("dorm")
         self.replaceByType("library")
         self.replaceByType("dining")
         self.replaceByType("gym")
         self.replaceByType("office")
         self.replaceByType("social")
         
+    
+    
+    
     def replaceByType(self, buildingType):
         roomIds = self.findMatchingRooms("building_type", buildingType)
         # roomIds dont include hubs
@@ -585,9 +589,13 @@ class AgentBasedModel:
 
 
     def replaceScheduleEntry(self, antecedent):
+        counter = 0
         for agentId, agent in self.agents.items():
             agent_schedule = list(agent.schedule)
+            counter+=len([1 for row in agent_schedule for item in row if item == antecedent])
             agent.schedule = [[a if a != antecedent else agent.initial_location for a in row] for row in agent_schedule] 
+        print(antecedent, counter)
+
 
     def initializeWorld(self):
         """
