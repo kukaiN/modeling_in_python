@@ -1,0 +1,5 @@
+Agent_type,totalCount,state,archetype, initial_location
+onCampus,10,susceptible,student,dorm
+offCampus,5,susceptible,student,offCampus
+onCampus,3,infected Asymptomatic0,student,dorm
+faculty,2, susceptible,prof,offCampus
