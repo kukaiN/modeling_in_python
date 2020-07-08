@@ -1,14 +1,14 @@
 building_name,room_name,building_type,building_size,count,leaf_S,leaf_M,leaf_L,cap_S,cap_M,cap_L,enroll_S,enroll_M,enroll_L,connected_to,Kv,hubKv,hubCapacity
-dorm_S,dorm_room,dorm,small,25,5,5,0,1,2,0,1,2,0,transit_space,3,2,30
-dorm_M,dorm_room,dorm,medium,15,15,15,0,1,2,0,1,2,0,transit_space,3,2,90
-dorm_L,dorm_room,dorm,large,10,25,25,0,1,2,0,1,2,0,transit_space,3,2,150
-instructional building,class,classroom,small,5,3,0,0,20,30,40,10,15,20,transit_space,2,1,120
-instructional building,class,classroom,medium,5,2,3,0,20,30,40,10,15,20,transit_space,2,1,260
-instructional building,class,classroom,large,5,5,3,3,20,30,40,10,15,20,transit_space,2,1,840
-dining_hall,dining_hall_room,dining_hall,large,1,0,0,1,0,0,500,0,0,10000,transit_space,2,1,100
-library,library_leaf,library,large,1,0,0,6,0,0,50,0,0,100,transit_space,2,1,400
-gym,gym_leaf,gym,large,1,0,0,6,0,0,100,0,0,100,transit_space,3,1,100
-social space,party,social_space,medium,1,0,100,0,0,10,10,0,10,10,transit_space,3,0,100
-transit space,transit_space,transit,large,1,0,0,1,0,0,10000,0,0,10000,transit_space,1,1,10000
-offCampus,offCampus_leaf,offCampus,large,1,0,0,1,0,0,10000,0,0,10000,transit_space,1,0,1000
-office,office_leaf,office,large,3,0,0,1,0,0,100,0,0,100,transit_space,2,2,1000
+dorm_S,dorm_room,dorm,small,25,5,5,0,1,2,0,1,2,0,transit_space_hub,3,2,3
+dorm_M,dorm_room,dorm,medium,15,15,15,0,1,2,0,1,2,0,transit_space_hub,3,2,9
+dorm_L,dorm_room,dorm,large,10,25,25,0,1,2,0,1,2,0,transit_space_hub,3,2,15
+instructional building,class,classroom,small,5,3,0,0,20,30,40,10,15,20,transit_space_hub,2,1,12
+instructional building,class,classroom,medium,5,2,3,0,20,30,40,10,15,20,transit_space_hub,2,1,26
+instructional building,class,classroom,large,5,5,3,3,20,30,40,10,15,20,transit_space_hub,2,1,84
+dining_hall,dining_hall_room,dining,large,1,0,0,6,0,0,500,0,0,1000,transit_space_hub,2,1,10
+library,library_leaf,library,large,1,0,0,6,0,0,50,0,0,100,transit_space_hub,2,1,400
+gym,gym_leaf,gym,large,1,0,0,6,0,0,100,0,0,100,transit_space_hub,3,1,100
+social_space,party,social,medium,1,0,100,0,0,10,10,0,10,10,transit_space_hub,3,1,100
+transit space,transit_space,transit,large,1,0,0,1,0,0,1000,0,0,1000,transit_space_hub,1,1,1000
+offCampus,offCampus_leaf,offCampus,large,1,0,0,1,0,0,1000,0,0,1000,transit_space_hub,1,1,1000
+office,office_leaf,office,large,3,0,0,1,0,0,100,0,0,100,transit_space_hub,2,2,1000

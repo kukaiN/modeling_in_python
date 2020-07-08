@@ -1,6 +1,7 @@
 import schedule_students as sts
 
-schedule = sts.main()
+
+#schedule = sts.main()
 
 def replaceEntry(schedule, antecedent, replacement):
     """
@@ -14,6 +15,7 @@ def replaceEntry(schedule, antecedent, replacement):
     """
     return [[a if a != antecedent else replacement for a in row] for row in schedule]
 
+"""
 for i, sche in enumerate(schedule):
     print(i, "th agent")
     
@@ -23,3 +25,19 @@ for i, sche in enumerate(schedule):
     if i > 40:
         break
 
+"""
+def test():
+    """Stupid test function"""
+    a = 5
+    for i in range(10000):
+        a = 5
+
+def test2():
+    for i in range(10000):
+        # comment
+        pass
+
+if __name__ == '__main__':
+    import timeit
+    print(timeit.timeit("test()", setup="from __main__ import test"))
+    print(timeit.timeit("test2()", setup="from __main__ import test2"))
