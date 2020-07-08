@@ -40,7 +40,7 @@ def pickClass(tickets,ASched,BSched):
 ## 'gym', 'library','social','dining','sleep','dorm'
    
 
-def main():
+def scheduleCreator():
     #Params
     g = 0.15 # the probability of going to the gym on any particular day
     s = 0.25 # the probability of going to a social space
@@ -407,7 +407,7 @@ def main():
                  arts_tickets.pop(j)
                  foundClasses +=1
 
-        print(foundClasses)
+        #print(foundClasses)
         #Now pick dining hall
         if OnorOff[i] == "Off": #off campus student
            mySchedW = ["Off"]*24
@@ -555,9 +555,13 @@ def main():
 
 
     # print the first 5 agent's schedule
-    print(schedule[:5])
+    #print(schedule[:5])
 
     #createMask(numAgent)
+    return (schedule, OnorOff)
+
+def main():
+    scheduleCreator()
 
 if __name__ == "__main__":
     main()

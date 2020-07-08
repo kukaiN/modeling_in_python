@@ -13,6 +13,8 @@ import time
 import copy
 import itertools
 import statfile
+import schedule_students
+import schedule_faculty
 
 def convertToMin(timeStr):
     """convert time represnted in the following forms to minutes in a day, 
@@ -143,11 +145,12 @@ def R0_simulation(modelConfig, R0Control, simulationN=10):
     model = createModel(configCopy)
     model.configureDebug(False)
     
-    model.findR0()
+    
     days = 20
     for i in range(simulationN):
         new_model = copy.deepcopy(model)    
         new_model.startInfectionAndSchedule()
+        new_model.findR0()
         new_model.initializeStoringParameter([infA0, infA1, infS, rec], steps=1)
         print("starting model")
         for _ in range(days):
@@ -203,7 +206,7 @@ def main():
 
         # these are parameters, that are assigned later or is ok to be initialized with default value 0
         "extraParam": {
-            "Agents": ["agentId","archetypes","path", "destination", "currLocation",
+            "Agents": ["agentId","path", "destination", "currLocation",
                         "statePersistance","lastUpdate", "personality", 
                         "arrivalTime", "schedule", "travelTime", "compliance", 
                         "officeAttendee"],
@@ -215,7 +218,7 @@ def main():
         },
 
         # INFECTION parameter
-        "baseP" : 0.1,
+        "baseP" : 0.001,
         "infectionSeedNumber": 20,
         "infectionSeedState": "exposed",
         "infectionContribution":{
@@ -267,8 +270,8 @@ def main():
     ]
     R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
                     ("walkinProbability", 0),("quarantineOffset", 20*24), ("interventions", [])]
-    simpleCheck(modelConfig)
-    #R0_simulation(modelConfig, R0_controls, 1)
+    #simpleCheck(modelConfig)
+    R0_simulation(modelConfig, R0_controls, 1)
     return
     createdFiles = initializeSimulations(simulationControls, modelConfig)
     simulateAndPlot(createdFiles, 2)
@@ -371,8 +374,6 @@ def agentFactory(agent_df, slotVal):
             else: #the path array is not empty, the agent is still moving
                 self.motion = "moving"
                 self.currLocation = self.path.pop()
-                if self.agentId == 1:
-                    print(self.currLocation, self.path)
                 self.travelTime = 0
             return (pastLocation, self.currLocation)
    
@@ -517,7 +518,77 @@ class AgentBasedModel:
                 for (attrName, attrVal) in self.config["extraZipParam"][keyStr]:
                     dfRef[attrName] = attrVal
     
-     
+    def studentFacultySchedule(self):
+        schedules, onVsOffCampus = schedule_students.scheduleCreator()
+        fac_schedule = schedule_faculty.scheduleCreator()
+        num_of_entry = len(schedules) * len(schedules[0])* len(schedules[0][0])
+        #print(schedules[:5])
+        roomIds = self.findMatchingRooms("building_type", "classroom")
+        for index, faculty_sche in enumerate(fac_schedule):
+            fac_schedule[index] = [[roomIds[a] if isinstance(a, int) else a for a in row] for row in faculty_sche]
+        
+        for index, student_schedule in enumerate(schedules):
+            schedules[index] = [[roomIds[a[0]] if isinstance(a[0], int) else a for a in row] for row in student_schedule]
+        #print(schedules[:5])
+
+        onCampusIndex = 0
+        offCampusIndex = 0
+        facultyIndex = 0
+        offCampusSchedule = [] 
+        onCampusSchedule = []
+        for schedule, onOffDistinction in zip(schedules, onVsOffCampus):
+            if onOffDistinction == "Off":
+                offCampusSchedule.append(schedule)
+            else:
+                onCampusSchedule.append(schedule)
+        print("size is", len(onCampusSchedule), len(offCampusSchedule), len(fac_schedule))
+        for agentId, agent in self.agents.items():
+            if agent.archetype == "student": # needs to be for students
+                if agent.Agent_type == "onCampus":
+                    agent.schedule = onCampusSchedule[onCampusIndex]
+                    onCampusIndex+=1
+                else:
+                    agent.schedule = offCampusSchedule[offCampusIndex]
+                    offCampusIndex+=1
+
+            else:# this is for faculty
+                agent.schedule = fac_schedule[facultyIndex] 
+                facultyIndex+=1
+        print(f"there are {len(schedules)} agent's schedule with {num_of_entry} entries")
+        # finished assigning schedule to each agent
+        self.replaceScheduleEntry("sleep") # this gets rid of "sleep"
+        self.replaceScheduleEntry("Off") #this gets rid of "off"
+        self.replaceByType("library")
+        self.replaceByType("dining")
+        self.replaceByType("gym")
+        self.replaceByType("office")
+        self.replaceByType("social")
+        
+    def replaceByType(self, buildingType):
+        roomIds = self.findMatchingRooms("building_type", buildingType)
+        # roomIds dont include hubs
+        counter = 0
+        for agentId, agent in self.agents.items():
+            counter +=len([1 for row in agent.schedule for a in row if a == buildingType])
+        randomVec = np.random.choice(roomIds, size=counter, replace=True)
+        index = 0
+        print(buildingType, counter)
+        for agentId, agent in self.agents.items():
+            scheduleCopy = list(agent.schedule)
+            for i, row in enumerate(agent.schedule):
+                for j, a in enumerate(row):
+                    if a == buildingType:
+                        scheduleCopy[i][j] = randomVec[index]
+                        index +=1
+            agent.schedule = scheduleCopy
+        
+
+
+    def replaceScheduleEntry(self, antecedent):
+        for agentId, agent in self.agents.items():
+            agent_schedule = list(agent.schedule)
+            agent.schedule = [[a if a != antecedent else agent.initial_location for a in row] for row in agent_schedule] 
+
     def initializeWorld(self):
         """
             initialize the world with default value, 
@@ -551,9 +622,10 @@ class AgentBasedModel:
             agent.agentId = agentId
 
     def startInfectionAndSchedule(self):
-        self.initilize_infection()
-        self.makeSchedule()
-        self.initializeRandomSchedule()
+        self.initialize_infection()
+        self.studentFacultySchedule()
+        #self.makeSchedule()
+        #self.initializeRandomSchedule()
 
     def configureOffcampus(self):
         offcampus = self.roomNameId["offCampus_hub"] 
@@ -620,6 +692,7 @@ class AgentBasedModel:
     def findR0(self):
         self.R0 = True
         self.R0_agentId = [agentId for agentId, agent in self.agents.items() if agent.state != "susceptible"][0]
+        print("ran")
         self.R0_counter = 0
     
     def returnR0(self):
@@ -683,7 +756,7 @@ class AgentBasedModel:
         classIds = list(roomId for roomId, room in self.rooms.items() if room.building_type == "classroom" and not room.room_name.endswith("hub"))
         capacities = list(self.rooms[classId].limit for classId in classIds)
         self.scheduleList = schedule.createSchedule(self.numAgent, archetypeList,classIds,capacities)
-        self.replaceStaticEntries()
+        self.replaceStaticEntries("sleep")
 
     def checkFaculty(self):
         """
@@ -712,22 +785,18 @@ class AgentBasedModel:
                             for agentId in tup:
                                 if self.agents[agentId].state == self.config["sus"]:
                                     self.agents[agentId].changeState(self.time, self.config["exp"], self.config["transitionTime"]["exposed"])
-
-    def replaceStaticEntries(self):
-        """
-        part 2
-        replaces the static locations with the corresponding Ids
-        """
+    """
+    def replaceStaticEntries(self, antecedent):
         for i, agent in enumerate(self.agents.values()):
-            self.scheduleList[i] = self.replaceEntry(self.scheduleList[i], "sleep", getattr(agent, "currLocation"))
+            self.scheduleList[i] = self.replaceEntry(self.scheduleList[i], antecedent, getattr(agent, "currLocation"))
 
     def initializeRandomSchedule(self,t=-1, agentTypes=[]):
-        """
+        ""
         random schedule part 1
         
         convert the entries that are not ids to locations that matches the id
         if t is negative then the randomization only happens once 
-        """
+        ""
         print("new scheduling")
         self.randSchedule = True if t < 0 else False 
         self.activityList = ["eating", "gym", "study", "off_campus"]
@@ -743,11 +812,11 @@ class AgentBasedModel:
         self.replaceScheduleValues()
 
     def replaceScheduleValues(self, agentTypes = []):
-        """
+        ""
             random schedule part 2
             if t = -1, then the scheudule doesnt change, 
             if t is greater than 0, then the schedule changes with that frequency 
-        """
+        ""
         self.randomSchedule = [np.random.choice(possibleLoc, size=self.activityCount[i], replace=True) 
                                 for i, possibleLoc in enumerate(self.activityLocList)]
         indices = [0 for _ in range(len(self.activityLocList))]
@@ -768,7 +837,7 @@ class AgentBasedModel:
                             indices[index]+=1
             
             agent.schedule = scheduleChart
-
+    """
     def printAgent(self):
         if self.agents[self.R0_agentId].state != "recovered":
             agentId = self.R0_agentId
@@ -850,7 +919,6 @@ class AgentBasedModel:
         
     # update functions
     def updateSteps(self, step = 1):
-        print(self.transitHub, self.rooms[self.transitHub].room_name)
         for _ in range(step):
             self.time+=1
             # assign renewed schedule after specific time 
@@ -956,7 +1024,7 @@ class AgentBasedModel:
                 self.rooms[loc[1]].enter(agentId)
                 
    
-    def initilize_infection(self):
+    def initialize_infection(self):
         """
             iniitilize the infection, start people off as susceptible
         """
@@ -965,9 +1033,12 @@ class AgentBasedModel:
             agent.changeState(self.time, self.config["sus"], -1)
         seedNumber = self.config["infectionSeedNumber"]
         seededState = self.config["infectionSeedState"]
+        print("seed", seedNumber, seededState)
         for agentId in np.random.choice(list(self.agents.keys()),size=seedNumber):
+            print("agent infected")
             self.agents[agentId].changeState(self.time, seededState, self.config["transitionTime"][seededState])
-    
+        print(self.agents[agentId].state, agentId)
+
     def infection(self):
         """
             the actual function that takes care of the infection

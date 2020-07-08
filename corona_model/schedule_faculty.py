@@ -40,11 +40,9 @@ def pickClass(tickets,ASched,BSched):
 ## 'off',classroom-number, 'office','dining'
    
 
-def main():
+def scheduleCreator():
     #Params
     dh = 0.3 #probability of going to the dining hall on a particular day.
-
-   
     # Create Agents
     total_num_classes = 760
     numAgent = round((total_num_classes)/2)
@@ -52,8 +50,8 @@ def main():
     randomizedAgents = list(itertools.repeat("S",round(numAgent/2)))
     randomizedAgents.extend(list(itertools.repeat("H",round(numAgent/4))))
     randomizedAgents.extend(list(itertools.repeat("A",round(numAgent/4)+1)))
-    print(numAgent)
-    print(len(randomizedAgents))
+    #print(numAgent)
+    #print(len(randomizedAgents))
 
 
     #Define the classtimes
@@ -102,9 +100,9 @@ def main():
     random.shuffle(stem_tickets)
     random.shuffle(hum_tickets)
     random.shuffle(arts_tickets)
-    print(len(stem_tickets))
-    print(len(arts_tickets))
-    print(len(hum_tickets))
+    #print(len(stem_tickets))
+    #print(len(arts_tickets))
+    #print(len(hum_tickets))
 
     schedule = []
 
@@ -199,9 +197,13 @@ def main():
 
 
     # print the first 5 agent's schedule
-    print(schedule[:5])
+    #print(schedule[:5])
 
     #createMask(numAgent)
+    return schedule
+
+def main():
+   scheduleCreator()
 
 if __name__ == "__main__":
     main()
