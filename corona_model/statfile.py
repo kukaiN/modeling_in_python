@@ -51,7 +51,7 @@ def plotBoxAverageAndDx(simulationDatas, labels=[]):
         average.append(dataTup[0])
         dx.append(dataTup[1])
     boxplot(average, "averages", "models", "infected #", labels=labels)
-    boxplot(dx, "averageChanges", "models", "d(infected)/dt #", labels=labels)
+    #boxplot(dx, "averageChanges", "models", "d(infected)/dt #", labels=labels)
 
 
 def boxplot(data, oneD=True, pltTitle="Some Title", xlabel="Default X", ylabel="Default Y", labels=[], showplt=True, saveplt=False):
@@ -65,10 +65,12 @@ def boxplot(data, oneD=True, pltTitle="Some Title", xlabel="Default X", ylabel="
     ax1.set_xticks(xticks)
     ax1.set_xlabel(xlabel)
     ax1.set_ylabel(ylabel)
+    """
     if oneD:
         plt.xlim(-2, 2)
     else:
-        plt.xlim(-2, len(data)+2)
+        plt.xlim(-2, len(data)+2+2)
+    """
     if labels != [] and len(labels) == len(data):
         plt.setp(ax1, xticks=xticks, xticklabels=labels)
     plt.show()
