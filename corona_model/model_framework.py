@@ -19,7 +19,7 @@ import schedule_faculty
 # for speed tests/debug
 import functools
 
-def clock(func): # version 2, page 203 - 205
+def clock(func): # from version 2, page 203 - 205 of Fluent Python by Luciano Ramalho
     @functools.wraps(func)
     def clocked(*args, **kwargs):
         t0 = time.time()
@@ -59,24 +59,26 @@ def findInTuple(val, itemList, index):
 
 def runSimulation(pickleName, simulationN= 10, runtime = 200):
     print(f"starting {simulationN} simulation for {runtime} steps")
-    infA0, infA1, infS = "infected Asymptomatic0", "infected Asymptomatic1" ,"infected Symptomatic"
+    infA, infAF = "infected Asymptomatic", "infected Asymptomatic Fixed"
+    infSM, infSS = "infected Symptomatic Mild", "infected Symptomatic Severe"
     simulationOutcome = []
     for _ in range(simulationN):
         model = flr.loadUsingDill(pickleName)
         print("loaded pickled object successfully")
         model.configureDebug(False)
         model.startInfectionAndSchedule()
-        model.initializeStoringParameter([infA0, infA1, infS], steps=1)
+        model.initializeStoringParameter([infA, infAF, infSM, infSS], steps=1)
         model.updateSteps(runtime)
         # end of simulation
         
         # retrieve the time series data
         dataDict = model.returnStoredInfo()
         # look at total infected over time, 
-        arr1 = np.array(dataDict[infA0])
-        arr2 = np.array(dataDict[infA1])
-        arr3 = np.array(dataDict[infS])
-        infected_numbers = arr1+arr2+arr3
+        arr1 = np.array(dataDict[infA])
+        arr2 = np.array(dataDict[infAF])
+        arr3 = np.array(dataDict[infSM])
+        arr4 = np.array(dataDict[infSS])
+        infected_numbers = arr1+arr2+arr3+arr4
         simulationOutcome.append(infected_numbers)
     return simulationOutcome
 
@@ -128,7 +130,6 @@ def createModel(modelConfig, debug=False):
     model.agentAssignBool(0.2, attrName="compliance")
     model.agentAssignBool(0.2, attrName="officeAttendee")
     model.agentAssignBool(0.5, attrName="gathering")
-    #model.agentAssignBool(0, attrName="gathering")
     return model
 
 def simpleCheck(modelConfig, days=100, visuals=True):
@@ -147,8 +148,11 @@ def simpleCheck(modelConfig, days=100, visuals=True):
     model.configureDebug(False)
     # make schedules for each agents, outside of pickle for testing and for randomization
     model.startInfectionAndSchedule()
-    model.initializeStoringParameter(["susceptible","exposed", "infected Asymptomatic0", "infected Asymptomatic1" ,"infected Symptomatic", "recovered", "quarantined"], 
+    model.initializeStoringParameter(
+        ["susceptible","exposed", "infected Asymptomatic", 
+        "infected Asymptomatic Fixed" ,"infected Symptomatic Mild", "infected Symptomatic Severe", "recovered", "quarantined"], 
                                         steps=1)
+    print("here")
     model.printRelevantInfo()
     for _ in range(days):
         model.updateSteps(24)
@@ -160,9 +164,10 @@ def simpleCheck(modelConfig, days=100, visuals=True):
     #model.visualizeBuildings()
 
 def R0_simulation(modelConfig, R0Control, simulationN=10, debug=False):
-    infA0 = "infected Asymptomatic0"
-    infA1, infS, rec = "infected Asymptomatic1", "infected Symptomatic", "recovered"
+    infA = "infected Asymptomatic"
+    infAF, infSM, infSS, rec = "infected Asymptomatic Fixed", "infected Symptomatic Mild","infected Symptomatic Severe", "recovered"
     R0List = []
+    
     configCopy = dict(modelConfig)
     for variableTup in R0Control:
         configCopy[variableTup[0]] = variableTup[1]
@@ -173,13 +178,14 @@ def R0_simulation(modelConfig, R0Control, simulationN=10, debug=False):
         model.startLog()
         max_limits = dict()
     
-    days = 50
+    days =20
+    t1 = time.time()
     for i in range(simulationN):
         print("*"*20)
         new_model = copy.deepcopy(model)    
         new_model.startInfectionAndSchedule()
         new_model.findR0()
-        new_model.initializeStoringParameter([infA0, infA1, infS, rec], steps=1)
+        new_model.initializeStoringParameter([infA, infAF, infSM, infSS, rec], steps=1)
         print("starting model")
         for _ in range(days):
             new_model.updateSteps(24)
@@ -188,7 +194,9 @@ def R0_simulation(modelConfig, R0Control, simulationN=10, debug=False):
             for key, value in logDataDict.items():
                 max_limits[key] = max_limits.get(key, []) + [value]
         sampleR0 = new_model.returnR0()
+   
         R0List.append(sampleR0)
+        
         print(f"finished {(i+1)/simulationN*100}% of cases")
     if debug:
         for key, value in max_limits.items():
@@ -201,6 +209,10 @@ def R0_simulation(modelConfig, R0Control, simulationN=10, debug=False):
     print(data)
     print("(npMean, stdev, rangeVal, median)")
     statfile.boxplot(R0List,True, "R0 simulation", "cases", "infected people (R0)", ["base model"])
+    print("time:", time.time()-t1)
+  
+
+
     new_model.visualOverTime()
 
 
@@ -208,14 +220,8 @@ def main():
     """ the main function that starts the model"""
     # the "config" and "info" are different, config tells the code what values/range are allowed for a variable.
     # the info are the specific data for a specific instance of the class
-    sus = "susceptible"
-    exp = "exposed"
-    infA0 = "infected Asymptomatic0"
-    infA1 = "infected Asymptomatic1"
-    infS = "infected Symptomatic"
-    rec = "recovered"
-    qua = "quarantined"
-
+  
+    
     modelConfig = {
         # time intervals
         "unitTime" : "hour",
@@ -224,30 +230,34 @@ def main():
         "qua" : "quarantined",
         "sus" : "susceptible",
         "exp" : "exposed",
-        "infA0" : "infected Asymptomatic0",
-        "infA1" : "infected Asymptomatic1",
-        "infS" : "infected Symptomatic",
+        "infA" : "infected Asymptomatic",
+        "infAF" : "infected Asymptomatic Fixed",
+        "infSM" : "infected Symptomatic Mild",
+        "infSS" : "infected Symptomatic Severe",
         "rec" : "recovered",
 
         # AGENTS
         "AgentPossibleStates": {
-            "neutral" : ["susceptible", "exposed", "quarantined"],
-            "infected" : ["infected Asymptomatic0", "infected Asymptomatic1", "infected Symptomatic"],  
-            "recovered" : ["recovered"],
+            "neutral" : ["susceptible", "exposed"],
+            "infected" : ["infected Asymptomatic", "infected Asymptomatic Fixed", "infected Symptomatic Mild", "infected Symptomatic Severe"],  
+            "recovered" : ["quarantined", "recovered"],
             },
 
-
+        "absorbingStates": ["recovered"],
         # these are parameters, that are assigned later or is ok to be initialized with default value 0
         "extraParam": {
             "Agents": ["agentId","path", "destination", "currLocation",
                         "statePersistance","lastUpdate", "personality", 
                         "arrivalTime", "schedule", "travelTime", "compliance", 
                         "officeAttendee", "gathering"],
-            "Rooms":  ["roomId","agentsInside","oddCap", "evenCap", "classname"],
+            "Rooms":  ["roomId","agentsInside","oddCap", "evenCap", "classname", "infectedNumber"],
             "Buildings": ["buildingId","roomsInside"],
         },
         "extraZipParam": {
             "Agents" : [("motion", "stationary"), ("infected", False)],
+        },
+        "booleanAssignment":{
+            "Agents" : [("compliance", 0.2), ("officeAttendee", 0.2), ("gathering", 0.5)]
         },
         # 0.05-->R0 is [9, 8, 5, 0, 7]
         #(5.8, 3.1874754901018454, 9, 7.0)
@@ -255,32 +265,37 @@ def main():
         # 0.025 --> R0 is 3.8, (3.84, 2.257077756746541, 10, 3.5)
         # going with 2.5
         # base p of 0.025
-        "baseP" : 0.01,
+
+        # maybe .025
+        "baseP" : 0.024,
         "infectionSeedNumber": 10,
         "infectionSeedState": "exposed",
         "infectionContribution":{
-            "infected Asymptomatic0":0.5,
-            "infected Asymptomatic1":0.5,
-            "infected Symptomatic":1,
+            "infected Asymptomatic":0.5,
+            "infected Asymptomatic Fixed":0.5,
+            "infected Symptomatic Mild":1,
+            "infected Symptomatic Severe":1,
         },
         # INFECTION STATE
         "transitionTime" : {
             "susceptible":-1,
-            "exposed":2*23,
-            "infected Asymptomatic0":2*24,
-            "infected Asymptomatic1":10*24,
-            "infected Symptomatic":10*24,
+            "exposed":2*24, # 2 days
+            "infected Asymptomatic":2*24, # 2 days
+            "infected Asymptomatic Fixed":10*24, # 10 days
+            "infected Symptomatic Mild":10*24,# 10 Days
+            "infected Symptomatic Severe":10*24, # 10 days
             "recovered":-1,
-            "quarantined":24*14,
+            "quarantined":24*14, # 2 weeks 
             "ghost": -1,
         },
         
         "transitionProbability" : {
             "susceptible": [("exposed", 1)],
-            "exposed": [("infected Asymptomatic0", 0.85), ("infected Asymptomatic1", 1)],
-            "infected Asymptomatic1": [("recovered", 1)],
-            "infected Asymptomatic0": [("infected Symptomatic", 1)],
-            "infected Symptomatic": [("recovered", 1)],
+            "exposed": [("infected Asymptomatic", 0.85), ("infected Asymptomatic Fixed", 1)],
+            "infected Asymptomatic Fixed": [("recovered", 1)],
+            "infected Asymptomatic": [("infected Symptomatic Mild", 0.5), ("infected Symptomatic Severe", 1)],
+            "infected Symptomatic Mild": [("recovered", 1)],
+            "infected Symptomatic Severe": [("recovered", 1)],
             "quarantined":[("susceptible", 1)],
             "recovered":[("susceptible", 0.5), ("recovered", 1)],
             # the probability og ghost is not required but its safe to put it in
@@ -289,10 +304,11 @@ def main():
 
         # QUARANTINE
         "quarantineSamplingProbability" : 0,
-        "walkinProbability":0,#0.90,
-        "quarantineSampleSize" : 200,
+        "mildWalkinProbability":0.7,
+        "severeWalkinProbability":0.95,
+        "quarantineSampleSize" : 100,
         "quarantineSamplePopulationSize":0.10,
-        "quarantineRandomSubGroup": True,
+        "quarantineRandomSubGroup": False,
         "closedBuildings": ["eating", "gym", "study"],
         "quarantineOffset": 1*24+9,
         "quarantineInterval": 24*1,
@@ -304,7 +320,7 @@ def main():
         # change back to 0.001
         "offCampusInfectionP":0.125/700,
         "trackLocation" : ["_hub"],
-        "interventions":[3],
+        "interventions":[],
     }
     # you can control for multiple interventions by adding a case:
     #  [(modified attr1, newVal), (modified attr2, newVal), ...]
@@ -314,10 +330,10 @@ def main():
         [("quarantineSamplingProbability", 0.1)],
         [("quarantineSamplingProbability", 0.5)],
     ]
-    R0_controls = [("infectionSeedNumber", 10),("quarantineSamplingProbability", 0),
+    R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
                     ("walkinProbability", 0),("quarantineOffset", 20*24), ("interventions", [])]
-    simpleCheck(modelConfig, days=100, visuals=True)
-    #R0_simulation(modelConfig, R0_controls,1, debug=True)
+    #simpleCheck(modelConfig, days=100, visuals=True)
+    R0_simulation(modelConfig, R0_controls,100, debug=True)
     return
     
     #createdFiles = initializeSimulations(simulationControls, modelConfig, True)
@@ -397,6 +413,8 @@ def agentFactory(agent_df, slotVal):
             hourOfDay = currTime%24
             if self.state == "quarantined":
                 return self.initial_location
+            elif self.state == "infected Symptomatic Severe" and currTime>self.lastUpdate+48:
+                return self.initial_location
             if dayOfWeek > 5: # its a weekend
                 return self.schedule[2][hourOfDay]
             elif dayOfWeek & 1: # bit and, its an odd day
@@ -442,7 +460,7 @@ def agentFactory(agent_df, slotVal):
             self.lastUpdate = updateTime
             self.statePersistance = durration
             self.state = stateName
-            if stateName in ["exposed", "infected Asymptomatic0", "infected Asymptomatic1", "infected Symptomatic"]:
+            if stateName in ["exposed", "infected Asymptomatic", "infected Asymptomatic Fixed", "infected Symptomatic Mild", "infected Symptomatic Severe"]:
 
                 self.infected = True
         
@@ -545,6 +563,12 @@ class AgentBasedModel:
         self.debug=True
         self.R0 = False
         self.R0_agentId = -1
+        self.agentIdSet = {}
+        # debug count
+        self.gathering_count = 0
+        self.officeHourCount = 0
+        self.requiresCheck = True
+        self.massInfectionTime = 0
    
     def configureDebug(self, debugBool):
         self.debug=debugBool
@@ -564,6 +588,8 @@ class AgentBasedModel:
         fac_schedule = schedule_faculty.scheduleCreator()
         roomIds = self.findMatchingRooms("building_type", "classroom")
         
+        
+
         # replace entries like (48, 1) --> 48
         for index, faculty_sche in enumerate(fac_schedule):
             fac_schedule[index] = [[roomIds[a] if isinstance(a, int) else a for a in row] for row in faculty_sche]
@@ -598,8 +624,9 @@ class AgentBasedModel:
         self.replaceScheduleEntry("sleep") # this gets rid of "sleep"
         self.replaceScheduleEntry("Off") #this gets rid of "off"
         self.replaceScheduleEntry("dorm")
+        self.replace_for_faculty(len(fac_schedule))
         self.replaceByType(partitionTypes=["library", "dining","gym", "office", "social"])
-        
+        print("finished schedules")
    
     def replaceByType(self, agentParam=None, agentParamValue=None, partitionTypes=None):
         """
@@ -625,7 +652,6 @@ class AgentBasedModel:
                             self.agents[agentId].schedule[i][j] = randomVec[index]
                 index +=1
         else: # if a list of values is passed
-            print("here")
             def indexVal(listObj, obj):
                 try:
                     return listObj.index(obj)
@@ -647,11 +673,23 @@ class AgentBasedModel:
                             self.agents[agentId].schedule[i][j] = randRoomIds[indx][index]
                 
                 index+=1
-        
+            
     def replaceScheduleEntry(self, antecedent):
         for agentId, agent in self.agents.items():
             agent.schedule = [[a if a != antecedent else agent.initial_location for a in row] for row in agent.schedule] 
-
+    
+    def replace_for_faculty(self, facultySize):
+       
+        roomIds = self.findMatchingRooms("building_type", "dining_hall_faculty")
+        randomVec = np.random.choice(roomIds, size=facultySize, replace=True)
+        index = 0
+        for agentId, agent in self.agents.items():
+            if agent.Agent_type == "faculty":
+                for i, row in enumerate(self.agents[agentId].schedule):
+                    for j, item in enumerate(row):
+                        if item == "dining":
+                            self.agents[agentId].schedule[i][j] = randomVec[index]
+                index+=1
    
     def initializeWorld(self):
         """
@@ -684,7 +722,6 @@ class AgentBasedModel:
         for agentId, agent in self.agents.items():
             agent.agentId = agentId
         
-
     def addToDf(self):
         """add columns to dataframe before object creation, mainly because objects in this code use __slots__,
          __slots__ prevents the addition of attributes after instance creation, hence required to define them before creation"""
@@ -703,8 +740,12 @@ class AgentBasedModel:
     def startInfectionAndSchedule(self):
         self.initialize_infection()
         self.studentFacultySchedule()
-        self.InitializeIntervention(self.config["interventions"])
+        self.InitializeIntervention()
+        print("finished initializing intervention and schedules")
 
+    def booleanAssignment(self):
+        for (p_val, VarName) in self.config["booleanAssignment"]["Agents"]:
+            self.agentAssignBool(p_val, VarName, replacement=False)
 
     def configureOffcampus(self):
         offcampus = self.roomNameId["offCampus_hub"] 
@@ -765,7 +806,7 @@ class AgentBasedModel:
 
     def R0Increase(self, roomId, totalInfection):
         room = self.rooms[roomId]
-        #print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
+        print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
         self.R0_counter+=1
 
     def initializeAgents(self):
@@ -804,6 +845,7 @@ class AgentBasedModel:
             agent.currLocation = location
             agent.initial_location = location
             self.rooms[location].agentsInside.append(agentId)
+        self.agentIdSet = set(self.agents.keys())
     
     def extraInitialization(self):
         self.globalCounter = 0
@@ -850,6 +892,7 @@ class AgentBasedModel:
                             for agentId in tup:
                                 if self.agents[agentId].state == self.config["sus"]:
                                     self.agents[agentId].changeState(self.time, self.config["exp"], self.config["transitionTime"]["exposed"])
+                                    self.officeHourCount+=1
     
     def printAgent(self):
         if self.agents[self.R0_agentId].state != "recovered":
@@ -938,12 +981,33 @@ class AgentBasedModel:
                     self.checkFaculty()
             self.big_gathering()
             
+
+
             self.checkForWalkin()
-            self.quarantine()
+            # if weekdays
+            if (self.time//24)%7<5:
+                self.quarantine()
+            
             
             self.storeInformation()
             self.logData()
             
+            if self.time%24 == 0 and self.requiresCheck:
+                infectedCount = sum([self.countAgents(state) for state in self.config["AgentPossibleStates"]["infected"]])
+                recoveredCount =  sum([self.countAgents(state) for state in self.config["AgentPossibleStates"]["recovered"]])
+                if recoveredCount+infectedCount > (len(self.agents)*0.10):
+                    self.requiresCheck = False
+                    self.massInfectionTime = self.time
+
+            if self.time//24 == 45:
+                infectedCount = sum([self.countAgents(state) for state in self.config["AgentPossibleStates"]["infected"]])
+                recoveredCount =  sum([self.countAgents(state) for state in self.config["AgentPossibleStates"]["recovered"]])
+                self.day45 = infectedCount+recoveredCount
+            if self.time//24 == 90:
+                infectedCount = sum([self.countAgents(state) for state in self.config["AgentPossibleStates"]["infected"]])
+                recoveredCount =  sum([self.countAgents(state) for state in self.config["AgentPossibleStates"]["recovered"]])
+                self.day90 = infectedCount+recoveredCount
+    
     def big_gathering(self):
         
         if self.time%(24*7) == 0: # big gathering at sunday midnight
@@ -958,6 +1022,7 @@ class AgentBasedModel:
             transition = self.config["transitionTime"]
             transitionProbability = self.config["transitionProbability"]
             newly_infected = 0
+            counter = self.countWithinAgents(totalSubset, "susceptible")
             for subset in [subsetA, subsetB, subsetC]:
                 randVec = np.random.random(len(subset))
                 totalInfection = self.gathering_infection(subset)
@@ -969,8 +1034,8 @@ class AgentBasedModel:
                         newly_infected+=1
 
                         if self.R0: # if infection occured
-                            self.R0Increase(roomId, totalInfection)
-            counter = self.countWithinAgents(totalSubset, "susceptible")
+                            self.R0Increase(self.agents[agentId].inital_location, totalInfection)
+            self.gathering_count+=newly_infected
             print(f"big gathering at day {self.time/24}, at the gathering there were {counter} healthy out of {len(totalSubset)} and {newly_infected} additionally infected agents,", totalInfection)
 
     def gathering_infection(self, subset):
@@ -1055,7 +1120,7 @@ class AgentBasedModel:
             if loc[0] != loc[1]:
                 if loc[0] == offcampus and loc[1] == transit:
                     if infectedMask[infectedIndex]:
-                        agent.changeState(self.time, self.config["exp"],self.config["transitionTime"]["exposed"] )
+                        agent.changeState(self.time, self.config["exp"],self.config["transitionTime"]["exposed"])
                     infectedIndex+=1
                 self.rooms[loc[0]].leave(agentId)
                 self.rooms[loc[1]].enter(agentId)
@@ -1071,7 +1136,7 @@ class AgentBasedModel:
         seededState = self.config["infectionSeedState"]
         infectedAgentIds = np.random.choice(list(self.agents.keys()),size=seedNumber)
         for agentId in infectedAgentIds:
-            #print("agent infected")
+            
             self.agents[agentId].changeState(self.time, seededState, self.config["transitionTime"][seededState])
         debugTempDict = dict()
         for agentId in infectedAgentIds:
@@ -1093,56 +1158,69 @@ class AgentBasedModel:
             for roomId, room in self.rooms.items():
                 if room.building_type != "offCampus":
                     totalInfection = self.infectionInRoom(roomId)
-                    for index, agentId in enumerate(room.agentsInside):
-                        state = self.agents[agentId].state
-                        if self.R0 and agentId == self.R0_agentId:
-                            if not room.room_name.endswith("_hub") and room.building_type != "dining":
-                                old_sets = set(self.uniqueIds)
-                                for ids in room.agentsInside:
-                                    self.uniqueIds.add(ids)
-                                if old_sets != self.uniqueIds:
-                                    print("*"*20, room.room_name, len(room.agentsInside))
-                    
-                        if state == "susceptible" and randVec[index] < totalInfection: 
-                            self.agents[agentId].changeState(self.time, "exposed", transition["exposed"])
-                            #print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
-                            if self.R0: # if infection occured
-                                self.R0Increase(roomId, totalInfection)
-                        elif self.agents[agentId].transitionTime() < self.time and state == "quarantined" and not self.agents[agentId].infected:
-                            # go back to the susceptible state, because the agent was never infected, just self isolated
-                            print("quar to susc")
-                            self.agents[agentId].changeState(self.time, "susceptible", transition["susceptible"])     
-                        elif self.agents[agentId].transitionTime() < self.time and state != "quarantined" and state != "susceptible" and transition[state] > 0:
-                            # the agent can change state
-                            cdf = 0
-                            if self.R0_agentId == agentId and self.agents[agentId].state == "exposed":
-                                tup = transitionProbability[state][0]
-                                self.agents[agentId].changeState(self.time,tup[0] ,transition[tup[0]] )
-                            else:
-                                for tup in transitionProbability[state]:
-                                    if tup[1] > randVec[index] > cdf:
-                                        cdf+=tup[1]
-                                        nextState = tup[0]
-                                self.agents[agentId].changeState(self.time, nextState, transition[nextState])
-                             
+                    if totalInfection > 0:
+                        for index, agentId in enumerate(room.agentsInside):
+                            state = self.agents[agentId].state
+                            if self.R0 and agentId == self.R0_agentId:
+                                # logging data
+                                if not room.room_name.endswith("_hub") and room.building_type != "dining":
+                                    old_sets = set(self.uniqueIds)
+                                    for ids in room.agentsInside:
+                                        self.uniqueIds.add(ids)
+                                    if old_sets != self.uniqueIds:
+                                        print("*"*20, room.room_name, "# of agents inside:", len(room.agentsInside))
+
+                            if state == "susceptible" and randVec[index] < totalInfection: 
+                                self.agents[agentId].changeState(self.time, "exposed", transition["exposed"])
+                                #print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
+                                if self.R0: # if infection occured
+                                    self.R0Increase(roomId, totalInfection)
+                                room.infectedNumber+=1
+                            
+                            elif self.agents[agentId].transitionTime() < self.time and state == "quarantined":
+                                if not self.agents[agentId].infected:
+                                    # go back to the susceptible state, because the agent was never infected, just self isolated
+                                
+                                    self.agents[agentId].changeState(self.time, "susceptible", transition["susceptible"])
+                                else: # go to recovered
+                                    self.agents[agentId].changeState(self.time, "recovered", transition["recovered"])     
+                            elif self.agents[agentId].transitionTime() < self.time and state != "quarantined" and state != "susceptible" and transition[state] > 0:
+                                # the agent can change state
+                                cdf = 0
+                                if self.R0_agentId == agentId and self.agents[agentId].state == "exposed":
+                                    tup = transitionProbability[state][0]
+                                    self.agents[agentId].changeState(self.time,tup[0] ,transition[tup[0]] )
+                                else:
+                                    for tup in transitionProbability[state]:
+                                        if tup[1] > randVec[index] > cdf:
+                                            cdf+=tup[1]
+                                            nextState = tup[0]
+                                    self.agents[agentId].changeState(self.time, nextState, transition[nextState])
+                                    if nextState in self.config["absorbingStates"]:
+                                        self.agentIdSet.remove(agentId)
+                                
 
     def infectionInRoom(self, roomId):
-        contribution = self.infectionWithinPopulation(self.rooms[roomId].agentsInside)
+        contribution = self.infectionWithinPopulation(self.rooms[roomId].agentsInside, roomId)
+        
         if self.rooms[roomId].building_type == "social": # check fo rdivision by zero
             if len(self.rooms[roomId].agentsInside) == 0:
                 return 0
-            cummulativeFunc = (self.config["baseP"]*self.rooms[roomId].Kv*contribution)/len(self.rooms[roomId].agentsInside)
+                # self.rooms[roomId].Kv
+            cummulativeFunc = (self.config["baseP"]*2*contribution)/len(self.rooms[roomId].agentsInside)
         else:
             cummulativeFunc = (self.config["baseP"]*self.rooms[roomId].Kv*contribution)/self.rooms[roomId].limit
         return cummulativeFunc
 
-    def infectionWithinPopulation(self, agentIds):
+    def infectionWithinPopulation(self, agentIds, roomId=None):
         contribution = 0
         for agentId in agentIds:
             lastUpdate = self.agents[agentId].lastUpdate
             compliance = self.agents[agentId].compliance
             contribution+= self.infectionContribution(agentId, lastUpdate)
-            if compliance and self.intervention1 and self.time > self.intervention1_startTime:
+            if compliance and self.intervention1 and self.time > self.intervention1_startTime and self.rooms[roomId].building_type not in ["dorm", "dining", "dining_hall_faculty"] :
+                if self.time < 24:
+                    print("facemask in effect")
                 contribution*= self.maskP
         return contribution
 
@@ -1161,9 +1239,18 @@ class AgentBasedModel:
         """ print relevant information about the model and its current state, 
         this is the same as __str__ or __repr__, but this function is for debug purpose,
         later on this functio n will be converted to the proper format using __repr__"""
-        stateList = ["susceptible", "exposed", "infected Asymptomatic0", "infected Asymptomatic1", "infected Symptomatic", "recovered", "quarantined"]
+        
+        stateList = [state for stateGroup in self.config["AgentPossibleStates"].values() for state in stateGroup]
         num = [self.countAgents(state) for state in stateList]
-        print(f"time: {self.time}, Sus {num[0]} E: {num[1]}, I Asympto: {num[2]}, IAsym: {num[3]}, I Sympto: {num[4]}, rec: {num[5]}, quar: {num[6]}, total states{sum(num)}")
+        def trunk(words):
+            wordList = words.split()
+            newWord = [a[:4] for a in wordList]
+            return " ".join(newWord)
+
+        stateListTrunked = []
+        for state, number in zip(stateList, num):
+            stateListTrunked.append(":".join([trunk(state), str(number)]))
+        print(f"time: {self.time}, states occupied: {' | '.join(stateListTrunked)}")
     
     def initializeStoringParameter(self, listOfStatus, steps=10):
         """
@@ -1184,6 +1271,9 @@ class AgentBasedModel:
     def returnStoredInfo(self):
         return self.parameters
 
+    def returnMassInfectionTime(self):
+        return self.massInfectionTime
+
     def visualOverTime(self):
         vs.timeSeriesGraph(self.timeSeries, (0, self.time+1), (0,len(self.agents)), self.parameters)
     
@@ -1200,8 +1290,10 @@ class AgentBasedModel:
         new_schedule = [[item if item not in changeVals else newVal for item in rows] for rows in originalSchedule]
         return new_schedule
 
-    def InitializeIntervention(self, InterventionId):
-        for i in InterventionId:
+    def InitializeIntervention(self):
+        interventionIds = self.config["interventions"]
+        for i in interventionIds:
+            print(i)
             if i == 1:
                 # face mask
                 self.maskP = 0.8
@@ -1221,6 +1313,7 @@ class AgentBasedModel:
                 self.closedLocation = self.config["closedBuildings"]
             elif i == 5:
                 self.officeHours = False
+        print("finished interventions")
 
     def initializeHybridClasses(self):
         """ hybrid courses"""
@@ -1243,6 +1336,7 @@ class AgentBasedModel:
             agent.schedule = self.replaceScheduleVal(agent.schedule, changeVals, agentHome, agentId)
 
     def startQuarantineGroup(self):
+        print("start quarantine Groups")
         if self.config["quarantineRandomSubGroup"]: # do nothing if quarantine screening is with random samples from the population
             pass
         else: # the population is split in smaller groups and after every interval we cycle through the groups in order and screen each member in the group
@@ -1255,30 +1349,53 @@ class AgentBasedModel:
             self.groupIds = []
             while len(totalIds) > 0:
                 sampleMinSize = min(len(totalIds), QuarantineGroupSize)
-                if sampleMinSize < QuarantineGroupSize:
-                    print("is smaller", sampleMinSize, QuarantineGroupSize)
+            
                 sampledIds = np.random.choice(list(totalIds), size=sampleMinSize,replace=False)
                 totalIds -= set(sampledIds)
                 self.groupIds.append(list(sampledIds))
-            print(len(self.groupIds))
+      
             self.quarantineGroupNumber = len(self.groupIds)
             self.quarantineGroupIndex = 0
     
     def final_check(self):
         spAgent = [agentId for agentId, agent in self.agents.items() if agent.state == "quarantined"]
         printArr = [self.agents[agentId].transitionTime for agentId in spAgent]
-        for i, obj in enumerate(printArr):
-            if i < 100:
-                print(obj)
+        for buildingId, building in self.buildings.items():
+            building.roomsInside = []
+        
+        for roomId, room in self.rooms.items():
+            self.buildings[self.buildingNameId[room.located_building]].roomsInside = self.buildings[self.buildingNameId[room.located_building]].roomsInside + [roomId] 
+        
+        buildingTCdict = dict()
+        
+        for buildingId, building in self.buildings.items():
+            buildingCount = 0
+            for roomId in building.roomsInside:
+                buildingCount+=self.rooms[roomId].infectedNumber
+            buildingTCdict[building.building_type] = buildingTCdict.get(building.building_type, 0)+buildingCount 
+            print(building.building_name, building.building_type, buildingCount)
+        
+        print("*"*20)
+        print("large gathering", self.gathering_count)
+        print("office hour count", self.officeHourCount)
+
+        print("*"*20)
+        for buildingType, count in buildingTCdict.items():
+            print(buildingType, count)
+        if self.time//24 > 45:
+            print("day 45:", self.day45)
+        if self.time//24 > 90:
+            print("day 90:", self.day90)
+        print(f"time to infect x % of population: {self.massInfectionTime}")
 
     def quarantine(self):
         if self.quarantineIntervention and self.time%self.quarantineInterval == 0 and self.time > self.config["quarantineOffset"]: 
             if self.config["quarantineRandomSubGroup"]: # if random
-                print("cycle1")
+                print("random quarantine")
                 listOfId = np.random.choice(list(self.agents.keys()), size=self.config["quarantineSampleSize"], replace=False)
                 size = len(listOfId)
             else: # we cycle through groups to check infected
-                print("cycle2")
+                print("quarantine cycle group number:", self.quarantineGroupIndex)
                 listOfId = self.groupIds[self.quarantineGroupIndex]
                 self.quarantineGroupIndex = (self.quarantineGroupIndex+1)% self.quarantineGroupNumber
                 size = len(listOfId)
@@ -1291,10 +1408,7 @@ class AgentBasedModel:
             falsePositiveMask = np.random.random(len(listOfId))
             falsePositive = [agentId for agentId, prob in zip(listOfId, falsePositiveMask) if prob < self.config["falsePositive"]]
             normalScreeningId = list(set(listOfId) - set(falsePositive))
-            if self.R0 and self.R0_agentId in listOfId:
-                    for ids in listOfId:
-                        self.uniqueIds.add(ids)
-                    print("*"*20, "social gathering", len(listOfId))
+           
             # these people had false positive results and are quarantined
             for agentId in falsePositive:
                 fpCounter+=1
@@ -1310,12 +1424,12 @@ class AgentBasedModel:
             #print("quararntined", quarCounter, "out of", len(normalScreeningId),"quarantined", fpCounter, "false positive results")
 
     def checkForWalkin(self):
-        if self.time%24 == 10 and False:
+        if self.time%24 == 8:
             for agentId, agent in self.agents.items():
-                if agent.state == "infected Symptomatic" and agent.lastUpdate+25 > self.time:
+                if agent.state == "infected Symptomatic Mild" and agent.lastUpdate+25 > self.time:
                     # with some probability the agent will walkin
                     tupP = np.random.random(3) # (P of walking in, P for false neg, P for false Pos)
-                    if tupP[0] < self.config["walkinProbability"]: # walkin
+                    if tupP[0] < self.config["mildWalkinProbability"]: # walkin
                         if tupP[1] < self.config["falseNegative"]:
                             pass
                         # theres no false negative because we assume all walkins are infected
@@ -1323,7 +1437,17 @@ class AgentBasedModel:
                             agent.changeState(self.time, self.config["qua"], self.config["transitionTime"]["quarantined"])
                         else:
                             agent.changeState(self.time, self.config["qua"], self.config["transitionTime"]["quarantined"])
-
+                if agent.state == "infected Symptomatic Severe" and agent.lastUpdate+25 > self.time:
+                    # with some probability the agent will walkin
+                    tupP = np.random.random(3) # (P of walking in, P for false neg, P for false Pos)
+                    if tupP[0] < self.config["severeWalkinProbability"]: # walkin
+                        if tupP[1] < self.config["falseNegative"]:
+                            pass
+                        # theres no false negative because we assume all walkins are infected
+                        elif tupP[2] < self.config["falsePositive"]:
+                            agent.changeState(self.time, self.config["qua"], self.config["transitionTime"]["quarantined"])
+                        else:
+                            agent.changeState(self.time, self.config["qua"], self.config["transitionTime"]["quarantined"])
 if __name__ == "__main__":
     main()    
 
