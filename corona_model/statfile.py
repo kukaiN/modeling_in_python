@@ -22,10 +22,10 @@ def analyzeModel(simulationData):
     changeInfo = []
     for row in simulationData:
         infoList.append(analyzeData(row))
-        dxdt = changeOverUnitTime(row)
-        changes.append(dxdt)
-        changeInfo.append(analyzeData(dxdt))
-    
+        #dxdt = changeOverUnitTime(row)
+        #changes.append(dxdt)
+        #changeInfo.append(analyzeData(dxdt))
+    """
     filteredInfo = []
     filteredChange = []
     filteredChangeInfo = []
@@ -36,25 +36,25 @@ def analyzeModel(simulationData):
         dxdt = changeOverUnitTime(row)
         filteredChange.append(dxdt)
         filteredChangeInfo.append(analyzeData(dxdt))
-
+    """
     simulationAverages = [a[0] for a in infoList]
-    simulationDx = [a[0] for a in filteredChangeInfo]
+    simulationDx = [0]#[a[0] for a in filteredChangeInfo]
 
 
     return (simulationAverages, simulationDx)
 
-def plotBoxAverageAndDx(simulationDatas, labels=[]):
+def plotBoxAverageAndDx(simulationDatas, labels=[], savePlt=False, saveName="defaultimage.png"):
     average = []
     dx = []
     for simulationData in simulationDatas:
         dataTup = analyzeModel(simulationData)
         average.append(dataTup[0])
         dx.append(dataTup[1])
-    boxplot(average, "averages", "models", "infected #", labels=labels)
+    boxplot(average, "averages", "models", "infected #", labels=labels, savePlt=savePlt, saveName=saveName)
     #boxplot(dx, "averageChanges", "models", "d(infected)/dt #", labels=labels)
 
 
-def boxplot(data, oneD=True, pltTitle="Some Title", xlabel="Default X", ylabel="Default Y", labels=[], showplt=True, saveplt=False):
+def boxplot(data, oneD=True, pltTitle="Some Title", xlabel="Default X", ylabel="Default Y", labels=[], showplt=True, savePlt=False, saveName="defaultPLTimage.png"):
     # nice example of boxplots:
     # https://matplotlib.org/2.0.1/examples/statistics/boxplot_color_demo.html
     fig1, ax1 = plt.subplots()
@@ -73,7 +73,11 @@ def boxplot(data, oneD=True, pltTitle="Some Title", xlabel="Default X", ylabel="
     """
     if labels != [] and len(labels) == len(data):
         plt.setp(ax1, xticks=xticks, xticklabels=labels)
-    plt.show()
+    if savePlt:
+        print("image saved as", saveName)
+        plt.savefig(saveName)
+    else:
+        plt.show()
 
 def changeOverUnitTime(listData):
     """

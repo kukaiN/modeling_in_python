@@ -62,6 +62,7 @@ def runSimulation(pickleName, simulationN= 10, runtime = 200):
     infA, infAF = "infected Asymptomatic", "infected Asymptomatic Fixed"
     infSM, infSS = "infected Symptomatic Mild", "infected Symptomatic Severe"
     simulationOutcome = []
+    timeOutcome = []
     for _ in range(simulationN):
         model = flr.loadUsingDill(pickleName)
         print("loaded pickled object successfully")
@@ -73,6 +74,8 @@ def runSimulation(pickleName, simulationN= 10, runtime = 200):
         
         # retrieve the time series data
         dataDict = model.returnStoredInfo()
+        timeData = model.returnMassInfectionTime()
+        model.final_check()
         # look at total infected over time, 
         arr1 = np.array(dataDict[infA])
         arr2 = np.array(dataDict[infAF])
@@ -80,19 +83,28 @@ def runSimulation(pickleName, simulationN= 10, runtime = 200):
         arr4 = np.array(dataDict[infSS])
         infected_numbers = arr1+arr2+arr3+arr4
         simulationOutcome.append(infected_numbers)
-    return simulationOutcome
+        timeOutcome.append(timeData)
+    return (simulationOutcome, timeOutcome)
 
 def simulateAndPlot(pickleNames, simulationN=10, runtime=200):
     outcomes = []
+    timeOutcome = []
     totalcases = len(pickleNames)
     t0 = time.time()
     for i, name in enumerate(pickleNames):
         print("*"*20)
-        print(f"{(i+1)/totalcases*100}% cases finished")
-        outcomes.append(runSimulation(name,simulationN, runtime))
+        print(f"{(i)/totalcases*100}% cases finished")
+        output = runSimulation(name,simulationN, runtime)
+        outcomes.append(output[0])
+        timeOutcome.append(output[1])
+        print("infected numbers", statfile.analyzeData(output[0])[0])
+        print(output[1])
+        print("time to 10% infected", statfile.analyzeData(output[1])[0])
+
         print((f"took {time.time()-t0} time to finish{(i+1)/totalcases*100}%"))
     print(f"took {time.time()-t0} time to run {totalcases*simulationN} simulations")
-    statfile.plotBoxAverageAndDx(outcomes)
+    statfile.plotBoxAverageAndDx(outcomes, savePlt=True, saveName="outcome.png")
+    statfile.plotBoxAverageAndDx(timeOutcome, savePlt=True, saveName="timeOutcome.png")
 
 def initializeSimulations(simulationControls, modelConfig, debug=True, pickleBaseName="pickleModel_"):
     """
@@ -257,7 +269,7 @@ def main():
             "Agents" : [("motion", "stationary"), ("infected", False)],
         },
         "booleanAssignment":{
-            "Agents" : [("compliance", 0.2), ("officeAttendee", 0.2), ("gathering", 0.5)]
+            "Agents" : [("compliance", 0), ("officeAttendee", 0.2), ("gathering", 0.5)]
         },
         # 0.05-->R0 is [9, 8, 5, 0, 7]
         #(5.8, 3.1874754901018454, 9, 7.0)
@@ -315,29 +327,35 @@ def main():
         "falsePositive":0.01,
         "falseNegative":0.10,
         
+        # face mask
+        "maskP":0.5,
+
         # OTHER parameters
         "transitName": "transit_space_hub",
         # change back to 0.001
         "offCampusInfectionP":0.125/700,
         "trackLocation" : ["_hub"],
-        "interventions":[],
+        "interventions":[1],
     }
     # you can control for multiple interventions by adding a case:
     #  [(modified attr1, newVal), (modified attr2, newVal), ...]
     simulationControls = [
         [(None, None)], # base case
-        [("quarantineSamplingProbability", 0.03)], # case 1
-        [("quarantineSamplingProbability", 0.1)],
-        [("quarantineSamplingProbability", 0.5)],
+        [("booleanAssignment",{"Agents" : [("compliance", 0.33), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
+        [("booleanAssignment",{"Agents" : [("compliance", 0.66), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
+        [("booleanAssignment",{"Agents" : [("compliance", 1), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
+        #[("quarantineSamplingProbability", 0.03)], # case 1
+        #[("quarantineSamplingProbability", 0.1)],
+        #[("quarantineSamplingProbability", 0.5)],
     ]
     R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
                     ("walkinProbability", 0),("quarantineOffset", 20*24), ("interventions", [])]
     #simpleCheck(modelConfig, days=100, visuals=True)
-    R0_simulation(modelConfig, R0_controls,100, debug=True)
-    return
+    #R0_simulation(modelConfig, R0_controls,5, debug=True)
     
-    #createdFiles = initializeSimulations(simulationControls, modelConfig, True)
-    #simulateAndPlot(createdFiles, 5, 800)
+    
+    createdFiles = initializeSimulations(simulationControls, modelConfig, True)
+    simulateAndPlot(createdFiles, 50, 24*100)
   
 
 def agentFactory(agent_df, slotVal):
@@ -563,7 +581,7 @@ class AgentBasedModel:
         self.debug=True
         self.R0 = False
         self.R0_agentId = -1
-        self.agentIdSet = {}
+        #self.agentIdSet = {}
         # debug count
         self.gathering_count = 0
         self.officeHourCount = 0
@@ -796,7 +814,7 @@ class AgentBasedModel:
     def findR0(self):
         self.R0 = True
         self.R0_agentId = [agentId for agentId, agent in self.agents.items() if agent.state != "susceptible"][0]
-        print("running R0 calculation")
+        print("running R0 calculation with ID", self.R0_agentId)
         self.R0_counter = 0
         self.uniqueIds = set()
     
@@ -845,7 +863,7 @@ class AgentBasedModel:
             agent.currLocation = location
             agent.initial_location = location
             self.rooms[location].agentsInside.append(agentId)
-        self.agentIdSet = set(self.agents.keys())
+        #self.agentIdSet = set(self.agents.keys())
     
     def extraInitialization(self):
         self.globalCounter = 0
@@ -887,7 +905,7 @@ class AgentBasedModel:
                     randVec = np.random.random(len(faculty)*len(non_faculty))
                     # pairwise infection happening
                     for i, tup in enumerate(itertools.product(faculty, non_faculty)):
-                        contribution = self.infectionWithinPopulation(tup)
+                        contribution = self.infectionWithinPopulation(tup, roomId)
                         if randVec[i] < (3*baseP*contribution)/agentsOnsite:
                             for agentId in tup:
                                 if self.agents[agentId].state == self.config["sus"]:
@@ -1154,14 +1172,16 @@ class AgentBasedModel:
             transition = self.config["transitionTime"]
             transitionProbability = self.config["transitionProbability"]
             randVec = np.random.random(len(self.agents))
-            
+   
             for roomId, room in self.rooms.items():
                 if room.building_type != "offCampus":
                     totalInfection = self.infectionInRoom(roomId)
+                   
                     if totalInfection > 0:
                         for index, agentId in enumerate(room.agentsInside):
                             state = self.agents[agentId].state
                             if self.R0 and agentId == self.R0_agentId:
+                               
                                 # logging data
                                 if not room.room_name.endswith("_hub") and room.building_type != "dining":
                                     old_sets = set(self.uniqueIds)
@@ -1176,28 +1196,30 @@ class AgentBasedModel:
                                 if self.R0: # if infection occured
                                     self.R0Increase(roomId, totalInfection)
                                 room.infectedNumber+=1
+                    for index, agentId in enumerate(room.agentsInside):   
+                        state = self.agents[agentId].state   
+                        if self.agents[agentId].transitionTime() < self.time and state == "quarantined":
+                            if not self.agents[agentId].infected:
+                                # go back to the susceptible state, because the agent was never infected, just self isolated
                             
-                            elif self.agents[agentId].transitionTime() < self.time and state == "quarantined":
-                                if not self.agents[agentId].infected:
-                                    # go back to the susceptible state, because the agent was never infected, just self isolated
-                                
-                                    self.agents[agentId].changeState(self.time, "susceptible", transition["susceptible"])
-                                else: # go to recovered
-                                    self.agents[agentId].changeState(self.time, "recovered", transition["recovered"])     
-                            elif self.agents[agentId].transitionTime() < self.time and state != "quarantined" and state != "susceptible" and transition[state] > 0:
-                                # the agent can change state
-                                cdf = 0
-                                if self.R0_agentId == agentId and self.agents[agentId].state == "exposed":
-                                    tup = transitionProbability[state][0]
-                                    self.agents[agentId].changeState(self.time,tup[0] ,transition[tup[0]] )
-                                else:
-                                    for tup in transitionProbability[state]:
-                                        if tup[1] > randVec[index] > cdf:
-                                            cdf+=tup[1]
-                                            nextState = tup[0]
-                                    self.agents[agentId].changeState(self.time, nextState, transition[nextState])
-                                    if nextState in self.config["absorbingStates"]:
-                                        self.agentIdSet.remove(agentId)
+                                self.agents[agentId].changeState(self.time, "susceptible", transition["susceptible"])
+                            else: # go to recovered
+                                self.agents[agentId].changeState(self.time, "recovered", transition["recovered"])     
+                        elif self.agents[agentId].transitionTime() < self.time and state != "quarantined" and state != "susceptible" and transition[state] > 0:
+                            # the agent can change state
+                            cdf = 0
+                            if self.R0_agentId == agentId and self.agents[agentId].state == "exposed":
+                                print("change state")
+                                tup = transitionProbability[state][0]
+                                self.agents[agentId].changeState(self.time,tup[0] ,transition[tup[0]] )
+                            else:
+                                for tup in transitionProbability[state]:
+                                    if tup[1] > randVec[index] > cdf:
+                                        cdf+=tup[1]
+                                        nextState = tup[0]
+                                self.agents[agentId].changeState(self.time, nextState, transition[nextState])
+                                #if nextState in self.config["absorbingStates"]:
+                                #    self.agentIdSet.remove(agentId)
                                 
 
     def infectionInRoom(self, roomId):
@@ -1216,16 +1238,16 @@ class AgentBasedModel:
         contribution = 0
         for agentId in agentIds:
             lastUpdate = self.agents[agentId].lastUpdate
-            compliance = self.agents[agentId].compliance
             contribution+= self.infectionContribution(agentId, lastUpdate)
-            if compliance and self.intervention1 and self.time > self.intervention1_startTime and self.rooms[roomId].building_type not in ["dorm", "dining", "dining_hall_faculty"] :
-                if self.time < 24:
-                    print("facemask in effect")
-                contribution*= self.maskP
+            if self.facemaskIntervention and roomId != None:
+                if self.agents[agentId].compliance and self.rooms[roomId].building_type not in ["dorm", "dining", "dining_hall_faculty", "social"] :
+                    contribution*= self.maskP
         return contribution
 
     def infectionContribution(self, agentId, lastUpdate):
+
         if (not self.R0) or (self.R0 and agentId == self.R0_agentId): 
+          
             return self.config["infectionContribution"].get(self.agents[agentId].state, 0)
         return 0
 
@@ -1293,10 +1315,10 @@ class AgentBasedModel:
     def InitializeIntervention(self):
         interventionIds = self.config["interventions"]
         for i in interventionIds:
-            print(i)
+        
             if i == 1:
                 # face mask
-                self.maskP = 0.8
+                self.maskP = self.config["maskP"]
                 self.facemaskIntervention = True
                 self.facemask_startTime = 0
             elif i == 2:
@@ -1358,6 +1380,8 @@ class AgentBasedModel:
             self.quarantineGroupIndex = 0
     
     def final_check(self):
+        
+        """
         spAgent = [agentId for agentId, agent in self.agents.items() if agent.state == "quarantined"]
         printArr = [self.agents[agentId].transitionTime for agentId in spAgent]
         for buildingId, building in self.buildings.items():
@@ -1378,10 +1402,11 @@ class AgentBasedModel:
         print("*"*20)
         print("large gathering", self.gathering_count)
         print("office hour count", self.officeHourCount)
-
+        
         print("*"*20)
         for buildingType, count in buildingTCdict.items():
             print(buildingType, count)
+        """
         if self.time//24 > 45:
             print("day 45:", self.day45)
         if self.time//24 > 90:
