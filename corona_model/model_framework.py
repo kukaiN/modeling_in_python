@@ -61,6 +61,7 @@ def runSimulation(pickleName, simulationN= 10, runtime = 200):
     print(f"starting {simulationN} simulation for {runtime} steps")
     infA, infAF = "infected Asymptomatic", "infected Asymptomatic Fixed"
     infSM, infSS = "infected Symptomatic Mild", "infected Symptomatic Severe"
+    rec = "recovered"
     simulationOutcome = []
     timeOutcome = []
     for _ in range(simulationN):
@@ -68,7 +69,7 @@ def runSimulation(pickleName, simulationN= 10, runtime = 200):
         print("loaded pickled object successfully")
         model.configureDebug(False)
         model.startInfectionAndSchedule()
-        model.initializeStoringParameter([infA, infAF, infSM, infSS], steps=1)
+        model.initializeStoringParameter([infA, infAF, infSM, infSS, rec], steps=1)
         model.updateSteps(runtime)
         # end of simulation
         
@@ -81,6 +82,7 @@ def runSimulation(pickleName, simulationN= 10, runtime = 200):
         arr2 = np.array(dataDict[infAF])
         arr3 = np.array(dataDict[infSM])
         arr4 = np.array(dataDict[infSS])
+        arr5 = np.array(dataDict[rec])
         infected_numbers = arr1+arr2+arr3+arr4
         simulationOutcome.append(infected_numbers)
         timeOutcome.append(timeData)
@@ -140,9 +142,6 @@ def createModel(modelConfig, debug=False):
     model.initializeAgents()
     model.startLog()
     model.configureDebug(debug)
-    model.agentAssignBool(0.2, attrName="compliance")
-    model.agentAssignBool(0.2, attrName="officeAttendee")
-    model.agentAssignBool(0.5, attrName="gathering")
     return model
 
 def simpleCheck(modelConfig, days=100, visuals=True):
@@ -329,14 +328,14 @@ def main():
         "falseNegative":0.10,
         
         # face mask
-        "maskP":0.5,
+        "maskP":0.8,
 
         # OTHER parameters
         "transitName": "transit_space_hub",
         # change back to 0.001
         "offCampusInfectionP":0.125/700,
         "trackLocation" : ["_hub"],
-        "interventions":[1],
+        "interventions":[1, 3],
     }
     # you can control for multiple interventions by adding a case:
     #  [(modified attr1, newVal), (modified attr2, newVal), ...]
@@ -1430,11 +1429,11 @@ class AgentBasedModel:
     def quarantine(self):
         if self.quarantineIntervention and self.time%self.quarantineInterval == 0 and self.time > self.config["quarantineOffset"]: 
             if self.config["quarantineRandomSubGroup"]: # if random
-                print("random quarantine")
+                #print("random quarantine")
                 listOfId = np.random.choice(list(self.agents.keys()), size=self.config["quarantineSampleSize"], replace=False)
                 size = len(listOfId)
             else: # we cycle through groups to check infected
-                print("quarantine cycle group number:", self.quarantineGroupIndex)
+                #print("quarantine cycle group number:", self.quarantineGroupIndex)
                 listOfId = self.groupIds[self.quarantineGroupIndex]
                 self.quarantineGroupIndex = (self.quarantineGroupIndex+1)% self.quarantineGroupNumber
                 size = len(listOfId)
