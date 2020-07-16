@@ -57,57 +57,51 @@ def findInTuple(val, itemList, index):
         if tup[index] == val: return tup
     return None
 
-def runSimulation(pickleName, simulationN= 10, runtime = 200):
+# change runtime to durration, change simulationN to iteration if its an available term
+def runSimulation(pickleName, simulationN= 10, runtime = 200, debug=False):
     print(f"starting {simulationN} simulation for {runtime} steps")
     infA, infAF = "infected Asymptomatic", "infected Asymptomatic Fixed"
-    infSM, infSS = "infected Symptomatic Mild", "infected Symptomatic Severe"
-    rec = "recovered"
-    simulationOutcome = []
-    timeOutcome = []
+    infSM, infSS, rec = "infected Symptomatic Mild", "infected Symptomatic Severe", "recovered"
+    infectedNumbers, massInfectionMoments = [], []
     for _ in range(simulationN):
         model = flr.loadUsingDill(pickleName)
         print("loaded pickled object successfully")
-        model.configureDebug(False)
+        model.configureDebug(debug)
         model.startInfectionAndSchedule()
         model.initializeStoringParameter([infA, infAF, infSM, infSS, rec], steps=1)
         model.updateSteps(runtime)
         # end of simulation
         
-        # retrieve the time series data
+        # get the time series data and store data "when 10% of the population is infected"
         dataDict = model.returnStoredInfo()
-        timeData = model.returnMassInfectionTime()
+        massInfectionMoments.append(model.returnMassInfectionTime())
         model.final_check()
         # look at total infected over time, 
-        arr1 = np.array(dataDict[infA])
-        arr2 = np.array(dataDict[infAF])
-        arr3 = np.array(dataDict[infSM])
-        arr4 = np.array(dataDict[infSS])
-        arr5 = np.array(dataDict[rec])
-        infected_numbers = arr1+arr2+arr3+arr4
-        simulationOutcome.append(infected_numbers)
-        timeOutcome.append(timeData)
-    return (simulationOutcome, timeOutcome)
+        infectedCount = np.zeros(len(dataDict[infA]))
+        for state in [infA, infAf, infSM, infSS, rec]:
+            print(str(state), dataDict[state])
+            infectedCount+=np.array(dataDict[state])
+        infectedNumbers.append(infectedCount)
+    return (infectedNumbers, massInfectionMoments)
 
-def simulateAndPlot(pickleNames, simulationN=10, runtime=200):
-
-    outcomes = []
-    timeOutcome = []
+def simulateAndPlot(pickleNames, simulationN=10, runtime=200, debug=False):
+    massInfectionCounts, massInfectionTime = [], []
     totalcases = len(pickleNames)
     t0 = time.time()
     for i, name in enumerate(pickleNames):
         print("*"*20)
         print(f"{(i)/totalcases*100}% cases finished")
-        output = runSimulation(name,simulationN, runtime)
-        outcomes.append(output[0])
-        timeOutcome.append(output[1])
+        output = runSimulation(name,simulationN, runtime, debug=debug)
+        massInfectionCounts.append(output[0])
+        massInfectionTime.append(output[1])
         print("infected numbers", statfile.analyzeData(output[0])[0])
         print(output[1])
         print("time to 10% infected", statfile.analyzeData(output[1])[0])
 
         print((f"took {time.time()-t0} time to finish{(i+1)/totalcases*100}%"))
     print(f"took {time.time()-t0} time to run {totalcases*simulationN} simulations")
-    statfile.plotBoxAverageAndDx(outcomes, savePlt=True, saveName="outcome1.png")
-    statfile.plotBoxAverageAndDx(timeOutcome, savePlt=True, saveName="timeOutcome1.png")
+    statfile.plotBoxAverageAndDx(massInfectionCounts, savePlt=True, saveName="totalNumberOfAgentsInfected.png")
+    statfile.plotBoxAverageAndDx(massInfectionTime, savePlt=True, saveName="timeWhen10percentIsInfected.png")
 
 def initializeSimulations(simulationControls, modelConfig, debug=True, pickleBaseName="pickleModel_"):
     """
@@ -176,9 +170,9 @@ def simpleCheck(modelConfig, days=100, visuals=True):
     #model.visualizeBuildings()
 
 def R0_simulation(modelConfig, R0Control, simulationN=10, debug=False):
-    infA = "infected Asymptomatic"
-    infAF, infSM, infSS, rec = "infected Asymptomatic Fixed", "infected Symptomatic Mild","infected Symptomatic Severe", "recovered"
-    R0List = []
+    infA, infAF = "infected Asymptomatic", "infected Asymptomatic Fixed"
+    infSM, infSS, rec = "infected Symptomatic Mild","infected Symptomatic Severe", "recovered"
+    R0Values = []
     
     configCopy = dict(modelConfig)
     for variableTup in R0Control:
@@ -207,20 +201,20 @@ def R0_simulation(modelConfig, R0Control, simulationN=10, debug=False):
                 max_limits[key] = max_limits.get(key, []) + [value]
         sampleR0 = new_model.returnR0()
    
-        R0List.append(sampleR0)
+        R0Values.append(sampleR0)
         
         print(f"finished {(i+1)/simulationN*100}% of cases")
     if debug:
         for key, value in max_limits.items():
             print(key, "max is the following:", value)
-    print("R0 is", R0List)
-    data = statfile.analyzeData(R0List)
+    print("R0 is", R0Values)
+    data = statfile.analyzeData(R0Values)
     #pickleName = flr.fullPath("R0Data.pkl", "picklefile")
     # save the data just in case
-    #flr.saveUsingDill(pickleName, R0List)
+    #flr.saveUsingDill(pickleName, R0Values)
     print(data)
     print("(npMean, stdev, rangeVal, median)")
-    statfile.boxplot(R0List,True, "R0 simulation", "cases", "infected people (R0)", ["base model"])
+    statfile.boxplot(R0Values,True, "R0 simulation", "cases", "infected people (R0)", ["base model"])
     print("time:", time.time()-t1)
   
 
@@ -329,7 +323,7 @@ def main():
         
         # face mask
         "maskP":0.2,
-        "nonMaskBuildingType": ["dorm", "dining", "dining_hall_faculty", "social"],
+        "nonMaskBuildingType": [],#["dorm", "dining", "dining_hall_faculty", "social"],
         # OTHER parameters
         "transitName": "transit_space_hub",
         # change back to 0.001

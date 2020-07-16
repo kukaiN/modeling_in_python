@@ -43,18 +43,46 @@ def analyzeModel(simulationData):
 
     return (simulationAverages, simulationDx)
 
-def plotBoxAverageAndDx(simulationDatas, labels=[], savePlt=False, saveName="defaultimage.png"):
-    average = []
+def plotBoxAverageAndDx(simulationDatas, pltTitle="some Title", xlabel="models", ylabel="infected #",labels=[], showPlt=False, savePlt=False, saveName="defaultimage.png"):
+    """
+    run simple analysis on the given data and plot a box and whiskers graph
+    
+    Parameters:
+    - simulationDatas: the data to plot
+    - pltTitle: title for the generated plot
+    - xlabel: label for the x axis
+    - ylabel: label for the y axis
+    - labels: the labels for each B&W plot
+    - showplt: boolean, show the plot or not
+    - savePlt: boolean, save the plot with the given filename or not
+    - saveName: string, ends with .png or some file format, save the plot with this name
+
+    """
+    
+    averages = []
     dx = []
     for simulationData in simulationDatas:
         dataTup = analyzeModel(simulationData)
-        average.append(dataTup[0])
+        averages.append(dataTup[0])
         dx.append(dataTup[1])
-    boxplot(average, "averages", "models", "infected #", labels=labels, savePlt=savePlt, saveName=saveName)
+    boxplot(averages, True, pltTitle=pltTitle, xlabel=xlabel, ylabel=ylabel, labels=labels, showPlt=showPlt, savePlt=savePlt, saveName=saveName)
     #boxplot(dx, "averageChanges", "models", "d(infected)/dt #", labels=labels)
 
 
-def boxplot(data, oneD=True, pltTitle="Some Title", xlabel="Default X", ylabel="Default Y", labels=[], showplt=True, savePlt=False, saveName="defaultPLTimage.png"):
+def boxplot(data, oneD=True, pltTitle="Some Title", xlabel="Default X", ylabel="Default Y", labels=[], showPlt=True, savePlt=False, saveName="defaultimage.png"):
+    """
+    Parameters:
+    - data: the data to plot, can be a one or two dimentional list, if a 2D list is passed, each row is going to be a data for a separate box plot
+    - oneD:  bool to tell if "data" is one dimentional or not
+    - pltTitle: the title of the plot
+    - xlabel: label for the x axis
+    - ylabel: label for the y axis
+    - labels: labels for each box plot, pass a list with one entry if there's one B&W, and a list filled with entries for multiple B&W 
+    - showPlt: boolean, show the plot or not
+    - savePlt: boolean, save the plot with the given filename or not
+    - saveName: string, ends with .png o some file format, save the plot with this name
+
+    """
     # nice example of boxplots:
     # https://matplotlib.org/2.0.1/examples/statistics/boxplot_color_demo.html
     fig1, ax1 = plt.subplots()
