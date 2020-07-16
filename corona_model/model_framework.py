@@ -351,22 +351,23 @@ def main():
     #R0_simulation(modelConfig, R0_controls,5, debug=True)
     labels = ["base", "cmpl:0.33", "cmpl:0.66", "cmpl:1"]
     # with 0.5 as base
-    createdFiles = initializeSimulations(simulationControls, modelConfig, True)
+    
+    """createdFiles = initializeSimulations(simulationControls, modelConfig, True)
     simulateAndPlot(createdFiles, 5, 24*100, additionalName="050P_", title="mask with 0.5 effectiveness", labels=labels)
     return
     modelConfig["maskP"] = 0.1
     createdFiles = initializeSimulations(simulationControls, modelConfig, True)
     simulateAndPlot(createdFiles, 100, 24*100, additionalName="010P_", title="masks with 0.1 effectiveness", labels=labels)
-     
+    """
     modelConfig["interventions"] = [3]
-    labels1 = ["base", "quarSize:100", "quarSize:250", "quarSize:500"]
+    labels1 = ["base", "quar500"]#"quarSize:100", "quarSize:250", "quarSize:500"]
     simulationControls1 = [
         [("interventions", [])], # base case
-        [("interventions", [3]), ("quarantineSampleSize", 100)],
-        [("interventions", [3]), ("quarantineSampleSize", 250)],    
+        #[("interventions", [3]), ("quarantineSampleSize", 100)],
+        #[("interventions", [3]), ("quarantineSampleSize", 250)],    
         [("interventions", [3]), ("quarantineSampleSize", 500)]]
     createdFiles = initializeSimulations(simulationControls1, modelConfig, True)
-    simulateAndPlot(createdFiles, 50, 24*100, additionalName="quar_",title="different quarantine size", labels=labels1)
+    simulateAndPlot(createdFiles, 5, 24*100, additionalName="quar_",title="different quarantine size", labels=labels1)
 
 def agentFactory(agent_df, slotVal):
     """
