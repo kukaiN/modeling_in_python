@@ -87,6 +87,7 @@ def runSimulation(pickleName, simulationN= 10, runtime = 200):
     return (simulationOutcome, timeOutcome)
 
 def simulateAndPlot(pickleNames, simulationN=10, runtime=200):
+
     outcomes = []
     timeOutcome = []
     totalcases = len(pickleNames)
@@ -103,8 +104,8 @@ def simulateAndPlot(pickleNames, simulationN=10, runtime=200):
 
         print((f"took {time.time()-t0} time to finish{(i+1)/totalcases*100}%"))
     print(f"took {time.time()-t0} time to run {totalcases*simulationN} simulations")
-    statfile.plotBoxAverageAndDx(outcomes, savePlt=True, saveName="outcome.png")
-    statfile.plotBoxAverageAndDx(timeOutcome, savePlt=True, saveName="timeOutcome.png")
+    statfile.plotBoxAverageAndDx(outcomes, savePlt=True, saveName="outcome1.png")
+    statfile.plotBoxAverageAndDx(timeOutcome, savePlt=True, saveName="timeOutcome1.png")
 
 def initializeSimulations(simulationControls, modelConfig, debug=True, pickleBaseName="pickleModel_"):
     """
@@ -341,12 +342,14 @@ def main():
     #  [(modified attr1, newVal), (modified attr2, newVal), ...]
     simulationControls = [
         [(None, None)], # base case
-        [("booleanAssignment",{"Agents" : [("compliance", 0.33), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
-        [("booleanAssignment",{"Agents" : [("compliance", 0.66), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
-        [("booleanAssignment",{"Agents" : [("compliance", 1), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
-        #[("quarantineSamplingProbability", 0.03)], # case 1
-        #[("quarantineSamplingProbability", 0.1)],
-        #[("quarantineSamplingProbability", 0.5)],
+        #[("booleanAssignment",{"Agents" : [("compliance", 0.33), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
+        #[("booleanAssignment",{"Agents" : [("compliance", 0.66), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
+        #[("booleanAssignment",{"Agents" : [("compliance", 1), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
+         # case 1
+        [("quarantineSamplingProbability", 0.1)],
+        [("quarantineSamplingProbability", 0.5)],
+        [("quarantineSamplingProbability", 0.8)],
+        [("quarantineSamplingProbability", 0.99)],
     ]
     R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
                     ("walkinProbability", 0),("quarantineOffset", 20*24), ("interventions", [])]
@@ -355,7 +358,7 @@ def main():
     
     
     createdFiles = initializeSimulations(simulationControls, modelConfig, True)
-    simulateAndPlot(createdFiles, 50, 24*100)
+    simulateAndPlot(createdFiles, 10, 24*80)
   
 
 def agentFactory(agent_df, slotVal):
@@ -1179,7 +1182,6 @@ class AgentBasedModel:
                    
                     if totalInfection > 0:
                         for index, agentId in enumerate(room.agentsInside):
-                            state = self.agents[agentId].state
                             if self.R0 and agentId == self.R0_agentId:
                                
                                 # logging data
@@ -1189,13 +1191,23 @@ class AgentBasedModel:
                                         self.uniqueIds.add(ids)
                                     if old_sets != self.uniqueIds:
                                         print("*"*20, room.room_name, "# of agents inside:", len(room.agentsInside))
-
-                            if state == "susceptible" and randVec[index] < totalInfection: 
-                                self.agents[agentId].changeState(self.time, "exposed", transition["exposed"])
-                                #print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
+                            
+                            if self.agents[agentId].state == "susceptible":
+                                coeff = 1
+                                if self.agents[agentId].compliance:
+                                    bType = self.rooms[roomId].building_type 
+                                    if bType!="dorm" and bType!="dining" and bType!="dining_hall_faculty" and bType!="social":
+                                        coeff = 0.5
+                                if randVec[index] < coeff*totalInfection:
+                                    self.agents[agentId].changeState(self.time, "exposed", transition["exposed"])
+                                    if self.R0: # if infection occured
+                                        self.R0Increase(roomId, totalInfection)
+                                    room.infectedNumber+=1
+                                         #print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
                                 if self.R0: # if infection occured
                                     self.R0Increase(roomId, totalInfection)
                                 room.infectedNumber+=1
+
                     for index, agentId in enumerate(room.agentsInside):   
                         state = self.agents[agentId].state   
                         if self.agents[agentId].transitionTime() < self.time and state == "quarantined":
@@ -1240,8 +1252,10 @@ class AgentBasedModel:
             lastUpdate = self.agents[agentId].lastUpdate
             contribution+= self.infectionContribution(agentId, lastUpdate)
             if self.facemaskIntervention and roomId != None:
-                if self.agents[agentId].compliance and self.rooms[roomId].building_type not in ["dorm", "dining", "dining_hall_faculty", "social"] :
-                    contribution*= self.maskP
+                if self.agents[agentId].compliance:
+                    bType = self.rooms[roomId].building_type 
+                    if bType!="dorm" and bType!="dining" and bType!="dining_hall_faculty" and bType!="social":
+                        contribution*= self.maskP
         return contribution
 
     def infectionContribution(self, agentId, lastUpdate):
