@@ -77,12 +77,12 @@ def runSimulation(pickleName, simulationN= 10, runtime = 200, debug=False):
         massInfectionMoments.append(model.returnMassInfectionTime())
         model.final_check()
         # look at total infected over time, 
-        infectedCount = 0
+        infectedCount = np.zeros(len(dataDict[infA]))
         for state in [infA, infAF, infSM, infSS, rec]:
-            print(str(state), dataDict[state][-1])
+            print(str(state), dataDict[state])
             # get the last entry
-            infectedCount+=dataDict[state][-1]
-        infectedNumbers.append(infectedCount)
+            infectedCount+=dataDict[state]
+        infectedNumbers.append(infectedCount[-1])
     return (infectedNumbers, massInfectionMoments)
 
 def simulateAndPlot(pickleNames, simulationN=10, runtime=200,labels=[], title="default title", debug=False, additionalName=""):
@@ -352,12 +352,12 @@ def main():
     labels = ["base", "cmpl:0.33", "cmpl:0.66", "cmpl:1"]
     # with 0.5 as base
     createdFiles = initializeSimulations(simulationControls, modelConfig, True)
-    simulateAndPlot(createdFiles, 100, 24*100, additionalName="050P_", title="mask with 0.5 effectiveness", labels=labels)
-    
+    simulateAndPlot(createdFiles, 5, 24*100, additionalName="050P_", title="mask with 0.5 effectiveness", labels=labels)
+    return
     modelConfig["maskP"] = 0.1
     createdFiles = initializeSimulations(simulationControls, modelConfig, True)
     simulateAndPlot(createdFiles, 100, 24*100, additionalName="010P_", title="masks with 0.1 effectiveness", labels=labels)
-    return 
+     
     modelConfig["interventions"] = [3]
     labels1 = ["base", "quarSize:100", "quarSize:250", "quarSize:500"]
     simulationControls1 = [
