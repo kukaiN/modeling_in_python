@@ -328,8 +328,8 @@ def main():
         "falseNegative":0.10,
         
         # face mask
-        "maskP":0.8,
-
+        "maskP":0.2,
+        "nonMaskBuildingType": ["dorm", "dining", "dining_hall_faculty", "social"],
         # OTHER parameters
         "transitName": "transit_space_hub",
         # change back to 0.001
@@ -357,7 +357,7 @@ def main():
     
     
     createdFiles = initializeSimulations(simulationControls, modelConfig, True)
-    simulateAndPlot(createdFiles, 10, 24*80)
+    simulateAndPlot(createdFiles, 6, 24*80)
   
 
 def agentFactory(agent_df, slotVal):
@@ -1194,9 +1194,9 @@ class AgentBasedModel:
                             if self.agents[agentId].state == "susceptible":
                                 coeff = 1
                                 if self.agents[agentId].compliance:
-                                    bType = self.rooms[roomId].building_type 
-                                    if bType!="dorm" and bType!="dining" and bType!="dining_hall_faculty" and bType!="social":
-                                        coeff = 0.5
+                             
+                                    if self.rooms[roomId].building_type in self.config["nonMaskBuildingType"]:
+                                        coeff = self.maskP
                                 if randVec[index] < coeff*totalInfection:
                                     self.agents[agentId].changeState(self.time, "exposed", transition["exposed"])
                                     if self.R0: # if infection occured
@@ -1252,8 +1252,8 @@ class AgentBasedModel:
             contribution+= self.infectionContribution(agentId, lastUpdate)
             if self.facemaskIntervention and roomId != None:
                 if self.agents[agentId].compliance:
-                    bType = self.rooms[roomId].building_type 
-                    if bType!="dorm" and bType!="dining" and bType!="dining_hall_faculty" and bType!="social":
+    
+                    if self.rooms[roomId].building_type  not in self.config["nonMaskBuildingType"]:
                         contribution*= self.maskP
         return contribution
 
