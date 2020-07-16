@@ -77,14 +77,15 @@ def runSimulation(pickleName, simulationN= 10, runtime = 200, debug=False):
         massInfectionMoments.append(model.returnMassInfectionTime())
         model.final_check()
         # look at total infected over time, 
-        infectedCount = np.zeros(len(dataDict[infA]))
-        for state in [infA, infAf, infSM, infSS, rec]:
-            print(str(state), dataDict[state])
-            infectedCount+=np.array(dataDict[state])
+        infectedCount = 0
+        for state in [infA, infAF, infSM, infSS, rec]:
+            print(str(state), dataDict[state][-1])
+            # get the last entry
+            infectedCount+=dataDict[state][-1]
         infectedNumbers.append(infectedCount)
     return (infectedNumbers, massInfectionMoments)
 
-def simulateAndPlot(pickleNames, simulationN=10, runtime=200, debug=False):
+def simulateAndPlot(pickleNames, simulationN=10, runtime=200,labels=[], debug=False, additionalName=""):
     massInfectionCounts, massInfectionTime = [], []
     totalcases = len(pickleNames)
     t0 = time.time()
@@ -100,8 +101,8 @@ def simulateAndPlot(pickleNames, simulationN=10, runtime=200, debug=False):
 
         print((f"took {time.time()-t0} time to finish{(i+1)/totalcases*100}%"))
     print(f"took {time.time()-t0} time to run {totalcases*simulationN} simulations")
-    statfile.plotBoxAverageAndDx(massInfectionCounts, savePlt=True, saveName="totalNumberOfAgentsInfected.png")
-    statfile.plotBoxAverageAndDx(massInfectionTime, savePlt=True, saveName="timeWhen10percentIsInfected.png")
+    statfile.plotBoxAverageAndDx(massInfectionCounts, savePlt=True, saveName=additionalName+"totalNumberOfAgentsInfected.png",xlabel="models", ylabel="total number of infected agents", labels=labels)
+    statfile.plotBoxAverageAndDx(massInfectionTime, savePlt=True, saveName=additionalName+"timeWhen10percentIsInfected.png", xlabel="model", ylabel="time when 10% was infected", labels=labels)
 
 def initializeSimulations(simulationControls, modelConfig, debug=True, pickleBaseName="pickleModel_"):
     """
@@ -322,37 +323,50 @@ def main():
         "falseNegative":0.10,
         
         # face mask
-        "maskP":0.2,
+        "maskP":0.5,
         "nonMaskBuildingType": [],#["dorm", "dining", "dining_hall_faculty", "social"],
         # OTHER parameters
         "transitName": "transit_space_hub",
         # change back to 0.001
         "offCampusInfectionP":0.125/700,
         "trackLocation" : ["_hub"],
-        "interventions":[1, 3],
+        "interventions":[1],
     }
     # you can control for multiple interventions by adding a case:
     #  [(modified attr1, newVal), (modified attr2, newVal), ...]
     simulationControls = [
-        [(None, None)], # base case
-        #[("booleanAssignment",{"Agents" : [("compliance", 0.33), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
-        #[("booleanAssignment",{"Agents" : [("compliance", 0.66), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
-        #[("booleanAssignment",{"Agents" : [("compliance", 1), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
+        [("booleanAssignment",{"Agents" : [("compliance", 0), ("officeAttendee", 0.2), ("gathering", 0.5)]})], # base case
+        [("booleanAssignment",{"Agents" : [("compliance", 0.33), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
+        [("booleanAssignment",{"Agents" : [("compliance", 0.66), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
+        [("booleanAssignment",{"Agents" : [("compliance", 1), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
          # case 1
-        [("quarantineSamplingProbability", 0.1)],
-        [("quarantineSamplingProbability", 0.5)],
-        [("quarantineSamplingProbability", 0.8)],
-        [("quarantineSamplingProbability", 0.99)],
+        #[("quarantineSamplingProbability", 0.1)],
+        #[("quarantineSamplingProbability", 0.5)],
+        #[("quarantineSamplingProbability", 0.8)],
+        #[("quarantineSamplingProbability", 0.99)],
     ]
     R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
                     ("walkinProbability", 0),("quarantineOffset", 20*24), ("interventions", [])]
     #simpleCheck(modelConfig, days=100, visuals=True)
     #R0_simulation(modelConfig, R0_controls,5, debug=True)
-    
-    
+    labels = ["base", "cmpl:0.33", "cmpl:0.66", "cmpl:1"]
+    # with 0.5 as base
     createdFiles = initializeSimulations(simulationControls, modelConfig, True)
-    simulateAndPlot(createdFiles, 6, 24*80)
+    simulateAndPlot(createdFiles, 1, 24*100, additionalName="050P_", labels=labels)
+    return
+    modelConfig["maskP"] = 0.1
+    createdFiles = initializeSimulations(simulationControls, modelConfig, True)
+    simulateAndPlot(createdFiles, 50, 24*100, additionalName="010P_", labels=labels)
   
+    modelConfig["interventions"] = [3]
+    labels1 = ["base", "quarSize:100", "quarSize:250", "quarSize:500"]
+    simulationControls1 = [
+        [("interventions", [])], # base case
+        [("interventions", [3]), ("quarantineSampleSize", 100)],
+        [("interventions", [3]), ("quarantineSampleSize", 250)],    
+        [("interventions", [3]), ("quarantineSampleSize", 500)]]
+    createdFiles = initializeSimulations(simulationControls1, modelConfig, True)
+    simulateAndPlot(createdFiles, 50, 24*100, additionalName="quar_", labels=labels1)
 
 def agentFactory(agent_df, slotVal):
     """
