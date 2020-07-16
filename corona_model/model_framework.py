@@ -79,7 +79,7 @@ def runSimulation(pickleName, simulationN= 10, runtime = 200, debug=False):
         # look at total infected over time, 
         infectedCount = np.zeros(len(dataDict[infA]))
         for state in [infA, infAF, infSM, infSS, rec]:
-            print(str(state), dataDict[state])
+            #print(str(state), dataDict[state])
             # get the last entry
             infectedCount+=dataDict[state]
         infectedNumbers.append(infectedCount[-1])
@@ -597,6 +597,7 @@ class AgentBasedModel:
         self.officeHourCount = 0
         self.requiresCheck = True
         self.massInfectionTime = 0
+        self.facemaskIntervention = False
    
     def configureDebug(self, debugBool):
         self.debug=debugBool
