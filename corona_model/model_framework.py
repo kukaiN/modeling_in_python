@@ -101,8 +101,8 @@ def simulateAndPlot(pickleNames, simulationN=10, runtime=200,labels=[], title="d
 
         print((f"took {time.time()-t0} time to finish{(i+1)/totalcases*100}%"))
     print(f"took {time.time()-t0} time to run {totalcases*simulationN} simulations")
-    statfile.plotBoxAverageAndDx(massInfectionCounts, savePlt=True, saveName=additionalName+"totalNumberOfAgentsInfected.png",pltTitle=title, xlabel="models", ylabel="total number of infected agents", labels=labels)
-    statfile.plotBoxAverageAndDx(massInfectionTime, savePlt=True, saveName=additionalName+"timeWhen10percentIsInfected.png", pltTitle=title, xlabel="model", ylabel="time when 10% was infected", labels=labels)
+    statfile.boxplot(massInfectionCounts, savePlt=True, saveName=additionalName+"totalNumberOfAgentsInfected.png",pltTitle=title, xlabel="models", ylabel="total number of infected agents", labels=labels)
+    statfile.boxplot(massInfectionTime, savePlt=True, saveName=additionalName+"timeWhen10percentIsInfected.png", pltTitle=title, xlabel="model", ylabel="time when 10% was infected", labels=labels)
 
 def initializeSimulations(simulationControls, modelConfig, debug=True, pickleBaseName="pickleModel_"):
     """
