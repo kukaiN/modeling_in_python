@@ -85,7 +85,7 @@ def runSimulation(pickleName, simulationN= 10, runtime = 200, debug=False):
         infectedNumbers.append(infectedCount)
     return (infectedNumbers, massInfectionMoments)
 
-def simulateAndPlot(pickleNames, simulationN=10, runtime=200,labels=[], debug=False, additionalName=""):
+def simulateAndPlot(pickleNames, simulationN=10, runtime=200,labels=[], title="default title", debug=False, additionalName=""):
     massInfectionCounts, massInfectionTime = [], []
     totalcases = len(pickleNames)
     t0 = time.time()
@@ -101,8 +101,8 @@ def simulateAndPlot(pickleNames, simulationN=10, runtime=200,labels=[], debug=Fa
 
         print((f"took {time.time()-t0} time to finish{(i+1)/totalcases*100}%"))
     print(f"took {time.time()-t0} time to run {totalcases*simulationN} simulations")
-    statfile.plotBoxAverageAndDx(massInfectionCounts, savePlt=True, saveName=additionalName+"totalNumberOfAgentsInfected.png",xlabel="models", ylabel="total number of infected agents", labels=labels)
-    statfile.plotBoxAverageAndDx(massInfectionTime, savePlt=True, saveName=additionalName+"timeWhen10percentIsInfected.png", xlabel="model", ylabel="time when 10% was infected", labels=labels)
+    statfile.plotBoxAverageAndDx(massInfectionCounts, savePlt=True, saveName=additionalName+"totalNumberOfAgentsInfected.png",pltTitle=title, xlabel="models", ylabel="total number of infected agents", labels=labels)
+    statfile.plotBoxAverageAndDx(massInfectionTime, savePlt=True, saveName=additionalName+"timeWhen10percentIsInfected.png", pltTitle=title, xlabel="model", ylabel="time when 10% was infected", labels=labels)
 
 def initializeSimulations(simulationControls, modelConfig, debug=True, pickleBaseName="pickleModel_"):
     """
@@ -352,12 +352,12 @@ def main():
     labels = ["base", "cmpl:0.33", "cmpl:0.66", "cmpl:1"]
     # with 0.5 as base
     createdFiles = initializeSimulations(simulationControls, modelConfig, True)
-    simulateAndPlot(createdFiles, 1, 24*100, additionalName="050P_", labels=labels)
-    return
+    simulateAndPlot(createdFiles, 100, 24*100, additionalName="050P_", title="mask with 0.5 effectiveness", labels=labels)
+    
     modelConfig["maskP"] = 0.1
     createdFiles = initializeSimulations(simulationControls, modelConfig, True)
-    simulateAndPlot(createdFiles, 50, 24*100, additionalName="010P_", labels=labels)
-  
+    simulateAndPlot(createdFiles, 100, 24*100, additionalName="010P_", title="masks with 0.1 effectiveness", labels=labels)
+    return 
     modelConfig["interventions"] = [3]
     labels1 = ["base", "quarSize:100", "quarSize:250", "quarSize:500"]
     simulationControls1 = [
@@ -366,7 +366,7 @@ def main():
         [("interventions", [3]), ("quarantineSampleSize", 250)],    
         [("interventions", [3]), ("quarantineSampleSize", 500)]]
     createdFiles = initializeSimulations(simulationControls1, modelConfig, True)
-    simulateAndPlot(createdFiles, 50, 24*100, additionalName="quar_", labels=labels1)
+    simulateAndPlot(createdFiles, 50, 24*100, additionalName="quar_",title="different quarantine size", labels=labels1)
 
 def agentFactory(agent_df, slotVal):
     """
