@@ -1241,7 +1241,7 @@ class AgentBasedModel:
                             # go back to the susceptible state, because the agent was never infected, just self isolated
                             # or recovered from infection during quarantine
                             exitState = "recovered" if self.agents[agentId].infected else "susceptible" 
-                            self.changeStateDict(agentId, "quarantined", "exitState")
+                            self.changeStateDict(agentId, "quarantined", exitState)
                         elif self.agents[agentId].transitionTime() < self.time and state != "quarantined" and state != "susceptible" and transition[state] > 0:
                             cdf = 0
                             if self.R0_agentId == agentId and (self.agents[agentId].state == "exposed" or self.agents[agentId].state == "infected Asymptomatic"):
