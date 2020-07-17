@@ -329,7 +329,7 @@ def main():
         # change back to 0.001
         "offCampusInfectionP":0.125/700,
         "trackLocation" : ["_hub"],
-        "interventions":[1],
+        "interventions":[],
         "allowedActions": ["walkin"],
         "massInfectionRatio":0.10,
     }
@@ -593,12 +593,9 @@ class AgentBasedModel:
         self.debug=True
         self.R0 = False
         self.R0_agentId = -1
-        #self.agentIdSet = {}
         # debug count
         self.gathering_count = 0
         self.officeHourCount = 0
-        self.requiresCheck = True
-        
         self.walkIn = False
         
 
@@ -892,7 +889,7 @@ class AgentBasedModel:
             agent.currLocation = location
             agent.initial_location = location
             self.rooms[location].agentsInside.append(agentId)
-        #self.agentIdSet = set(self.agents.keys())
+      
     
     def extraInitialization(self):
         self.globalCounter = 0
@@ -1037,9 +1034,7 @@ class AgentBasedModel:
 
     
     def big_gathering(self):
-        
         if self.time%(24*7) == 0: # big gathering at sunday midnight
-            
             agentIds = [agentId for agentId, agent in self.agents.items() if agent.gathering]
             if len(agentIds) < 50:
                 print("not enough for a party")
@@ -1466,7 +1461,7 @@ class AgentBasedModel:
             #print("quararntined", quarCounter, "out of", len(normalScreeningId),"quarantined", fpCounter, "false positive results")
 
     def checkForWalkin(self):
-        if self.time%24 == 8:
+        if self.time%24 == 8 and self.walkIn:
             mild = self.state2IdDict["infected Symptomatic Mild"]
             severe = self.state2IdDict["infected Symptomatic Severe"] 
             for agentId in mild|severe: # union of thw two sets
