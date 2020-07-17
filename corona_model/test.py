@@ -50,5 +50,14 @@ if __name__ == '__main__':
     import timeit
     #print(timeit.timeit("test()", setup="from __main__ import test"))
     #print(timeit.timeit("test2()", setup="from __main__ import test2"))
-    print(timeit.timeit("rand1()", setup="import numpy as np"))
-    print(timeit.timeit("rand2()", setup="import numpy as np"))
+    #print(timeit.timeit("rand1()", setup="import numpy as np"))
+    #print(timeit.timeit("rand2()", setup="import numpy as np"))    
+    a = [1, 2, 3]
+    b = set(a)
+    b.add(4)
+    b.add(7)
+    b.add(99)
+    b.discard(9)
+    b.discard(99)
+    for x in b:
+        print(x)
