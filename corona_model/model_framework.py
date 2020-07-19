@@ -289,7 +289,7 @@ def main():
         
         # with 100 runs 0.17 is the official P to get R0 = 4
         # 0.18 = 4.08, stdev 2.403
-        "baseP" : 0.17,
+        "baseP" : 0.3,
         "infectionSeedNumber": 10,
         "infectionSeedState": "exposed",
         "infectionContribution":{
@@ -365,8 +365,8 @@ def main():
     ]
     R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
-    simpleCheck(modelConfig, days=300, visuals=True)
-    #R0_simulation(modelConfig, R0_controls,100, debug=True) 
+    #simpleCheck(modelConfig, days=150, visuals=True)
+    R0_simulation(modelConfig, R0_controls,20, debug=True) 
     allInSimulation = [
         [("booleanAssignment",{"Agents" : [("compliance", 0.5), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
         [("booleanAssignment",{"Agents" : [("compliance", 1), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
@@ -842,7 +842,7 @@ class AgentBasedModel:
             tempList+=[rowCopy for _ in range(counter)]
         self.agent_df = pd.DataFrame(tempList)     
         
-    def intializeR0(self):
+    def initializeR0(self):
         self.R0 = True
         self.R0_agentId = [agentId for agentId, agent in self.agents.items() if agent.state != "susceptible"][0]
         print("running R0 calculation with ID", self.R0_agentId)
@@ -1223,7 +1223,7 @@ class AgentBasedModel:
                                         self.R0Increase(roomId, totalInfection)
                                     room.infectedNumber+=1
                                     index1+=1
-                                    #print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
+                                    print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
                                
 
                     # this loop takes care of agent's state transitions
@@ -1259,10 +1259,10 @@ class AgentBasedModel:
     def infectionInRoom(self, roomId):
         """find the total infectiousness of a room by adding up the contribution of all agents in the room"""
         contribution = self.infectionWithinPopulation(self.rooms[roomId].agentsInside, roomId)
-        if self.rooms[roomId].building_type == "social": # check fo rdivision by zero
+        if False and self.rooms[roomId].building_type == "social": # check fo rdivision by zero
             if len(self.rooms[roomId].agentsInside) == 0:
                 return 0
-            cummulativeFunc = (self.config["baseP"]*2*contribution)/len(self.rooms[roomId].agentsInside)
+            cummulativeFunc = (self.config["baseP"]*2*contribution)/(5*len(self.rooms[roomId].agentsInside))
         else:
             cummulativeFunc = (self.config["baseP"]*self.rooms[roomId].Kv*contribution)/self.rooms[roomId].limit
         return cummulativeFunc
