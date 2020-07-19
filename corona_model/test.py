@@ -1,5 +1,5 @@
 import schedule_students as sts
-
+import numpy as np
 
 #schedule = sts.main()
 
@@ -59,5 +59,6 @@ if __name__ == '__main__':
     b.add(99)
     b.discard(9)
     b.discard(99)
+    print("random", np.random.choice([1, 2, 3]))
     for x in b:
         print(x)
