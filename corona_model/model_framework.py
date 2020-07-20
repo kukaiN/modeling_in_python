@@ -182,6 +182,9 @@ def simpleCheck(modelConfig, days=100, visuals=True):
         model.printRelevantInfo()
     model.final_check()
     model.printLog()
+    tup = model.findDoubleTime()
+    for description, tupVal in zip(("doublingTime", "doublingInterval", "doublingValue"), tup):
+        print(description, tupVal)
     if visuals:
         model.visualOverTime()
     #model.visualizeBuildings()
@@ -214,6 +217,7 @@ def R0_simulation(modelConfig, R0Control, simulationN=10, debug=False):
             new_model.printRelevantInfo()
             new_model.updateSteps(24*5)
         if debug:
+            print("R0 schedule:", new_model.convertToRoomName( new_model.agents[new_model.R0_agentId].schedule))
             logDataDict = new_model.printLog()
             for key, value in logDataDict.items():
                 max_limits[key] = max_limits.get(key, []) + [value]
@@ -275,10 +279,19 @@ def main():
             "Agents" : [("compliance", 0), ("officeAttendee", 0.2), ("gathering", 0.5)]
         },
        
-        "baseP" : 0.37,
+        "baseP" : 0.7,
+
+        # base of 0.7:
+        #doublingTime [0.0, 6.791666666666667, 13.5, 20.791666666666668, 31.458333333333332]
+        #doublingInterval [6.791666666666667, 6.708333333333333, 7.291666666666668, 10.666666666666664]
+        # base of 0.7:
+        #doublingTime [0.0, 8.541666666666666, 13.333333333333334, 21.291666666666668, 33.625]
+        #doublingInterval [8.541666666666666, 4.791666666666668, 7.958333333333334, 12.333333333333332]
+        # R0 ~ 7
         "infectionSeedNumber": 10,
         "infectionSeedState": "exposed",
         "infectionContribution":{
+            "exposed":0.1,
             "infected Asymptomatic":0.5,
             "infected Asymptomatic Fixed":0.5,
             "infected Symptomatic Mild":1,
@@ -346,8 +359,8 @@ def main():
     ]
     R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
-    #simpleCheck(modelConfig, days=150, visuals=True)
-    R0_simulation(modelConfig, R0_controls,100, debug=True) 
+    simpleCheck(modelConfig, days=50, visuals=True)
+    R0_simulation(modelConfig, R0_controls,10, debug=True) 
     allInSimulation = [
         [("booleanAssignment",{"Agents" : [("compliance", 0.5), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
         [("booleanAssignment",{"Agents" : [("compliance", 1), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
@@ -827,9 +840,9 @@ class AgentBasedModel:
         print("*"*20, "total", len(self.uniqueIds), self.uniqueIds)
         return self.R0_counter
 
-    def R0Increase(self, roomId, totalInfection):
+    def R0Increase(self, roomId, totalInfection, randomVal = 0):
         room = self.rooms[roomId]
-        print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
+        print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison {randomVal} < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
         self.R0_counter+=1
 
     def initializeAgents(self):
@@ -959,7 +972,7 @@ class AgentBasedModel:
 
     def findMatchingRooms(self, partitionAttr, attrVal=None, strType=False):
         """
-            returns a list of room IDs that have a specific value for the roomAttr of its parameter
+            returns a list of room IDs that have a specific value for the roomAttr of its parameter!!!!!
         
             Parameters:
             - roomParam: the attribute name
@@ -1004,6 +1017,12 @@ class AgentBasedModel:
                 self.quarantine()
             self.storeInformation()
             self.logData()
+            
+            if 24*8> self.time > 24*7 and self.R0:
+                loc = self.agents[self.R0_agentId].currLocation
+                locName = self.rooms[loc].room_name
+                number_of_people = self.rooms[loc].agentsInside
+                print("at time", self.time, "R0 patient is in", locName, "with", len(number_of_people), "number of people")
     
     def big_gathering(self):
         if self.time%(24*7) == 0 and self.largeGathering: # big gathering at sunday midnight
@@ -1025,6 +1044,8 @@ class AgentBasedModel:
                 totalInfection = self.gathering_infection(subset)
                 for index, agentId in enumerate(subset):
                     state = self.agents[agentId].state
+                    if self.R0 and agentId == self.R0_agentId and 24*8 > self.time > 24*7:
+                        print("comparison value", totalInfection) 
                     if state == "susceptible" and randVec[index] < totalInfection: 
                         print("infected at party")
                         self.changeStateDict(agentId,"susceptible" ,"exposed")
@@ -1032,7 +1053,7 @@ class AgentBasedModel:
                         newly_infected+=1
 
                         if self.R0: # if infection occured
-                            self.R0Increase(self.agents[agentId].initial_location, totalInfection)
+                            self.R0Increase(self.agents[agentId].initial_location, totalInfection, randVec[index])
             self.gathering_count+=newly_infected
             print(f"big gathering at day {self.time/24}, at the gathering there were {counter} healthy out of {len(totalSubset)} and {newly_infected} additionally infected agents,", totalInfection)
 
@@ -1040,6 +1061,32 @@ class AgentBasedModel:
         contribution = self.infectionWithinPopulation(subset)
         cummulativeFunc = (self.config["baseP"]*3*contribution)/len(subset)
         return cummulativeFunc
+
+    def findDoubleTime(self):
+        """
+            returns a tuple of (doublingTime, doublingInterval, doublingValue)
+        """
+        data = dict()
+        data["infected"] = np.zeros(len(self.parameters["susceptible"]))
+        for key in self.parameters.keys():
+            if key in ["susceptible"]:
+                data[key] = self.parameters[key]
+            else:
+                data["infected"]+=np.array(self.parameters[key]) 
+        doublingTime = []
+        doublingValue = []
+        previousValue = 0
+        for i, entry in enumerate(data["infected"]):
+            if entry >= 2*previousValue:
+                doublingTime.append(i/24)
+                doublingValue.append(entry)
+                previousValue = entry
+        doublingInterval = []
+        for i in range(len(doublingTime)-1):
+            doublingInterval.append(doublingTime[i+1]-doublingTime[i])
+        return (doublingTime, doublingInterval, doublingValue)
+
+
 
     def addKeys(self, tempDict):
          self.config = tempDict
@@ -1115,6 +1162,7 @@ class AgentBasedModel:
             infectedIndex = 0 
         for agentId, agent in self.agents.items():
             loc = agent.updateLoc(self.time, self.adjacencyDict)
+            # (intial location , new location)
             if loc[0] != loc[1]:
                 # if the agent is coming back to the network from the offcampus node
                 if loc[0] == offcampus and loc[1] == self.roomNameId[self.config["transitName"]]: 
@@ -1154,6 +1202,8 @@ class AgentBasedModel:
                             if self.agents[agentId].compliance: # check for compliance
                                 if self.rooms[roomId].building_type in self.config["nonMaskBuildingType"]:
                                     coeff = self.maskP
+                            if self.R0 and agentId == self.R0_agentId and 24*8 > self.time > 24*7:
+                                print("comparison value", coeff*totalInfection) 
                             if randVec[index] < coeff*totalInfection:
                                 self.changeStateDict(agentId,"susceptible", "exposed")
                                 if self.R0: # if infection occured
@@ -1185,10 +1235,12 @@ class AgentBasedModel:
                                 if self.agents[agentId].compliance: # check for compliance
                                     if self.rooms[roomId].building_type in self.config["nonMaskBuildingType"]:
                                         coeff = self.maskP
+                                if self.R0 and agentId == self.R0_agentId and 24*8 > self.time > 24*7:
+                                    print("comparison value", totalInfection) 
                                 if randVec[index1] < coeff*totalInfection:
                                     self.changeStateDict(agentId,"susceptible", "exposed")
                                     if self.R0: # if infection occured
-                                        self.R0Increase(roomId, totalInfection)
+                                        self.R0Increase(roomId, totalInfection, randVec[index1])
                                     room.infectedNumber+=1
                                     index1+=1
                                     #print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
@@ -1308,7 +1360,18 @@ class AgentBasedModel:
         return massInfectionTime
 
     def visualOverTime(self):
-        vs.timeSeriesGraph(self.timeSeries, (0, self.time+1), (0,len(self.agents)), self.parameters)
+        if True:
+            data = dict()
+            data["infected"] = np.zeros(len(self.parameters["susceptible"]))
+            for key in self.parameters.keys():
+                if key in ["susceptible"]:
+                    data[key] = self.parameters[key]
+                else:
+                    data["infected"]+=np.array(self.parameters[key]) 
+        else:
+            data = self.parameters    
+
+        vs.timeSeriesGraph(self.timeSeries, (0, self.time+1), (0,len(self.agents)), data)
     
     def visualizeBuildings(self):
         pairs = [(room, adjRoom[0]) for room, adjRooms in self.adjacencyDict.items() for adjRoom in adjRooms]
