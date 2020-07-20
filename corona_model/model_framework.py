@@ -295,6 +295,10 @@ def main():
         #(8.14, 3.7310052264771754, 16, 8.0)
 
         # base 3
+        # R0 is [2, 4, 5, 2, 5, 1, 5, 4, 6, 4, 3, 10, 5, 4, 6, 4, 5, 3, 2, 3, 2, 3, 0, 9, 7, 3, 6, 4, 4, 5, 1, 7, 2, 5, 
+        # 0, 8, 5, 5, 4, 1, 4, 2, 3, 2, 5, 9, 1, 6, 5, 2, 4, 2, 6, 4, 3, 2, 3, 6, 5, 3, 2, 2, 3, 5, 5, 3, 3, 4, 4, 2, 5, 
+        # 4, 0, 3, 9, 4, 4, 2, 3, 4, 5, 3, 3, 3, 6, 6, 1, 2, 2, 0, 4, 3, 1, 4, 2, 0, 4, 2, 3, 5]
+        # (3.71, 2.0263020505344214, 10, 4.0)
         #doublingTime [0.0, 8.291666666666666, 19.833333333333332, 55.833333333333336, 142.5]
         #doublingInterval [8.291666666666666, 11.541666666666666, 36.0, 86.66666666666666]
 
@@ -863,8 +867,11 @@ class AgentBasedModel:
         
     def initializeR0(self):
         self.R0 = True
-        self.R0_agentId = [agentId for agentId, agent in self.agents.items() if agent.state != "susceptible"][0]
+        for agentId, agent in self.agents.items():
+            self.changeStateDict(agentId, "susceptible", "susceptible")        
+        self.R0_agentId = np.random.choice([agentId for agentId, agent in self.agents.items() if agent.Agent_type == "onCampus"])
         print("running R0 calculation with ID", self.R0_agentId)
+        self.changeStateDict(self.R0_agentId, "susceptible", self.config["infectionSeedState"])
         self.R0_counter = 0
         self.uniqueIds = set()
     
