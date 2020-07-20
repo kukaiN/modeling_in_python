@@ -66,7 +66,7 @@ def makeGraph(vertices, vertexLabels, edges, buildings, buildingRoom, roomDict, 
     plt.tight_layout()
     plt.show()
 
-def timeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle = ["r-", "b.", "g--"]):
+def timeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle = ["r-", "b.", "g--"], animatePlt=True):
     fig, ax= plt.subplots(figsize = (10, 5))
     plt.xlim(xLim[0], xLim[1])
     plt.ylim(yLim[0], yLim[1])
@@ -81,7 +81,8 @@ def timeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle = ["r-", "b.", "g
     # show static graph
     plt.show()    
     # show animated graph
-    showAnimation(timeIntervals, animateData, xLim, yLim, len(timeIntervals))
+    if animatePlt:
+        showAnimation(timeIntervals, animateData, xLim, yLim, len(timeIntervals))
 
 def get_cmap(n, name='hsv'):
     '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
