@@ -406,6 +406,24 @@ social 239
 transit 0
 offCampus 0
 office 1
+
+
+0.8
+******************** abstactly represented location:
+large gathering 200
+office hour count 0
+******************** filtering by building type:
+dorm 444
+classroom 588
+dining 52
+dining_hall_faculty 0
+library 117
+gym 215
+social 321
+transit 0
+offCampus 0
+office 2
+0 student
     """
     # you can control for multiple interventions by adding a case:
     #  [(modified attr1, newVal), (modified attr2, newVal), ...]
