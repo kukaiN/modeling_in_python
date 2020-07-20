@@ -281,7 +281,7 @@ def main():
             "Agents" : [("compliance", 0), ("officeAttendee", 0.2), ("gathering", 0.5)],
         },
        
-        "baseP" : 0.8,
+        "baseP" : 1,
         # 1 works nice
         # for number (1)
         # its a value between 1 and 1.2, is 1.15
@@ -435,7 +435,7 @@ office 2
     ]
     R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
-    simpleCheck(modelConfig, days=100, visuals=True)
+    simpleCheck(modelConfig, days=20, visuals=True)
     #R0_simulation(modelConfig, R0_controls,100, debug=True) 
     allInSimulation = [
         [("booleanAssignment",{"Agents" : [("compliance", 0.5), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
@@ -1365,7 +1365,7 @@ class AgentBasedModel:
                         self.changeStateDict(agentId, "quarantined", exitState)
                     elif self.agents[agentId].transitionTime() < self.time and state != "quarantined" and state != "susceptible" and transition[state] > 0:
                         cdf = 0
-                        if self.R0_agentId == agentId and (self.agents[agentId].state == "exposed" or self.agents[agentId].state == "infected Asymptomatic"):
+                        if (agentId in self.specialIds) or (self.R0_agentId == agentId and (self.agents[agentId].state == "exposed" or self.agents[agentId].state == "infected Asymptomatic")):
                                 # only for R0, go to the worst case scenario, exposed --> infected Asymptomatic --> infected Symptomatic Mild
                             tup = transitionProbability[state][0]
                             self.changeStateDict(agentId, self.agents[agentId].state, tup[0])
@@ -1409,7 +1409,7 @@ class AgentBasedModel:
 
     def infectionContribution(self, agentId, lastUpdate):
         """return the contribution to the infection for a specific agent"""
-        if False:
+        if True:
             if agentId in self.specialIds:
                 return self.config["infectionContribution"].get(self.agents[agentId].state, 0)
             return 0
