@@ -279,7 +279,7 @@ def main():
             "Agents" : [("compliance", 0), ("officeAttendee", 0.2), ("gathering", 0.5)]
         },
        
-        "baseP" : 0.7,
+        "baseP" : 0.37,
 
         # base of 0.7:
         #doublingTime [0.0, 6.791666666666667, 13.5, 20.791666666666668, 31.458333333333332]
@@ -359,8 +359,8 @@ def main():
     ]
     R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
-    simpleCheck(modelConfig, days=50, visuals=True)
-    R0_simulation(modelConfig, R0_controls,10, debug=True) 
+    #simpleCheck(modelConfig, days=50, visuals=True)
+    R0_simulation(modelConfig, R0_controls,100, debug=True) 
     allInSimulation = [
         [("booleanAssignment",{"Agents" : [("compliance", 0.5), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
         [("booleanAssignment",{"Agents" : [("compliance", 1), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
