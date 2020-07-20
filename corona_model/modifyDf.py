@@ -41,7 +41,8 @@ def createSuperStruc(df, objCount="count"):
     rowList, colName = [], list(df.columns.values)
     colName.remove(objCount)
     for _, rows in df.iterrows():
-        for _ in range(rows[objCount]):
+        
+        for _ in range(int(rows[objCount])):
             rowList.append( {key:val for key, val in zip(colName, rows[colName])})
     return pd.DataFrame(rowList)
 
@@ -59,7 +60,7 @@ def createPartitions(df):
     hubName = "_hub"
     for index, rows in df.iterrows(): # iterate over each structure
         for leafName, capacity, limit in zip(leaves, capacities, limits):# create the small, medium, large
-            for _ in range(rows[leafName]): # for each size make the corresponding rooms
+            for _ in range(int(rows[leafName])): # for each size make the corresponding rooms
                 dict1 = {nameStr: rows[nameStr], 
                         "capacity" : rows[capacity],
                         "limit" : rows[limit],

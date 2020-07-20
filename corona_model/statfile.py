@@ -22,10 +22,10 @@ def analyzeModel(simulationData):
     changeInfo = []
     for row in simulationData:
         infoList.append(analyzeData(row))
-        dxdt = changeOverUnitTime(row)
-        changes.append(dxdt)
-        changeInfo.append(analyzeData(dxdt))
-    
+        #dxdt = changeOverUnitTime(row)
+        #changes.append(dxdt)
+        #changeInfo.append(analyzeData(dxdt))
+    """
     filteredInfo = []
     filteredChange = []
     filteredChangeInfo = []
@@ -36,25 +36,53 @@ def analyzeModel(simulationData):
         dxdt = changeOverUnitTime(row)
         filteredChange.append(dxdt)
         filteredChangeInfo.append(analyzeData(dxdt))
-
+    """
     simulationAverages = [a[0] for a in infoList]
-    simulationDx = [a[0] for a in filteredChangeInfo]
+    simulationDx = [0]#[a[0] for a in filteredChangeInfo]
 
 
     return (simulationAverages, simulationDx)
 
-def plotBoxAverageAndDx(simulationDatas, labels=[]):
-    average = []
+def plotBoxAverageAndDx(simulationDatas, pltTitle="some Title", xlabel="models", ylabel="infected #",labels=[], showPlt=False, savePlt=False, saveName="defaultimage.png"):
+    """
+    run simple analysis on the given data and plot a box and whiskers graph
+    
+    Parameters:
+    - simulationDatas: the data to plot
+    - pltTitle: title for the generated plot
+    - xlabel: label for the x axis
+    - ylabel: label for the y axis
+    - labels: the labels for each B&W plot
+    - showplt: boolean, show the plot or not
+    - savePlt: boolean, save the plot with the given filename or not
+    - saveName: string, ends with .png or some file format, save the plot with this name
+
+    """
+    
+    averages = []
     dx = []
     for simulationData in simulationDatas:
         dataTup = analyzeModel(simulationData)
-        average.append(dataTup[0])
+        averages.append(dataTup[0])
         dx.append(dataTup[1])
-    boxplot(average, "averages", "models", "infected #", labels=labels)
-    boxplot(dx, "averageChanges", "models", "d(infected)/dt #", labels=labels)
+    boxplot(averages, True, pltTitle=pltTitle, xlabel=xlabel, ylabel=ylabel, labels=labels, showPlt=showPlt, savePlt=savePlt, saveName=saveName)
+    #boxplot(dx, "averageChanges", "models", "d(infected)/dt #", labels=labels)
 
 
-def boxplot(data, oneD=True, pltTitle="Some Title", xlabel="Default X", ylabel="Default Y", labels=[], showplt=True, saveplt=False):
+def boxplot(data, oneD=True, pltTitle="Some Title", xlabel="Default X", ylabel="Default Y", labels=[], showPlt=True, savePlt=False, saveName="defaultimage.png"):
+    """
+    Parameters:
+    - data: the data to plot, can be a one or two dimentional list, if a 2D list is passed, each row is going to be a data for a separate box plot
+    - oneD:  bool to tell if "data" is one dimentional or not
+    - pltTitle: the title of the plot
+    - xlabel: label for the x axis
+    - ylabel: label for the y axis
+    - labels: labels for each box plot, pass a list with one entry if there's one B&W, and a list filled with entries for multiple B&W 
+    - showPlt: boolean, show the plot or not
+    - savePlt: boolean, save the plot with the given filename or not
+    - saveName: string, ends with .png o some file format, save the plot with this name
+
+    """
     # nice example of boxplots:
     # https://matplotlib.org/2.0.1/examples/statistics/boxplot_color_demo.html
     fig1, ax1 = plt.subplots()
@@ -65,13 +93,19 @@ def boxplot(data, oneD=True, pltTitle="Some Title", xlabel="Default X", ylabel="
     ax1.set_xticks(xticks)
     ax1.set_xlabel(xlabel)
     ax1.set_ylabel(ylabel)
+    """
     if oneD:
         plt.xlim(-2, 2)
     else:
-        plt.xlim(-2, len(data)+2)
+        plt.xlim(-2, len(data)+2+2)
+    """
     if labels != [] and len(labels) == len(data):
         plt.setp(ax1, xticks=xticks, xticklabels=labels)
-    plt.show()
+    if savePlt:
+        print("image saved as", saveName)
+        plt.savefig(saveName)
+    else:
+        plt.show()
 
 def changeOverUnitTime(listData):
     """

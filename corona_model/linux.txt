@@ -1,0 +1,1033 @@
+infected at aprty
+big gathering at day 35.0, at the gathering there were 64 healthy out of 165 and 2 additionally infected agents, 0.013846153846153847
+big gathering at day 42.0, at the gathering there were 43 healthy out of 196 and 0 additionally infected agents, 0.009529411764705883
+big gathering at day 49.0, at the gathering there were 18 healthy out of 118 and 0 additionally infected agents, 0.009473684210526316
+big gathering at day 56.0, at the gathering there were 13 healthy out of 139 and 0 additionally infected agents, 0.0063
+big gathering at day 63.0, at the gathering there were 13 healthy out of 106 and 0 additionally infected agents, 0.0036000000000000003
+big gathering at day 70.0, at the gathering there were 21 healthy out of 144 and 0 additionally infected agents, 0.0
+big gathering at day 77.0, at the gathering there were 26 healthy out of 157 and 0 additionally infected agents, 0.0
+big gathering at day 84.0, at the gathering there were 13 healthy out of 120 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 19 healthy out of 130 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 16 healthy out of 145 and 0 additionally infected agents, 0.0030000000000000005
+day 45: 1920
+day 90: 2096
+time to infect x % of population: 504
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['faculty', 'offCampus', 'onCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 116 healthy out of 117 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 158 healthy out of 160 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 117 healthy out of 126 and 0 additionally infected agents, 0.0013090909090909093
+big gathering at day 28.0, at the gathering there were 101 healthy out of 129 and 0 additionally infected agents, 0.003348837209302326
+big gathering at day 35.0, at the gathering there were 73 healthy out of 140 and 0 additionally infected agents, 0.009671641791044778
+infected at aprty
+big gathering at day 42.0, at the gathering there were 37 healthy out of 119 and 1 additionally infected agents, 0.009391304347826089
+infected at aprty
+big gathering at day 49.0, at the gathering there were 22 healthy out of 152 and 1 additionally infected agents, 0.0038400000000000005
+big gathering at day 56.0, at the gathering there were 23 healthy out of 176 and 0 additionally infected agents, 0.0055000000000000005
+big gathering at day 63.0, at the gathering there were 28 healthy out of 148 and 0 additionally infected agents, 0.0
+big gathering at day 70.0, at the gathering there were 16 healthy out of 98 and 0 additionally infected agents, 0.005877551020408164
+big gathering at day 77.0, at the gathering there were 22 healthy out of 196 and 0 additionally infected agents, 0.003428571428571429
+big gathering at day 84.0, at the gathering there were 18 healthy out of 134 and 0 additionally infected agents, 0.001674418604651163
+big gathering at day 91.0, at the gathering there were 14 healthy out of 127 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 16 healthy out of 120 and 0 additionally infected agents, 0.0036000000000000003
+day 45: 1782
+day 90: 2073
+time to infect x % of population: 600
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'faculty', 'offCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 137 healthy out of 138 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 144 healthy out of 149 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 125 healthy out of 132 and 0 additionally infected agents, 0.00144
+big gathering at day 28.0, at the gathering there were 95 healthy out of 123 and 0 additionally infected agents, 0.006
+infected at aprty
+infected at aprty
+big gathering at day 35.0, at the gathering there were 80 healthy out of 145 and 2 additionally infected agents, 0.005023255813953489
+infected at aprty
+big gathering at day 42.0, at the gathering there were 64 healthy out of 143 and 1 additionally infected agents, 0.007605633802816902
+big gathering at day 49.0, at the gathering there were 26 healthy out of 115 and 0 additionally infected agents, 0.006666666666666667
+big gathering at day 56.0, at the gathering there were 21 healthy out of 117 and 0 additionally infected agents, 0.006545454545454546
+big gathering at day 63.0, at the gathering there were 20 healthy out of 121 and 0 additionally infected agents, 0.005294117647058824
+big gathering at day 70.0, at the gathering there were 36 healthy out of 174 and 0 additionally infected agents, 0.0
+big gathering at day 77.0, at the gathering there were 17 healthy out of 141 and 0 additionally infected agents, 0.001411764705882353
+big gathering at day 84.0, at the gathering there were 21 healthy out of 129 and 0 additionally infected agents, 0.0022153846153846156
+big gathering at day 91.0, at the gathering there were 28 healthy out of 127 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 26 healthy out of 150 and 0 additionally infected agents, 0.0
+day 45: 1599
+day 90: 1971
+time to infect x % of population: 600
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'offCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 202 healthy out of 204 and 0 additionally infected agents, 0.000537313432835821
+big gathering at day 14.0, at the gathering there were 121 healthy out of 129 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 93 healthy out of 104 and 0 additionally infected agents, 0.0
+big gathering at day 28.0, at the gathering there were 153 healthy out of 166 and 0 additionally infected agents, 0.004235294117647059
+big gathering at day 35.0, at the gathering there were 120 healthy out of 157 and 0 additionally infected agents, 0.0012413793103448277
+big gathering at day 42.0, at the gathering there were 66 healthy out of 123 and 0 additionally infected agents, 0.002181818181818182
+big gathering at day 49.0, at the gathering there were 39 healthy out of 107 and 0 additionally infected agents, 0.0033750000000000004
+big gathering at day 56.0, at the gathering there were 21 healthy out of 125 and 0 additionally infected agents, 0.008876712328767125
+big gathering at day 63.0, at the gathering there were 16 healthy out of 116 and 0 additionally infected agents, 0.00576
+big gathering at day 70.0, at the gathering there were 26 healthy out of 154 and 0 additionally infected agents, 0.0030000000000000005
+big gathering at day 77.0, at the gathering there were 24 healthy out of 175 and 0 additionally infected agents, 0.0012203389830508476
+big gathering at day 84.0, at the gathering there were 16 healthy out of 97 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 22 healthy out of 141 and 0 additionally infected agents, 0.0009863013698630139
+big gathering at day 98.0, at the gathering there were 21 healthy out of 169 and 0 additionally infected agents, 0.0024827586206896553
+day 45: 1272
+day 90: 2059
+time to infect x % of population: 600
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 138 healthy out of 140 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 73 healthy out of 80 and 0 additionally infected agents, 0.0030857142857142862
+big gathering at day 21.0, at the gathering there were 110 healthy out of 133 and 0 additionally infected agents, 0.0033750000000000004
+big gathering at day 28.0, at the gathering there were 110 healthy out of 157 and 0 additionally infected agents, 0.004173913043478261
+infected at aprty
+infected at aprty
+big gathering at day 35.0, at the gathering there were 63 healthy out of 151 and 2 additionally infected agents, 0.006230769230769232
+big gathering at day 42.0, at the gathering there were 34 healthy out of 129 and 0 additionally infected agents, 0.013500000000000002
+big gathering at day 49.0, at the gathering there were 28 healthy out of 131 and 0 additionally infected agents, 0.0
+infected at aprty
+big gathering at day 56.0, at the gathering there were 28 healthy out of 146 and 1 additionally infected agents, 0.0018461538461538463
+big gathering at day 63.0, at the gathering there were 42 healthy out of 200 and 0 additionally infected agents, 0.0021176470588235297
+big gathering at day 70.0, at the gathering there were 27 healthy out of 155 and 0 additionally infected agents, 0.0018947368421052633
+big gathering at day 77.0, at the gathering there were 31 healthy out of 144 and 0 additionally infected agents, 0.0
+big gathering at day 84.0, at the gathering there were 22 healthy out of 125 and 0 additionally infected agents, 0.002666666666666667
+big gathering at day 91.0, at the gathering there were 22 healthy out of 105 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 27 healthy out of 123 and 0 additionally infected agents, 0.002149253731343284
+day 45: 1684
+day 90: 1885
+time to infect x % of population: 480
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 152 healthy out of 154 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 120 healthy out of 121 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 189 healthy out of 190 and 0 additionally infected agents, 0.0
+big gathering at day 28.0, at the gathering there were 124 healthy out of 125 and 0 additionally infected agents, 0.0
+big gathering at day 35.0, at the gathering there were 143 healthy out of 149 and 0 additionally infected agents, 0.0
+big gathering at day 42.0, at the gathering there were 156 healthy out of 173 and 0 additionally infected agents, 0.00315
+big gathering at day 49.0, at the gathering there were 124 healthy out of 164 and 0 additionally infected agents, 0.0032727272727272726
+big gathering at day 56.0, at the gathering there were 84 healthy out of 146 and 0 additionally infected agents, 0.008640000000000002
+big gathering at day 63.0, at the gathering there were 57 healthy out of 163 and 0 additionally infected agents, 0.013333333333333334
+big gathering at day 70.0, at the gathering there were 37 healthy out of 134 and 0 additionally infected agents, 0.00830769230769231
+big gathering at day 77.0, at the gathering there were 32 healthy out of 186 and 0 additionally infected agents, 0.0037611940298507463
+infected at aprty
+big gathering at day 84.0, at the gathering there were 30 healthy out of 170 and 1 additionally infected agents, 0.0051428571428571435
+big gathering at day 91.0, at the gathering there were 28 healthy out of 162 and 0 additionally infected agents, 0.0011076923076923078
+big gathering at day 98.0, at the gathering there were 32 healthy out of 195 and 0 additionally infected agents, 0.0
+day 45: 293
+day 90: 1995
+time to infect x % of population: 1080
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'faculty', 'offCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 109 healthy out of 110 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 170 healthy out of 177 and 0 additionally infected agents, 0.0
+infected at aprty
+big gathering at day 21.0, at the gathering there were 143 healthy out of 170 and 1 additionally infected agents, 0.0052173913043478265
+infected at aprty
+infected at aprty
+big gathering at day 28.0, at the gathering there were 97 healthy out of 143 and 2 additionally infected agents, 0.00782608695652174
+infected at aprty
+infected at aprty
+big gathering at day 35.0, at the gathering there were 48 healthy out of 139 and 2 additionally infected agents, 0.010421052631578947
+infected at aprty
+big gathering at day 42.0, at the gathering there were 26 healthy out of 114 and 1 additionally infected agents, 0.013333333333333334
+big gathering at day 49.0, at the gathering there were 30 healthy out of 170 and 0 additionally infected agents, 0.010216216216216217
+big gathering at day 56.0, at the gathering there were 21 healthy out of 135 and 0 additionally infected agents, 0.0016000000000000003
+big gathering at day 63.0, at the gathering there were 21 healthy out of 146 and 0 additionally infected agents, 0.0
+big gathering at day 70.0, at the gathering there were 25 healthy out of 206 and 0 additionally infected agents, 0.0
+big gathering at day 77.0, at the gathering there were 21 healthy out of 127 and 0 additionally infected agents, 0.0
+big gathering at day 84.0, at the gathering there were 16 healthy out of 128 and 0 additionally infected agents, 0.0018947368421052633
+big gathering at day 91.0, at the gathering there were 22 healthy out of 156 and 0 additionally infected agents, 0.0030857142857142862
+big gathering at day 98.0, at the gathering there were 11 healthy out of 112 and 0 additionally infected agents, 0.001674418604651163
+day 45: 1978
+day 90: 2092
+time to infect x % of population: 480
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['offCampus', 'onCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 109 healthy out of 109 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 158 healthy out of 165 and 0 additionally infected agents, 0.0
+infected at aprty
+infected at aprty
+big gathering at day 21.0, at the gathering there were 118 healthy out of 133 and 2 additionally infected agents, 0.004186046511627907
+big gathering at day 28.0, at the gathering there were 150 healthy out of 171 and 0 additionally infected agents, 0.00135
+big gathering at day 35.0, at the gathering there were 112 healthy out of 139 and 0 additionally infected agents, 0.005361702127659574
+big gathering at day 42.0, at the gathering there were 38 healthy out of 89 and 0 additionally infected agents, 0.011142857142857145
+big gathering at day 49.0, at the gathering there were 53 healthy out of 162 and 0 additionally infected agents, 0.00981818181818182
+big gathering at day 56.0, at the gathering there were 40 healthy out of 162 and 0 additionally infected agents, 0.0072000000000000015
+big gathering at day 63.0, at the gathering there were 28 healthy out of 147 and 0 additionally infected agents, 0.006000000000000001
+big gathering at day 70.0, at the gathering there were 32 healthy out of 146 and 0 additionally infected agents, 0.0
+big gathering at day 77.0, at the gathering there were 36 healthy out of 172 and 0 additionally infected agents, 0.0011612903225806453
+big gathering at day 84.0, at the gathering there were 31 healthy out of 139 and 0 additionally infected agents, 0.0036000000000000003
+infected at aprty
+big gathering at day 91.0, at the gathering there were 38 healthy out of 167 and 1 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 27 healthy out of 174 and 0 additionally infected agents, 0.0015000000000000002
+day 45: 1337
+day 90: 1941
+time to infect x % of population: 720
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'faculty', 'offCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 105 healthy out of 105 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 100 healthy out of 103 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 145 healthy out of 161 and 0 additionally infected agents, 0.002634146341463415
+infected at aprty
+big gathering at day 28.0, at the gathering there were 97 healthy out of 138 and 1 additionally infected agents, 0.005586206896551725
+infected at aprty
+big gathering at day 35.0, at the gathering there were 49 healthy out of 103 and 1 additionally infected agents, 0.009191489361702129
+infected at aprty
+big gathering at day 42.0, at the gathering there were 48 healthy out of 151 and 1 additionally infected agents, 0.01098305084745763
+big gathering at day 49.0, at the gathering there were 33 healthy out of 148 and 0 additionally infected agents, 0.005714285714285715
+big gathering at day 56.0, at the gathering there were 13 healthy out of 120 and 0 additionally infected agents, 0.005837837837837838
+big gathering at day 63.0, at the gathering there were 16 healthy out of 111 and 0 additionally infected agents, 0.0016363636363636365
+big gathering at day 70.0, at the gathering there were 19 healthy out of 166 and 0 additionally infected agents, 0.0016363636363636365
+big gathering at day 77.0, at the gathering there were 23 healthy out of 138 and 0 additionally infected agents, 0.0016000000000000003
+big gathering at day 84.0, at the gathering there were 21 healthy out of 162 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 30 healthy out of 155 and 0 additionally infected agents, 0.002823529411764706
+big gathering at day 98.0, at the gathering there were 27 healthy out of 187 and 0 additionally infected agents, 0.0021176470588235297
+day 45: 1829
+day 90: 2076
+time to infect x % of population: 552
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 123 healthy out of 124 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 127 healthy out of 134 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 64 healthy out of 75 and 0 additionally infected agents, 0.0
+infected at aprty
+big gathering at day 28.0, at the gathering there were 99 healthy out of 169 and 1 additionally infected agents, 0.005333333333333334
+big gathering at day 35.0, at the gathering there were 48 healthy out of 113 and 0 additionally infected agents, 0.006480000000000001
+big gathering at day 42.0, at the gathering there were 31 healthy out of 138 and 0 additionally infected agents, 0.007500000000000001
+big gathering at day 49.0, at the gathering there were 32 healthy out of 150 and 0 additionally infected agents, 0.0015211267605633805
+big gathering at day 56.0, at the gathering there were 27 healthy out of 162 and 0 additionally infected agents, 0.0021176470588235297
+big gathering at day 63.0, at the gathering there were 12 healthy out of 110 and 0 additionally infected agents, 0.007200000000000001
+big gathering at day 70.0, at the gathering there were 11 healthy out of 143 and 0 additionally infected agents, 0.003348837209302326
+big gathering at day 77.0, at the gathering there were 15 healthy out of 156 and 0 additionally infected agents, 0.002666666666666667
+big gathering at day 84.0, at the gathering there were 18 healthy out of 140 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 9 healthy out of 121 and 0 additionally infected agents, 0.0021176470588235297
+big gathering at day 98.0, at the gathering there were 17 healthy out of 149 and 0 additionally infected agents, 0.0
+day 45: 1902
+day 90: 2035
+time to infect x % of population: 456
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'offCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 131 healthy out of 131 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 153 healthy out of 159 and 0 additionally infected agents, 0.0005625000000000001
+infected at aprty
+infected at aprty
+big gathering at day 21.0, at the gathering there were 149 healthy out of 197 and 2 additionally infected agents, 0.007
+infected at aprty
+infected at aprty
+big gathering at day 28.0, at the gathering there were 76 healthy out of 149 and 2 additionally infected agents, 0.010451612903225809
+infected at aprty
+infected at aprty
+big gathering at day 35.0, at the gathering there were 42 healthy out of 136 and 2 additionally infected agents, 0.007680000000000001
+big gathering at day 42.0, at the gathering there were 29 healthy out of 154 and 0 additionally infected agents, 0.004173913043478261
+big gathering at day 49.0, at the gathering there were 26 healthy out of 145 and 0 additionally infected agents, 0.008
+big gathering at day 56.0, at the gathering there were 30 healthy out of 188 and 0 additionally infected agents, 0.0009729729729729731
+big gathering at day 63.0, at the gathering there were 32 healthy out of 147 and 0 additionally infected agents, 0.0
+big gathering at day 70.0, at the gathering there were 22 healthy out of 129 and 0 additionally infected agents, 0.0
+big gathering at day 77.0, at the gathering there were 15 healthy out of 120 and 0 additionally infected agents, 0.0
+big gathering at day 84.0, at the gathering there were 17 healthy out of 129 and 0 additionally infected agents, 0.002
+big gathering at day 91.0, at the gathering there were 23 healthy out of 169 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 22 healthy out of 169 and 0 additionally infected agents, 0.0036000000000000003
+day 45: 2023
+day 90: 2078
+time to infect x % of population: 456
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['faculty', 'onCampus', 'offCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 158 healthy out of 159 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 153 healthy out of 159 and 0 additionally infected agents, 0.0005
+big gathering at day 21.0, at the gathering there were 147 healthy out of 158 and 0 additionally infected agents, 0.001963636363636364
+infected at aprty
+big gathering at day 28.0, at the gathering there were 131 healthy out of 192 and 1 additionally infected agents, 0.003050847457627119
+big gathering at day 35.0, at the gathering there were 88 healthy out of 139 and 0 additionally infected agents, 0.004931506849315069
+big gathering at day 42.0, at the gathering there were 56 healthy out of 130 and 0 additionally infected agents, 0.004695652173913044
+big gathering at day 49.0, at the gathering there were 39 healthy out of 135 and 0 additionally infected agents, 0.002823529411764706
+big gathering at day 56.0, at the gathering there were 26 healthy out of 104 and 0 additionally infected agents, 0.004235294117647059
+big gathering at day 63.0, at the gathering there were 36 healthy out of 174 and 0 additionally infected agents, 0.0014210526315789475
+big gathering at day 70.0, at the gathering there were 31 healthy out of 205 and 0 additionally infected agents, 0.003130434782608696
+big gathering at day 77.0, at the gathering there were 22 healthy out of 154 and 0 additionally infected agents, 0.0
+big gathering at day 84.0, at the gathering there were 21 healthy out of 147 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 31 healthy out of 194 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 24 healthy out of 139 and 0 additionally infected agents, 0.002149253731343284
+day 45: 1607
+day 90: 1977
+time to infect x % of population: 552
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['faculty', 'onCampus', 'offCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 188 healthy out of 193 and 0 additionally infected agents, 0.0009230769230769232
+big gathering at day 14.0, at the gathering there were 147 healthy out of 158 and 0 additionally infected agents, 0.001
+infected at aprty
+big gathering at day 21.0, at the gathering there were 135 healthy out of 169 and 1 additionally infected agents, 0.006077922077922079
+infected at aprty
+big gathering at day 28.0, at the gathering there were 108 healthy out of 169 and 1 additionally infected agents, 0.0030857142857142862
+infected at aprty
+infected at aprty
+big gathering at day 35.0, at the gathering there were 66 healthy out of 191 and 2 additionally infected agents, 0.010125000000000002
+big gathering at day 42.0, at the gathering there were 29 healthy out of 104 and 0 additionally infected agents, 0.0105
+big gathering at day 49.0, at the gathering there were 28 healthy out of 171 and 0 additionally infected agents, 0.0030000000000000005
+big gathering at day 56.0, at the gathering there were 28 healthy out of 208 and 0 additionally infected agents, 0.004153846153846155
+big gathering at day 63.0, at the gathering there were 25 healthy out of 168 and 0 additionally infected agents, 0.0018701298701298704
+big gathering at day 70.0, at the gathering there were 16 healthy out of 145 and 0 additionally infected agents, 0.001411764705882353
+big gathering at day 77.0, at the gathering there were 10 healthy out of 87 and 0 additionally infected agents, 0.0
+big gathering at day 84.0, at the gathering there were 25 healthy out of 171 and 0 additionally infected agents, 0.005454545454545455
+big gathering at day 91.0, at the gathering there were 23 healthy out of 178 and 0 additionally infected agents, 0.00144
+big gathering at day 98.0, at the gathering there were 22 healthy out of 130 and 0 additionally infected agents, 0.0
+day 45: 1812
+day 90: 2039
+time to infect x % of population: 456
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['offCampus', 'onCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 143 healthy out of 144 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 124 healthy out of 126 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 115 healthy out of 123 and 0 additionally infected agents, 0.0
+big gathering at day 28.0, at the gathering there were 129 healthy out of 142 and 0 additionally infected agents, 0.0013333333333333335
+big gathering at day 35.0, at the gathering there were 122 healthy out of 162 and 0 additionally infected agents, 0.004
+big gathering at day 42.0, at the gathering there were 90 healthy out of 150 and 0 additionally infected agents, 0.0058909090909090925
+big gathering at day 49.0, at the gathering there were 43 healthy out of 126 and 0 additionally infected agents, 0.005657142857142857
+big gathering at day 56.0, at the gathering there were 35 healthy out of 103 and 0 additionally infected agents, 0.00568421052631579
+big gathering at day 63.0, at the gathering there were 40 healthy out of 164 and 0 additionally infected agents, 0.0053513513513513515
+infected at aprty
+big gathering at day 70.0, at the gathering there were 32 healthy out of 140 and 1 additionally infected agents, 0.0021176470588235297
+big gathering at day 77.0, at the gathering there were 42 healthy out of 190 and 0 additionally infected agents, 0.000888888888888889
+big gathering at day 84.0, at the gathering there were 31 healthy out of 161 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 21 healthy out of 144 and 0 additionally infected agents, 0.0027692307692307695
+big gathering at day 98.0, at the gathering there were 24 healthy out of 177 and 0 additionally infected agents, 0.002823529411764706
+day 45: 1107
+day 90: 1912
+time to infect x % of population: 720
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 126 healthy out of 128 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 140 healthy out of 142 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 145 healthy out of 150 and 0 additionally infected agents, 0.0
+big gathering at day 28.0, at the gathering there were 135 healthy out of 149 and 0 additionally infected agents, 0.002181818181818182
+big gathering at day 35.0, at the gathering there were 134 healthy out of 175 and 0 additionally infected agents, 0.002535211267605634
+infected at aprty
+big gathering at day 42.0, at the gathering there were 98 healthy out of 170 and 1 additionally infected agents, 0.005142857142857144
+big gathering at day 49.0, at the gathering there were 31 healthy out of 98 and 0 additionally infected agents, 0.008081632653061225
+big gathering at day 56.0, at the gathering there were 44 healthy out of 193 and 0 additionally infected agents, 0.007297297297297297
+big gathering at day 63.0, at the gathering there were 11 healthy out of 132 and 0 additionally infected agents, 0.006000000000000001
+big gathering at day 70.0, at the gathering there were 14 healthy out of 125 and 0 additionally infected agents, 0.00288
+big gathering at day 77.0, at the gathering there were 16 healthy out of 142 and 0 additionally infected agents, 0.002181818181818182
+big gathering at day 84.0, at the gathering there were 27 healthy out of 198 and 0 additionally infected agents, 0.004556962025316456
+big gathering at day 91.0, at the gathering there were 16 healthy out of 128 and 0 additionally infected agents, 0.0012857142857142859
+big gathering at day 98.0, at the gathering there were 14 healthy out of 143 and 0 additionally infected agents, 0.0009729729729729731
+day 45: 1280
+day 90: 2107
+time to infect x % of population: 672
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['offCampus', 'faculty', 'onCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 156 healthy out of 159 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 159 healthy out of 162 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 151 healthy out of 157 and 0 additionally infected agents, 0.0
+big gathering at day 28.0, at the gathering there were 114 healthy out of 129 and 0 additionally infected agents, 0.002057142857142857
+big gathering at day 35.0, at the gathering there were 140 healthy out of 160 and 0 additionally infected agents, 0.0024000000000000002
+big gathering at day 42.0, at the gathering there were 83 healthy out of 127 and 0 additionally infected agents, 0.0036000000000000003
+big gathering at day 49.0, at the gathering there were 86 healthy out of 132 and 0 additionally infected agents, 0.006480000000000001
+infected at aprty
+big gathering at day 56.0, at the gathering there were 72 healthy out of 185 and 1 additionally infected agents, 0.004408163265306123
+big gathering at day 63.0, at the gathering there were 41 healthy out of 155 and 0 additionally infected agents, 0.005424657534246575
+big gathering at day 70.0, at the gathering there were 23 healthy out of 104 and 0 additionally infected agents, 0.0108
+big gathering at day 77.0, at the gathering there were 34 healthy out of 166 and 0 additionally infected agents, 0.0
+big gathering at day 84.0, at the gathering there were 43 healthy out of 151 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 31 healthy out of 163 and 0 additionally infected agents, 0.0009600000000000001
+big gathering at day 98.0, at the gathering there were 36 healthy out of 175 and 0 additionally infected agents, 0.0
+day 45: 746
+day 90: 1870
+time to infect x % of population: 840
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'faculty', 'offCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 159 healthy out of 163 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 193 healthy out of 198 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 142 healthy out of 166 and 0 additionally infected agents, 0.0036000000000000003
+big gathering at day 28.0, at the gathering there were 95 healthy out of 129 and 0 additionally infected agents, 0.006947368421052632
+big gathering at day 35.0, at the gathering there were 113 healthy out of 173 and 0 additionally infected agents, 0.004207792207792209
+infected at aprty
+infected at aprty
+big gathering at day 42.0, at the gathering there were 87 healthy out of 185 and 2 additionally infected agents, 0.0039375
+infected at aprty
+big gathering at day 49.0, at the gathering there were 56 healthy out of 180 and 1 additionally infected agents, 0.009947368421052634
+big gathering at day 56.0, at the gathering there were 26 healthy out of 136 and 0 additionally infected agents, 0.006400000000000001
+big gathering at day 63.0, at the gathering there were 34 healthy out of 189 and 0 additionally infected agents, 0.0018461538461538463
+big gathering at day 70.0, at the gathering there were 27 healthy out of 138 and 0 additionally infected agents, 0.0
+big gathering at day 77.0, at the gathering there were 33 healthy out of 141 and 0 additionally infected agents, 0.002823529411764706
+big gathering at day 84.0, at the gathering there were 26 healthy out of 136 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 32 healthy out of 170 and 0 additionally infected agents, 0.0009230769230769232
+big gathering at day 98.0, at the gathering there were 36 healthy out of 175 and 0 additionally infected agents, 0.0
+day 45: 1478
+day 90: 1923
+time to infect x % of population: 528
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'offCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 131 healthy out of 132 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 155 healthy out of 165 and 0 additionally infected agents, 0.001469387755102041
+big gathering at day 21.0, at the gathering there were 126 healthy out of 146 and 0 additionally infected agents, 0.000878048780487805
+big gathering at day 28.0, at the gathering there were 64 healthy out of 83 and 0 additionally infected agents, 0.0027692307692307695
+big gathering at day 35.0, at the gathering there were 104 healthy out of 152 and 0 additionally infected agents, 0.005454545454545455
+infected at aprty
+big gathering at day 42.0, at the gathering there were 73 healthy out of 154 and 1 additionally infected agents, 0.009209302325581396
+infected at aprty
+big gathering at day 49.0, at the gathering there were 54 healthy out of 148 and 1 additionally infected agents, 0.004764705882352942
+big gathering at day 56.0, at the gathering there were 43 healthy out of 136 and 0 additionally infected agents, 0.003042253521126761
+big gathering at day 63.0, at the gathering there were 39 healthy out of 153 and 0 additionally infected agents, 0.0
+big gathering at day 70.0, at the gathering there were 45 healthy out of 174 and 0 additionally infected agents, 0.0008000000000000001
+big gathering at day 77.0, at the gathering there were 36 healthy out of 134 and 0 additionally infected agents, 0.0
+big gathering at day 84.0, at the gathering there were 28 healthy out of 134 and 0 additionally infected agents, 0.0025714285714285717
+big gathering at day 91.0, at the gathering there were 34 healthy out of 153 and 0 additionally infected agents, 0.0032000000000000006
+big gathering at day 98.0, at the gathering there were 37 healthy out of 153 and 0 additionally infected agents, 0.004114285714285714
+day 45: 1444
+day 90: 1880
+time to infect x % of population: 552
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['offCampus', 'onCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 136 healthy out of 140 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 146 healthy out of 149 and 0 additionally infected agents, 0.0013333333333333335
+big gathering at day 21.0, at the gathering there were 109 healthy out of 116 and 0 additionally infected agents, 0.0012413793103448277
+infected at aprty
+big gathering at day 28.0, at the gathering there were 126 healthy out of 141 and 1 additionally infected agents, 0.0019200000000000003
+big gathering at day 35.0, at the gathering there were 84 healthy out of 159 and 0 additionally infected agents, 0.005142857142857143
+big gathering at day 42.0, at the gathering there were 61 healthy out of 155 and 0 additionally infected agents, 0.016363636363636365
+big gathering at day 49.0, at the gathering there were 29 healthy out of 160 and 0 additionally infected agents, 0.0052258064516129046
+big gathering at day 56.0, at the gathering there were 19 healthy out of 145 and 0 additionally infected agents, 0.0036000000000000003
+big gathering at day 63.0, at the gathering there were 17 healthy out of 180 and 0 additionally infected agents, 0.0024657534246575346
+big gathering at day 70.0, at the gathering there were 21 healthy out of 175 and 0 additionally infected agents, 0.001180327868852459
+big gathering at day 77.0, at the gathering there were 9 healthy out of 109 and 0 additionally infected agents, 0.0
+big gathering at day 84.0, at the gathering there were 20 healthy out of 149 and 0 additionally infected agents, 0.0010434782608695653
+big gathering at day 91.0, at the gathering there were 19 healthy out of 133 and 0 additionally infected agents, 0.003063829787234043
+big gathering at day 98.0, at the gathering there were 22 healthy out of 157 and 0 additionally infected agents, 0.0
+day 45: 1630
+day 90: 2065
+time to infect x % of population: 624
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['offCampus', 'onCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 166 healthy out of 170 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 109 healthy out of 113 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 118 healthy out of 129 and 0 additionally infected agents, 0.0009863013698630139
+big gathering at day 28.0, at the gathering there were 113 healthy out of 141 and 0 additionally infected agents, 0.004984615384615386
+infected at aprty
+big gathering at day 35.0, at the gathering there were 97 healthy out of 150 and 1 additionally infected agents, 0.008640000000000002
+big gathering at day 42.0, at the gathering there were 46 healthy out of 114 and 0 additionally infected agents, 0.006461538461538461
+big gathering at day 49.0, at the gathering there were 33 healthy out of 160 and 0 additionally infected agents, 0.01008
+big gathering at day 56.0, at the gathering there were 25 healthy out of 151 and 0 additionally infected agents, 0.0054
+big gathering at day 63.0, at the gathering there were 14 healthy out of 118 and 0 additionally infected agents, 0.0023225806451612906
+big gathering at day 70.0, at the gathering there were 12 healthy out of 108 and 0 additionally infected agents, 0.003428571428571429
+big gathering at day 77.0, at the gathering there were 26 healthy out of 193 and 0 additionally infected agents, 0.001777777777777778
+big gathering at day 84.0, at the gathering there were 26 healthy out of 159 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 18 healthy out of 150 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 21 healthy out of 158 and 0 additionally infected agents, 0.0
+day 45: 1594
+day 90: 2060
+time to infect x % of population: 576
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'faculty', 'offCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 152 healthy out of 152 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 159 healthy out of 162 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 136 healthy out of 138 and 0 additionally infected agents, 0.0
+infected at aprty
+big gathering at day 28.0, at the gathering there were 156 healthy out of 171 and 1 additionally infected agents, 0.0028051948051948054
+infected at aprty
+big gathering at day 35.0, at the gathering there were 129 healthy out of 173 and 1 additionally infected agents, 0.005739130434782609
+big gathering at day 42.0, at the gathering there were 73 healthy out of 147 and 0 additionally infected agents, 0.0
+big gathering at day 49.0, at the gathering there were 39 healthy out of 113 and 0 additionally infected agents, 0.0075223880597014925
+infected at aprty
+infected at aprty
+big gathering at day 56.0, at the gathering there were 48 healthy out of 198 and 2 additionally infected agents, 0.007090909090909092
+big gathering at day 63.0, at the gathering there were 29 healthy out of 115 and 0 additionally infected agents, 0.005333333333333334
+infected at aprty
+infected at aprty
+big gathering at day 70.0, at the gathering there were 32 healthy out of 147 and 2 additionally infected agents, 0.0016363636363636365
+big gathering at day 77.0, at the gathering there were 30 healthy out of 166 and 0 additionally infected agents, 0.001142857142857143
+big gathering at day 84.0, at the gathering there were 33 healthy out of 150 and 0 additionally infected agents, 0.00576
+big gathering at day 91.0, at the gathering there were 29 healthy out of 151 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 27 healthy out of 141 and 0 additionally infected agents, 0.0036000000000000003
+day 45: 1311
+day 90: 1890
+time to infect x % of population: 720
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['faculty', 'offCampus', 'onCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 156 healthy out of 160 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 112 healthy out of 122 and 0 additionally infected agents, 0.0018947368421052633
+infected at aprty
+infected at aprty
+big gathering at day 21.0, at the gathering there were 123 healthy out of 149 and 2 additionally infected agents, 0.003223880597014926
+infected at aprty
+infected at aprty
+infected at aprty
+big gathering at day 28.0, at the gathering there were 60 healthy out of 92 and 3 additionally infected agents, 0.006000000000000001
+infected at aprty
+big gathering at day 35.0, at the gathering there were 60 healthy out of 118 and 1 additionally infected agents, 0.008571428571428572
+infected at aprty
+big gathering at day 42.0, at the gathering there were 41 healthy out of 149 and 1 additionally infected agents, 0.011555555555555557
+infected at aprty
+big gathering at day 49.0, at the gathering there were 24 healthy out of 147 and 1 additionally infected agents, 0.005142857142857144
+big gathering at day 56.0, at the gathering there were 31 healthy out of 140 and 0 additionally infected agents, 0.0032000000000000006
+big gathering at day 63.0, at the gathering there were 34 healthy out of 196 and 0 additionally infected agents, 0.002647058823529412
+big gathering at day 70.0, at the gathering there were 18 healthy out of 107 and 0 additionally infected agents, 0.0
+big gathering at day 77.0, at the gathering there were 28 healthy out of 122 and 0 additionally infected agents, 0.0
+big gathering at day 84.0, at the gathering there were 25 healthy out of 148 and 0 additionally infected agents, 0.0022153846153846156
+big gathering at day 91.0, at the gathering there were 31 healthy out of 210 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 27 healthy out of 145 and 0 additionally infected agents, 0.001090909090909091
+day 45: 1803
+day 90: 2006
+time to infect x % of population: 480
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'offCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 158 healthy out of 159 and 0 additionally infected agents, 0.0
+infected at aprty
+big gathering at day 14.0, at the gathering there were 191 healthy out of 196 and 1 additionally infected agents, 0.00045000000000000004
+big gathering at day 21.0, at the gathering there were 155 healthy out of 160 and 0 additionally infected agents, 0.0012631578947368423
+big gathering at day 28.0, at the gathering there were 133 healthy out of 140 and 0 additionally infected agents, 0.0018000000000000002
+big gathering at day 35.0, at the gathering there were 125 healthy out of 159 and 0 additionally infected agents, 0.004298507462686568
+infected at aprty
+infected at aprty
+infected at aprty
+big gathering at day 42.0, at the gathering there were 110 healthy out of 180 and 3 additionally infected agents, 0.005294117647058824
+big gathering at day 49.0, at the gathering there were 76 healthy out of 142 and 0 additionally infected agents, 0.007200000000000001
+infected at aprty
+big gathering at day 56.0, at the gathering there were 55 healthy out of 155 and 1 additionally infected agents, 0.01142857142857143
+big gathering at day 63.0, at the gathering there were 29 healthy out of 107 and 0 additionally infected agents, 0.0
+big gathering at day 70.0, at the gathering there were 30 healthy out of 130 and 0 additionally infected agents, 0.0018461538461538463
+big gathering at day 77.0, at the gathering there were 46 healthy out of 182 and 0 additionally infected agents, 0.0014025974025974027
+big gathering at day 84.0, at the gathering there were 21 healthy out of 134 and 0 additionally infected agents, 0.0016000000000000003
+big gathering at day 91.0, at the gathering there were 31 healthy out of 153 and 0 additionally infected agents, 0.0006101694915254238
+big gathering at day 98.0, at the gathering there were 42 healthy out of 207 and 0 additionally infected agents, 0.0009113924050632912
+day 45: 924
+day 90: 1897
+time to infect x % of population: 744
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'faculty', 'offCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 118 healthy out of 119 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 149 healthy out of 153 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 97 healthy out of 106 and 0 additionally infected agents, 0.0
+infected at aprty
+infected at aprty
+big gathering at day 28.0, at the gathering there were 126 healthy out of 165 and 2 additionally infected agents, 0.0067826086956521755
+infected at aprty
+big gathering at day 35.0, at the gathering there were 102 healthy out of 154 and 1 additionally infected agents, 0.006260869565217392
+infected at aprty
+infected at aprty
+big gathering at day 42.0, at the gathering there were 101 healthy out of 194 and 2 additionally infected agents, 0.0067826086956521755
+infected at aprty
+big gathering at day 49.0, at the gathering there were 64 healthy out of 150 and 1 additionally infected agents, 0.00288
+big gathering at day 56.0, at the gathering there were 33 healthy out of 139 and 0 additionally infected agents, 0.00490909090909091
+big gathering at day 63.0, at the gathering there were 27 healthy out of 152 and 0 additionally infected agents, 0.002938775510204082
+big gathering at day 70.0, at the gathering there were 31 healthy out of 156 and 0 additionally infected agents, 0.004363636363636364
+big gathering at day 77.0, at the gathering there were 22 healthy out of 106 and 0 additionally infected agents, 0.002
+big gathering at day 84.0, at the gathering there were 23 healthy out of 156 and 0 additionally infected agents, 0.0024000000000000002
+big gathering at day 91.0, at the gathering there were 27 healthy out of 179 and 0 additionally infected agents, 0.003555555555555556
+big gathering at day 98.0, at the gathering there were 12 healthy out of 95 and 0 additionally infected agents, 0.0036923076923076927
+day 45: 1257
+day 90: 2031
+time to infect x % of population: 624
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'offCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 132 healthy out of 136 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 180 healthy out of 196 and 0 additionally infected agents, 0.0030000000000000005
+big gathering at day 21.0, at the gathering there were 98 healthy out of 109 and 0 additionally infected agents, 0.0
+big gathering at day 28.0, at the gathering there were 113 healthy out of 155 and 0 additionally infected agents, 0.0022500000000000003
+infected at aprty
+big gathering at day 35.0, at the gathering there were 66 healthy out of 132 and 1 additionally infected agents, 0.0055000000000000005
+big gathering at day 42.0, at the gathering there were 51 healthy out of 190 and 0 additionally infected agents, 0.007800000000000001
+big gathering at day 49.0, at the gathering there were 42 healthy out of 189 and 0 additionally infected agents, 0.002647058823529412
+big gathering at day 56.0, at the gathering there were 33 healthy out of 147 and 0 additionally infected agents, 0.0027272727272727275
+big gathering at day 63.0, at the gathering there were 22 healthy out of 135 and 0 additionally infected agents, 0.0012857142857142859
+big gathering at day 70.0, at the gathering there were 24 healthy out of 148 and 0 additionally infected agents, 0.0
+big gathering at day 77.0, at the gathering there were 26 healthy out of 167 and 0 additionally infected agents, 0.0009473684210526316
+big gathering at day 84.0, at the gathering there were 36 healthy out of 206 and 0 additionally infected agents, 0.0009113924050632912
+big gathering at day 91.0, at the gathering there were 24 healthy out of 145 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 21 healthy out of 130 and 0 additionally infected agents, 0.0
+day 45: 1782
+day 90: 2007
+time to infect x % of population: 528
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'offCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+infected at aprty
+big gathering at day 7.0, at the gathering there were 212 healthy out of 217 and 1 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 162 healthy out of 166 and 0 additionally infected agents, 0.0006101694915254238
+big gathering at day 21.0, at the gathering there were 156 healthy out of 161 and 0 additionally infected agents, 0.0006000000000000001
+infected at aprty
+big gathering at day 28.0, at the gathering there were 147 healthy out of 157 and 1 additionally infected agents, 0.0022500000000000003
+infected at aprty
+big gathering at day 35.0, at the gathering there were 130 healthy out of 144 and 1 additionally infected agents, 0.0
+infected at aprty
+big gathering at day 42.0, at the gathering there were 124 healthy out of 158 and 1 additionally infected agents, 0.0
+big gathering at day 49.0, at the gathering there were 75 healthy out of 134 and 0 additionally infected agents, 0.00806896551724138
+big gathering at day 56.0, at the gathering there were 68 healthy out of 158 and 0 additionally infected agents, 0.010588235294117648
+big gathering at day 63.0, at the gathering there were 64 healthy out of 168 and 0 additionally infected agents, 0.010285714285714287
+infected at aprty
+big gathering at day 70.0, at the gathering there were 15 healthy out of 104 and 1 additionally infected agents, 0.006352941176470589
+big gathering at day 77.0, at the gathering there were 23 healthy out of 128 and 0 additionally infected agents, 0.00830769230769231
+infected at aprty
+big gathering at day 84.0, at the gathering there were 48 healthy out of 195 and 1 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 16 healthy out of 126 and 0 additionally infected agents, 0.005052631578947369
+big gathering at day 98.0, at the gathering there were 31 healthy out of 186 and 0 additionally infected agents, 0.0025714285714285717
+day 45: 585
+day 90: 1933
+time to infect x % of population: 912
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'faculty', 'offCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 165 healthy out of 169 and 0 additionally infected agents, 0.000888888888888889
+big gathering at day 14.0, at the gathering there were 157 healthy out of 167 and 0 additionally infected agents, 0.0030857142857142862
+big gathering at day 21.0, at the gathering there were 124 healthy out of 144 and 0 additionally infected agents, 0.0027692307692307695
+big gathering at day 28.0, at the gathering there were 79 healthy out of 126 and 0 additionally infected agents, 0.007
+big gathering at day 35.0, at the gathering there were 52 healthy out of 167 and 0 additionally infected agents, 0.009529411764705883
+infected at aprty
+big gathering at day 42.0, at the gathering there were 38 healthy out of 136 and 1 additionally infected agents, 0.009473684210526316
+big gathering at day 49.0, at the gathering there were 18 healthy out of 147 and 0 additionally infected agents, 0.010208955223880599
+big gathering at day 56.0, at the gathering there were 16 healthy out of 107 and 0 additionally infected agents, 0.0
+big gathering at day 63.0, at the gathering there were 23 healthy out of 182 and 0 additionally infected agents, 0.0
+big gathering at day 70.0, at the gathering there were 15 healthy out of 149 and 0 additionally infected agents, 0.0038918918918918926
+big gathering at day 77.0, at the gathering there were 15 healthy out of 128 and 0 additionally infected agents, 0.0015000000000000002
+big gathering at day 84.0, at the gathering there were 13 healthy out of 113 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 23 healthy out of 147 and 0 additionally infected agents, 0.003724137931034483
+big gathering at day 98.0, at the gathering there were 17 healthy out of 100 and 0 additionally infected agents, 0.00490909090909091
+day 45: 1923
+day 90: 2084
+time to infect x % of population: 480
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['faculty', 'onCampus', 'offCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 154 healthy out of 154 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 121 healthy out of 124 and 0 additionally infected agents, 0.003130434782608696
+infected at aprty
+big gathering at day 21.0, at the gathering there were 150 healthy out of 154 and 1 additionally infected agents, 0.0011612903225806453
+infected at aprty
+big gathering at day 28.0, at the gathering there were 150 healthy out of 174 and 1 additionally infected agents, 0.0037894736842105266
+big gathering at day 35.0, at the gathering there were 105 healthy out of 158 and 0 additionally infected agents, 0.004173913043478261
+big gathering at day 42.0, at the gathering there were 43 healthy out of 120 and 0 additionally infected agents, 0.011314285714285714
+infected at aprty
+infected at aprty
+big gathering at day 49.0, at the gathering there were 22 healthy out of 136 and 2 additionally infected agents, 0.016695652173913045
+big gathering at day 56.0, at the gathering there were 20 healthy out of 124 and 0 additionally infected agents, 0.0062068965517241385
+big gathering at day 63.0, at the gathering there were 21 healthy out of 160 and 0 additionally infected agents, 0.0017142857142857144
+big gathering at day 70.0, at the gathering there were 13 healthy out of 129 and 0 additionally infected agents, 0.0045000000000000005
+big gathering at day 77.0, at the gathering there were 18 healthy out of 127 and 0 additionally infected agents, 0.0
+big gathering at day 84.0, at the gathering there were 13 healthy out of 167 and 0 additionally infected agents, 0.001142857142857143
+big gathering at day 91.0, at the gathering there were 17 healthy out of 158 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 15 healthy out of 184 and 0 additionally infected agents, 0.001358490566037736
+day 45: 1633
+day 90: 2146
+time to infect x % of population: 648
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'offCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 108 healthy out of 110 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 142 healthy out of 149 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 175 healthy out of 204 and 0 additionally infected agents, 0.0019726027397260278
+infected at aprty
+big gathering at day 28.0, at the gathering there were 88 healthy out of 117 and 1 additionally infected agents, 0.003428571428571429
+big gathering at day 35.0, at the gathering there were 69 healthy out of 119 and 0 additionally infected agents, 0.00488135593220339
+big gathering at day 42.0, at the gathering there were 47 healthy out of 131 and 0 additionally infected agents, 0.008228571428571429
+big gathering at day 49.0, at the gathering there were 34 healthy out of 140 and 0 additionally infected agents, 0.0027692307692307695
+big gathering at day 56.0, at the gathering there were 35 healthy out of 180 and 0 additionally infected agents, 0.0034054054054054052
+big gathering at day 63.0, at the gathering there were 12 healthy out of 168 and 0 additionally infected agents, 0.0030857142857142862
+big gathering at day 70.0, at the gathering there were 21 healthy out of 113 and 0 additionally infected agents, 0.0
+infected at aprty
+big gathering at day 77.0, at the gathering there were 12 healthy out of 89 and 1 additionally infected agents, 0.00490909090909091
+big gathering at day 84.0, at the gathering there were 31 healthy out of 170 and 0 additionally infected agents, 0.00490909090909091
+big gathering at day 91.0, at the gathering there were 33 healthy out of 219 and 0 additionally infected agents, 0.0027341772151898737
+big gathering at day 98.0, at the gathering there were 35 healthy out of 207 and 0 additionally infected agents, 0.0
+day 45: 1671
+day 90: 2027
+time to infect x % of population: 552
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['faculty', 'onCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 137 healthy out of 139 and 0 additionally infected agents, 0.00048648648648648657
+big gathering at day 14.0, at the gathering there were 184 healthy out of 191 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 122 healthy out of 138 and 0 additionally infected agents, 0.003428571428571429
+big gathering at day 28.0, at the gathering there were 100 healthy out of 150 and 0 additionally infected agents, 0.003428571428571429
+infected at aprty
+big gathering at day 35.0, at the gathering there were 45 healthy out of 140 and 1 additionally infected agents, 0.01768421052631579
+big gathering at day 42.0, at the gathering there were 29 healthy out of 111 and 0 additionally infected agents, 0.00830769230769231
+big gathering at day 49.0, at the gathering there were 32 healthy out of 128 and 0 additionally infected agents, 0.007764705882352942
+big gathering at day 56.0, at the gathering there were 33 healthy out of 145 and 0 additionally infected agents, 0.0
+big gathering at day 63.0, at the gathering there were 16 healthy out of 82 and 0 additionally infected agents, 0.0
+big gathering at day 70.0, at the gathering there were 32 healthy out of 153 and 0 additionally infected agents, 0.0018000000000000002
+big gathering at day 77.0, at the gathering there were 21 healthy out of 151 and 0 additionally infected agents, 0.0022500000000000003
+big gathering at day 84.0, at the gathering there were 31 healthy out of 138 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 33 healthy out of 180 and 0 additionally infected agents, 0.0031764705882352945
+big gathering at day 98.0, at the gathering there were 23 healthy out of 108 and 0 additionally infected agents, 0.0
+day 45: 1908
+day 90: 2000
+time to infect x % of population: 552
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['offCampus', 'onCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 113 healthy out of 114 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 105 healthy out of 111 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 105 healthy out of 111 and 0 additionally infected agents, 0.0
+infected at aprty
+big gathering at day 28.0, at the gathering there were 67 healthy out of 92 and 1 additionally infected agents, 0.001565217391304348
+infected at aprty
+big gathering at day 35.0, at the gathering there were 108 healthy out of 167 and 1 additionally infected agents, 0.008383561643835618
+big gathering at day 42.0, at the gathering there were 78 healthy out of 197 and 0 additionally infected agents, 0.006904109589041096
+infected at aprty
+big gathering at day 49.0, at the gathering there were 29 healthy out of 102 and 1 additionally infected agents, 0.005000000000000001
+big gathering at day 56.0, at the gathering there were 24 healthy out of 138 and 0 additionally infected agents, 0.004344827586206896
+big gathering at day 63.0, at the gathering there were 21 healthy out of 148 and 0 additionally infected agents, 0.001358490566037736
+big gathering at day 70.0, at the gathering there were 28 healthy out of 165 and 0 additionally infected agents, 0.0019459459459459463
+big gathering at day 77.0, at the gathering there were 20 healthy out of 181 and 0 additionally infected agents, 0.0005806451612903226
+big gathering at day 84.0, at the gathering there were 26 healthy out of 180 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 16 healthy out of 151 and 0 additionally infected agents, 0.0024000000000000002
+big gathering at day 98.0, at the gathering there were 20 healthy out of 158 and 0 additionally infected agents, 0.0
+day 45: 1480
+day 90: 2037
+time to infect x % of population: 624
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 91 healthy out of 91 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 170 healthy out of 174 and 0 additionally infected agents, 0.0005
+big gathering at day 21.0, at the gathering there were 109 healthy out of 113 and 0 additionally infected agents, 0.0
+big gathering at day 28.0, at the gathering there were 152 healthy out of 170 and 0 additionally infected agents, 0.0017142857142857144
+infected at aprty
+big gathering at day 35.0, at the gathering there were 97 healthy out of 135 and 1 additionally infected agents, 0.004736842105263158
+infected at aprty
+infected at aprty
+big gathering at day 42.0, at the gathering there were 63 healthy out of 127 and 2 additionally infected agents, 0.01509677419354839
+big gathering at day 49.0, at the gathering there were 38 healthy out of 100 and 0 additionally infected agents, 0.0084
+big gathering at day 56.0, at the gathering there were 44 healthy out of 167 and 0 additionally infected agents, 0.007346938775510205
+big gathering at day 63.0, at the gathering there were 31 healthy out of 95 and 0 additionally infected agents, 0.0025714285714285717
+big gathering at day 70.0, at the gathering there were 35 healthy out of 147 and 0 additionally infected agents, 0.001411764705882353
+big gathering at day 77.0, at the gathering there were 48 healthy out of 197 and 0 additionally infected agents, 0.0
+big gathering at day 84.0, at the gathering there were 48 healthy out of 193 and 0 additionally infected agents, 0.000888888888888889
+infected at aprty
+big gathering at day 91.0, at the gathering there were 32 healthy out of 148 and 1 additionally infected agents, 0.0013333333333333335
+big gathering at day 98.0, at the gathering there were 29 healthy out of 136 and 0 additionally infected agents, 0.0
+day 45: 1264
+day 90: 1880
+time to infect x % of population: 672
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 150 healthy out of 152 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 172 healthy out of 182 and 0 additionally infected agents, 0.0010434782608695653
+big gathering at day 21.0, at the gathering there were 108 healthy out of 125 and 0 additionally infected agents, 0.001469387755102041
+infected at aprty
+big gathering at day 28.0, at the gathering there were 110 healthy out of 148 and 1 additionally infected agents, 0.008842105263157894
+big gathering at day 35.0, at the gathering there were 76 healthy out of 167 and 0 additionally infected agents, 0.00792
+big gathering at day 42.0, at the gathering there were 41 healthy out of 128 and 0 additionally infected agents, 0.005433962264150944
+big gathering at day 49.0, at the gathering there were 38 healthy out of 164 and 0 additionally infected agents, 0.006591549295774649
+big gathering at day 56.0, at the gathering there were 14 healthy out of 88 and 0 additionally infected agents, 0.004090909090909091
+big gathering at day 63.0, at the gathering there were 14 healthy out of 111 and 0 additionally infected agents, 0.003724137931034483
+big gathering at day 70.0, at the gathering there were 13 healthy out of 112 and 0 additionally infected agents, 0.0
+big gathering at day 77.0, at the gathering there were 26 healthy out of 172 and 0 additionally infected agents, 0.00144
+big gathering at day 84.0, at the gathering there were 15 healthy out of 122 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 18 healthy out of 150 and 0 additionally infected agents, 0.00288
+big gathering at day 98.0, at the gathering there were 21 healthy out of 154 and 0 additionally infected agents, 0.002057142857142857
+day 45: 1753
+day 90: 2058
+time to infect x % of population: 504
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'faculty', 'offCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 121 healthy out of 122 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 132 healthy out of 140 and 0 additionally infected agents, 0.0015000000000000002
+big gathering at day 21.0, at the gathering there were 136 healthy out of 153 and 0 additionally infected agents, 0.0017142857142857144
+infected at aprty
+big gathering at day 28.0, at the gathering there were 124 healthy out of 180 and 1 additionally infected agents, 0.006923076923076924
+infected at aprty
+infected at aprty
+big gathering at day 35.0, at the gathering there were 42 healthy out of 123 and 2 additionally infected agents, 0.010622950819672133
+big gathering at day 42.0, at the gathering there were 32 healthy out of 125 and 0 additionally infected agents, 0.008470588235294119
+infected at aprty
+big gathering at day 49.0, at the gathering there were 23 healthy out of 133 and 1 additionally infected agents, 0.006127659574468086
+big gathering at day 56.0, at the gathering there were 21 healthy out of 104 and 0 additionally infected agents, 0.005478260869565217
+big gathering at day 63.0, at the gathering there were 28 healthy out of 182 and 0 additionally infected agents, 0.0009230769230769232
+big gathering at day 70.0, at the gathering there were 11 healthy out of 129 and 0 additionally infected agents, 0.0
+big gathering at day 77.0, at the gathering there were 28 healthy out of 198 and 0 additionally infected agents, 0.0009113924050632912
+big gathering at day 84.0, at the gathering there were 41 healthy out of 210 and 0 additionally infected agents, 0.0010140845070422536
+big gathering at day 91.0, at the gathering there were 26 healthy out of 182 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 27 healthy out of 160 and 0 additionally infected agents, 0.002666666666666667
+day 45: 1839
+day 90: 2023
+time to infect x % of population: 552
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 138 healthy out of 140 and 0 additionally infected agents, 0.0005142857142857143
+big gathering at day 14.0, at the gathering there were 121 healthy out of 127 and 0 additionally infected agents, 0.00072
+big gathering at day 21.0, at the gathering there were 193 healthy out of 206 and 0 additionally infected agents, 0.00045000000000000004
+infected at aprty
+infected at aprty
+big gathering at day 28.0, at the gathering there were 132 healthy out of 159 and 2 additionally infected agents, 0.0051428571428571435
+infected at aprty
+big gathering at day 35.0, at the gathering there were 56 healthy out of 93 and 1 additionally infected agents, 0.011675675675675677
+infected at aprty
+big gathering at day 42.0, at the gathering there were 87 healthy out of 151 and 1 additionally infected agents, 0.0033750000000000004
+big gathering at day 49.0, at the gathering there were 53 healthy out of 156 and 0 additionally infected agents, 0.00825
+infected at aprty
+big gathering at day 56.0, at the gathering there were 37 healthy out of 159 and 1 additionally infected agents, 0.00830769230769231
+infected at aprty
+big gathering at day 63.0, at the gathering there were 34 healthy out of 191 and 1 additionally infected agents, 0.005538461538461539
+big gathering at day 70.0, at the gathering there were 21 healthy out of 136 and 0 additionally infected agents, 0.0018461538461538463
+big gathering at day 77.0, at the gathering there were 24 healthy out of 137 and 0 additionally infected agents, 0.0010434782608695653
+big gathering at day 84.0, at the gathering there were 25 healthy out of 132 and 0 additionally infected agents, 0.006545454545454546
+big gathering at day 91.0, at the gathering there were 26 healthy out of 141 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 27 healthy out of 155 and 0 additionally infected agents, 0.0
+day 45: 1363
+day 90: 2026
+time to infect x % of population: 648
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'offCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 132 healthy out of 134 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 140 healthy out of 142 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 145 healthy out of 159 and 0 additionally infected agents, 0.0032000000000000006
+infected at aprty
+big gathering at day 28.0, at the gathering there were 153 healthy out of 196 and 1 additionally infected agents, 0.0024827586206896553
+infected at aprty
+big gathering at day 35.0, at the gathering there were 73 healthy out of 150 and 1 additionally infected agents, 0.012214285714285716
+big gathering at day 42.0, at the gathering there were 57 healthy out of 168 and 0 additionally infected agents, 0.010588235294117648
+big gathering at day 49.0, at the gathering there were 45 healthy out of 184 and 0 additionally infected agents, 0.0022040816326530615
+big gathering at day 56.0, at the gathering there were 29 healthy out of 151 and 0 additionally infected agents, 0.0017142857142857144
+big gathering at day 63.0, at the gathering there were 26 healthy out of 126 and 0 additionally infected agents, 0.0
+big gathering at day 70.0, at the gathering there were 28 healthy out of 130 and 0 additionally infected agents, 0.0008181818181818183
+big gathering at day 77.0, at the gathering there were 32 healthy out of 180 and 0 additionally infected agents, 0.0013846153846153847
+big gathering at day 84.0, at the gathering there were 33 healthy out of 143 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 25 healthy out of 116 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 26 healthy out of 119 and 0 additionally infected agents, 0.0036923076923076927
+day 45: 1699
+day 90: 1935
+time to infect x % of population: 552
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'offCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 114 healthy out of 119 and 0 additionally infected agents, 0.0
+infected at aprty
+big gathering at day 14.0, at the gathering there were 144 healthy out of 155 and 1 additionally infected agents, 0.0006000000000000001
+big gathering at day 21.0, at the gathering there were 112 healthy out of 129 and 0 additionally infected agents, 0.0
+big gathering at day 28.0, at the gathering there were 84 healthy out of 113 and 0 additionally infected agents, 0.002454545454545455
+big gathering at day 35.0, at the gathering there were 79 healthy out of 144 and 0 additionally infected agents, 0.0052173913043478265
+big gathering at day 42.0, at the gathering there were 59 healthy out of 153 and 0 additionally infected agents, 0.01152
+big gathering at day 49.0, at the gathering there were 38 healthy out of 153 and 0 additionally infected agents, 0.006428571428571429
+big gathering at day 56.0, at the gathering there were 27 healthy out of 130 and 0 additionally infected agents, 0.0036000000000000003
+infected at aprty
+big gathering at day 63.0, at the gathering there were 39 healthy out of 143 and 1 additionally infected agents, 0.005052631578947369
+big gathering at day 70.0, at the gathering there were 37 healthy out of 157 and 0 additionally infected agents, 0.0
+big gathering at day 77.0, at the gathering there were 33 healthy out of 167 and 0 additionally infected agents, 0.004363636363636364
+big gathering at day 84.0, at the gathering there were 37 healthy out of 179 and 0 additionally infected agents, 0.0018461538461538463
+big gathering at day 91.0, at the gathering there were 25 healthy out of 156 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 25 healthy out of 127 and 0 additionally infected agents, 0.0
+day 45: 1526
+day 90: 1907
+time to infect x % of population: 528
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['offCampus', 'onCampus', 'faculty'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 180 healthy out of 182 and 0 additionally infected agents, 0.000679245283018868
+big gathering at day 14.0, at the gathering there were 168 healthy out of 173 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 101 healthy out of 122 and 0 additionally infected agents, 0.0024827586206896553
+infected at aprty
+big gathering at day 28.0, at the gathering there were 85 healthy out of 122 and 1 additionally infected agents, 0.00525
+infected at aprty
+big gathering at day 35.0, at the gathering there were 61 healthy out of 137 and 1 additionally infected agents, 0.006711864406779662
+infected at aprty
+big gathering at day 42.0, at the gathering there were 34 healthy out of 131 and 1 additionally infected agents, 0.007448275862068966
+big gathering at day 49.0, at the gathering there were 18 healthy out of 105 and 0 additionally infected agents, 0.0027692307692307695
+big gathering at day 56.0, at the gathering there were 25 healthy out of 121 and 0 additionally infected agents, 0.0019726027397260278
+big gathering at day 63.0, at the gathering there were 37 healthy out of 208 and 0 additionally infected agents, 0.0010140845070422536
+big gathering at day 70.0, at the gathering there were 29 healthy out of 138 and 0 additionally infected agents, 0.0
+big gathering at day 77.0, at the gathering there were 23 healthy out of 115 and 0 additionally infected agents, 0.002360655737704918
+big gathering at day 84.0, at the gathering there were 38 healthy out of 186 and 0 additionally infected agents, 0.0
+big gathering at day 91.0, at the gathering there were 18 healthy out of 130 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 32 healthy out of 138 and 0 additionally infected agents, 0.0015319148936170214
+day 45: 1807
+day 90: 1967
+time to infect x % of population: 528
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['onCampus', 'offCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 142 healthy out of 142 and 0 additionally infected agents, 0.0
+infected at aprty
+big gathering at day 14.0, at the gathering there were 136 healthy out of 141 and 1 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 146 healthy out of 163 and 0 additionally infected agents, 0.0006206896551724138
+big gathering at day 28.0, at the gathering there were 52 healthy out of 74 and 0 additionally infected agents, 0.006545454545454546
+big gathering at day 35.0, at the gathering there were 122 healthy out of 193 and 0 additionally infected agents, 0.006750000000000001
+big gathering at day 42.0, at the gathering there were 56 healthy out of 170 and 0 additionally infected agents, 0.012
+big gathering at day 49.0, at the gathering there were 25 healthy out of 135 and 0 additionally infected agents, 0.006893617021276597
+big gathering at day 56.0, at the gathering there were 40 healthy out of 202 and 0 additionally infected agents, 0.0018461538461538463
+big gathering at day 63.0, at the gathering there were 29 healthy out of 190 and 0 additionally infected agents, 0.0009473684210526316
+big gathering at day 70.0, at the gathering there were 19 healthy out of 112 and 0 additionally infected agents, 0.0018947368421052633
+big gathering at day 77.0, at the gathering there were 31 healthy out of 174 and 0 additionally infected agents, 0.002666666666666667
+big gathering at day 84.0, at the gathering there were 24 healthy out of 173 and 0 additionally infected agents, 0.0022153846153846156
+big gathering at day 91.0, at the gathering there were 27 healthy out of 140 and 0 additionally infected agents, 0.0
+big gathering at day 98.0, at the gathering there were 19 healthy out of 117 and 0 additionally infected agents, 0.0
+day 45: 1746
+day 90: 2021
+time to infect x % of population: 552
+unpickling content in {filePath}
+loaded pickled object successfully
+10 seeds starting off with exposed, dict_keys(['faculty', 'offCampus', 'onCampus'])
+finished schedules
+finished interventions
+finished initializing intervention and schedules
+big gathering at day 7.0, at the gathering there were 202 healthy out of 205 and 0 additionally infected agents, 0.0
+big gathering at day 14.0, at the gathering there were 126 healthy out of 129 and 0 additionally infected agents, 0.0
+big gathering at day 21.0, at the gathering there were 118 healthy out of 128 and 0 additionally infected agents, 0.0
+big gathering at day 28.0, at the gathering there were 113 healthy out of 153 and 0 additionally infected agents, 0.0032000000000000006
+infected at aprty
+infected at aprty
+infected at aprty
+big gathering at day 35.0, at the gathering there were 61 healthy out of 115 and 3 additionally infected agents, 0.00586046511627907
+infected at aprty
+big gathering at day 42.0, at the gathering there were 54 healthy out of 193 and 1 additionally infected agents, 0.012162162162162165
+big gathering at day 49.0, at the gathering there were 26 healthy out of 145 and 0 additionally infected agents, 0.012150000000000001
+big gathering at day 56.0, at the gathering there were 15 healthy out of 116 and 0 additionally infected agents, 0.0026181818181818185
+big gathering at day 63.0, at the gathering there were 29 healthy out of 160 and 0 additionally infected agents, 0.0030857142857142862
+big gathering at day 70.0, at the gathering there were 15 healthy out of 88 and 0 additionally infected agents, 0.0027692307692307695
+big gathering at day 77.0, at the gathering there were 27 healthy out of 223 and 0 additionally infected agents, 0.0018947368421052633
+big gathering at day 84.0, at the gathering there were 14 healthy out of 126 and 0 additionally infected agents, 0.0024000000000000002
+big gathering at day 91.0, at the gathering there were 16 healthy out of 149 and 0 additionally infected agents, 0.001674418604651163
+big gathering at day 98.0, at the gathering there were 18 healthy out of 91 and 0 additionally infected agents, 0.004695652173913044
+day 45: 1852
+day 90: 2056
+time to infect x % of population: 576
+infected numbers 134.83868333333334
+
+
+[672, 648, 456, 768, 528, 480, 552, 480, 456, 528, 504, 600, 600, 600, 480, 1080, 480, 720, 552, 456, 456, 552, 456, 720, 672, 840, 528, 552, 624, 576, 720, 480, 744, 624, 528, 912, 480, 648, 552, 552, 624, 672, 504, 552, 648, 552, 528, 528, 552, 576]
+time to 10% infected 591.84
+took 27386.52736544609 time to finish100.0%
+took 27386.52738904953 time to run 200 simulations
+image saved as outcome.png
+image saved as timeOutcome.png

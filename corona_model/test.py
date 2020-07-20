@@ -1,5 +1,5 @@
 import schedule_students as sts
-
+import numpy as np
 
 #schedule = sts.main()
 
@@ -37,7 +37,28 @@ def test2():
         # comment
         pass
 
+def rand1():
+    for i in range(24*40):
+        a = np.random.random(2200)
+
+def rand2():
+    for i in range(24*20):
+        a = np.random.random(2200-(3*i))
+
+
 if __name__ == '__main__':
     import timeit
-    print(timeit.timeit("test()", setup="from __main__ import test"))
-    print(timeit.timeit("test2()", setup="from __main__ import test2"))
+    #print(timeit.timeit("test()", setup="from __main__ import test"))
+    #print(timeit.timeit("test2()", setup="from __main__ import test2"))
+    #print(timeit.timeit("rand1()", setup="import numpy as np"))
+    #print(timeit.timeit("rand2()", setup="import numpy as np"))    
+    a = [1, 2, 3]
+    b = set(a)
+    b.add(4)
+    b.add(7)
+    b.add(99)
+    b.discard(9)
+    b.discard(99)
+    print("random", np.random.choice([1, 2, 3]))
+    for x in b:
+        print(x)
