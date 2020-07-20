@@ -279,7 +279,7 @@ def main():
             "Agents" : [("compliance", 0), ("officeAttendee", 0.2), ("gathering", 0.5)]
         },
        
-        "baseP" : 0.4,
+        "baseP" : 0.3,
 
         # base of 0.7:
         #doublingTime [0.0, 6.791666666666667, 13.5, 20.791666666666668, 31.458333333333332]
