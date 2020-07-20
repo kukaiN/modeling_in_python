@@ -281,8 +281,8 @@ def main():
             "Agents" : [("compliance", 0), ("officeAttendee", 0.2), ("gathering", 0.5)],
         },
        
-        "baseP" : 1,
-
+        "baseP" : 0.8,
+        # 1 works nice
         # for number (1)
         # its a value between 1 and 1.2, is 1.15
         # for number (2)
@@ -394,6 +394,19 @@ def main():
         "massInfectionRatio":0.10,
         "randomSocial":False,
     }
+    """
+    0.7
+    dorm 433
+classroom 415
+dining 59
+dining_hall_faculty 0
+library 80
+gym 209
+social 239
+transit 0
+offCampus 0
+office 1
+    """
     # you can control for multiple interventions by adding a case:
     #  [(modified attr1, newVal), (modified attr2, newVal), ...]
     simulationControls = [
@@ -676,12 +689,22 @@ class AgentBasedModel:
         schedules, onVsOffCampus = schedule_students.scheduleCreator()
         fac_schedule = schedule_faculty.scheduleCreator()
         roomIds = self.findMatchingRooms("building_type", "classroom")
-        
+        print(len(roomIds), 95)
+        #self.rooms[roomId].room_name
+        print(roomIds)
+        print([(i, self.rooms[roomId].located_building) for i, roomId in enumerate(roomIds)])
+        #print(schedules[:10])
         # replace entries like (48, 1) --> 48, tuple extractor
         for index, faculty_sche in enumerate(fac_schedule):
             fac_schedule[index] = [[roomIds[a] if isinstance(a, int) else a for a in row] for row in faculty_sche]
         
         for index, student_schedule in enumerate(schedules):
+            for row in student_schedule:
+                for a in row:
+                    if isinstance(a[0], int):
+                        if a[2][:3].lower() != self.rooms[roomIds[a[0]]].located_building[:3].lower():
+                            pass
+                            #print(a[0], a[2], self.rooms[roomIds[a[0]]].located_building)
             schedules[index] = [[roomIds[a[0]] if isinstance(a[0], int) else a for a in row] for row in student_schedule]
        
         onCampusIndex, offCampusIndex, facultyIndex = 0, 0, 0
@@ -715,7 +738,7 @@ class AgentBasedModel:
         else:
             self.replaceByType(partitionTypes=["library", "dining","gym", "office", "social"])
         print("finished schedules")
-   
+      
     def replaceByType(self, agentParam=None, agentParamValue=None, partitionTypes=None, perEntry=False):
         """
             go over the schedules of the agents of a specific type and convert entries in their schedules
@@ -759,7 +782,6 @@ class AgentBasedModel:
             
             randRoomIds = []
             for idList in partitionIds:
-                print(idList)
                 randRoomIds.append(np.random.choice(idList, size=agentCount, replace=True))
 
             for agentId in filteredId:
