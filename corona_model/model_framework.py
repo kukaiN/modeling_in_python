@@ -241,6 +241,9 @@ def R0_simulation(modelConfig, R0Control, simulationN=10, debug=False):
     statfile.boxplot(R0Values,True, "R0 simulation", "cases", "infected people (R0)", ["base model"])
     print("time:", time.time()-t1)
 
+def modifiedR0Simulation(modelConfig, R0_controls, simulationN=10, debug=True):
+    pass
+
 def main():
     """intialize and run the model"""    
     modelConfig = {
@@ -282,58 +285,9 @@ def main():
         },
        
         "baseP" : 1,
-        # 1 works nice
-        # for number (1)
-        # its a value between 1 and 1.2, is 1.15
-        # for number (2)
-        # its 1.95
-        # base of 0.7:
-        #doublingTime [0.0, 6.791666666666667, 13.5, 20.791666666666668, 31.458333333333332]
-        #doublingInterval [6.791666666666667, 6.708333333333333, 7.291666666666668, 10.666666666666664]
-        # base of 0.7:
-        #doublingTime [0.0, 8.541666666666666, 13.333333333333334, 21.291666666666668, 33.625]
-        #doublingInterval [8.541666666666666, 4.791666666666668, 7.958333333333334, 12.333333333333332]
-        # R0 ~ 8.14
-        #R0 is [5, 11, 13, 7, 4, 12, 5, 4, 6, 4, 7, 9, 8, 2, 9, 10, 10, 9, 3, 4, 9, 16,
-        #  13, 8, 1, 11, 13, 11, 10, 8, 12, 6, 10, 6, 8, 7, 0, 6, 6, 1, 10, 5, 7, 7, 16, 7, 11, 4, 8, 6, 11,
-        #  9, 15, 9, 8, 14, 14, 7, 7, 6, 7, 15, 8, 7, 9, 8, 7, 5, 9, 7, 13, 13, 15, 8, 6, 12, 3, 12, 11, 10, 15, 3, 6, 2, 8
-        # , 4, 8, 15, 0, 7, 7, 5, 1, 8, 11, 7, 11, 9, 13, 4]
-        #(8.14, 3.7310052264771754, 16, 8.0)
-
-        # base 3
-        # R0 is [2, 4, 5, 2, 5, 1, 5, 4, 6, 4, 3, 10, 5, 4, 6, 4, 5, 3, 2, 3, 2, 3, 0, 9, 7, 3, 6, 4, 4, 5, 1, 7, 2, 5, 
-        # 0, 8, 5, 5, 4, 1, 4, 2, 3, 2, 5, 9, 1, 6, 5, 2, 4, 2, 6, 4, 3, 2, 3, 6, 5, 3, 2, 2, 3, 5, 5, 3, 3, 4, 4, 2, 5, 
-        # 4, 0, 3, 9, 4, 4, 2, 3, 4, 5, 3, 3, 3, 6, 6, 1, 2, 2, 0, 4, 3, 1, 4, 2, 0, 4, 2, 3, 5]
-        # (3.71, 2.0263020505344214, 10, 4.0)
-        #doublingTime [0.0, 8.291666666666666, 19.833333333333332, 55.833333333333336, 142.5]
-        #doublingInterval [8.291666666666666, 11.541666666666666, 36.0, 86.66666666666666]
-
-        # base of 3.7
-        # R0 is [4, 0, 6, 8, 3, 4, 2, 5, 2, 11, 6, 5, 6, 8, 1, 7, 3, 2, 2, 1, 2, 1, 7, 5, 2, 4, 9,
-        #  7, 1, 4, 2, 5, 8, 5, 2, 5, 5, 6, 1, 7, 2, 3, 6, 3, 3, 9, 4, 0, 4, 1, 2, 0, 6, 2, 1, 3, 
-        # 14, 1, 4, 7, 3, 7, 7, 6, 4, 4, 3, 2, 3, 9, 3, 6, 8, 5, 7, 6, 3, 3, 3, 8, 3, 1, 0, 3, 4, 
-        # 3, 3, 2, 1, 5, 3, 7, 3, 5, 3, 5, 3, 6, 6, 4]
-        #(4.19, 2.5756358438257534, 14, 4.0)
         
-        #doublingTime [0.0, 13.458333333333334, 27.958333333333332, 64.5]
-        #doublingInterval [13.458333333333334, 14.499999999999998, 36.54166666666667]
 
-        #doublingTime [0.0, 10.5, 18.291666666666668, 36.75, 70.66666666666667, 139.95833333333334]
-        #doublingInterval [10.5, 7.791666666666668, 18.458333333333332, 33.91666666666667, 69.29166666666667]
-        
-        # base of 0.4
-        # R0 is [7, 3, 7, 6, 2, 5, 2, 6, 6, 8, 4, 6, 17, 3, 2, 4, 3, 9, 3, 4, 9, 6, 10, 4, 3, 1, 7, 6, 1, 6, 4, 4, 2, 5, 4, 3, 7, 5, 9, 7, 8, 2, 4, 6, 7, 2, 6, 8, 7, 5, 5, 4, 4, 7, 4, 0, 4, 5, 2, 3, 3, 5, 9, 3, 10, 6, 1, 6, 9, 7, 0, 4, 8, 3, 14, 9, 5, 8, 5, 6, 4, 1, 0, 1, 6, 5, 6, 3, 8, 8, 5, 2, 3, 3, 5, 6, 4, 2, 8, 4]
-        #(5.08, 2.823756363427978, 17, 5.0)
-        #(npMean, stdev, rangeVal, median)
-        # doublingTime [0.0, 9.5, 18.708333333333332, 37.75, 83.95833333333333, 164.79166666666666]
-        # doublingInterval [9.5, 9.208333333333332, 19.041666666666668, 46.20833333333333, 80.83333333333333]
-        
-        # base 0.5
-        #doublingTime [0.0, 6.958333333333333, 15.875, 29.291666666666668, 57.458333333333336, 119.54166666666667]
-        #doublingInterval [6.958333333333333, 8.916666666666668, 13.416666666666668, 28.166666666666668, 62.083333333333336]
-
-
-        "infectionSeedNumber": 100,
+        "infectionSeedNumber": 10,
         "infectionSeedState": "exposed",
         "infectionContribution":{
             "exposed":0.1,
@@ -669,7 +623,7 @@ class AgentBasedModel:
         self.walkIn = False
         self.largeGathering = True
         self.quarantineList = []
-        
+        self.specialIds = []
 
         # rename in the future, used to cache informstion to reduce the number of filtering thats happening in the future run
         self.state2IdDict=dict()
@@ -1169,7 +1123,7 @@ class AgentBasedModel:
 
     def gathering_infection(self, subset):
         contribution = self.infectionWithinPopulation(subset)
-        cummulativeFunc = (self.config["baseP"]*3*contribution)/len(subset)
+        cummulativeFunc = (self.config["baseP"]*3*contribution)/(50*(int(len(subset)/50)+1))
         return cummulativeFunc
 
     def findDoubleTime(self):
@@ -1483,7 +1437,7 @@ class AgentBasedModel:
                     data["infected"]+=np.array(self.parameters[key]) 
         else:
             data = self.parameters    
-
+            print([(key, sum(value)) for key, value in data.items()])
         vs.timeSeriesGraph(self.timeSeries, (0, self.time+1), (0,len(self.agents)), data, animatePlt=False)
     
     def visualizeBuildings(self):
