@@ -219,13 +219,11 @@ def R0_simulation(modelConfig, R0Control, simulationN=10, debug=False, visual=Fa
             new_model.printRelevantInfo()
             new_model.updateSteps(24*5)
         if debug:
-            print("R0 schedule:", new_model.convertToRoomName( new_model.agents[new_model.R0_agentId].schedule))
+            #print("R0 schedule:", new_model.convertToRoomName( new_model.agents[new_model.R0_agentId].schedule))
             logDataDict = new_model.printLog()
             for key, value in logDataDict.items():
                 max_limits[key] = max_limits.get(key, []) + [value]
-        sampleR0 = new_model.returnR0()
-   
-        R0Values.append(sampleR0)
+        R0Values.append(new_model.returnR0())
         
         print(f"finished {(i+1)/simulationN*100}% of cases")
     if debug:
@@ -389,7 +387,7 @@ office 2
     R0_controls = [("infectionSeedNumber", 10),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
     #simpleCheck(modelConfig, days=100, visuals=True)
-    R0_simulation(modelConfig, R0_controls,1, debug=True, visual=True) 
+    R0_simulation(modelConfig, R0_controls,10, debug=True, visual=True) 
     allInSimulation = [
         [("booleanAssignment",{"Agents" : [("compliance", 0.5), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
         [("booleanAssignment",{"Agents" : [("compliance", 1), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
@@ -1183,8 +1181,8 @@ class AgentBasedModel:
         
         stationary = self.countAgents("stationary", attrName="motion")
         motion = self.countAgents("motion", attrName="motion")
-        if self.debug:
-            print(f"stationary: {stationary}, motion: motion {motion}")
+        #if self.debug:
+        #    print(f"stationary: {stationary}, motion: motion {motion}")
         # print the schedule of agents with IDs 1~9
         
         # convert the log to 24 hour bits and get the daily activity
@@ -1308,7 +1306,7 @@ class AgentBasedModel:
                                     #    self.R0Increase(roomId, totalInfection, randVec[index1])
                                     room.infectedNumber+=1
                                     index1+=1
-                                    print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
+                                    # print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
                                
 
                 # this loop takes care of agent's state transitions
