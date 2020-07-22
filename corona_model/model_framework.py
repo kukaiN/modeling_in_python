@@ -283,12 +283,12 @@ def main():
             "Agents" : [("compliance", 0), ("officeAttendee", 0), ("gathering", 0.5)],
         },
        
-        "baseP" :1.25*0.5,
+        "baseP" :1.25,
         # for 10 people p < 0.6
         #for 100 people R0 = 4.02 when p = 1.25 with 100 simulation
         # 0.15 for 1 agent --> R0 4.25
         # using 0.2 for 100 agents resulted in R0 of 0.58 but they did infect 50 additional people
-        "infectionSeedNumber": 1,
+        "infectionSeedNumber": 10,
         "infectionSeedState": "exposed",
         "infectionContribution":{
             "exposed":0.1,
@@ -369,9 +369,9 @@ def main():
     ]
     R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
-    #simpleCheck(modelConfig, days=100, visuals=True)
+    simpleCheck(modelConfig, days=100, visuals=True)
     
-    R0_simulation(modelConfig, R0_controls,10, debug=True, visual=True)
+    #R0_simulation(modelConfig, R0_controls,20, debug=True, visual=True)
     
     
     
