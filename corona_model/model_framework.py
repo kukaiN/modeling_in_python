@@ -280,13 +280,13 @@ def main():
             "Agents" : [("motion", "stationary"), ("infected", False)],
         },
         "booleanAssignment":{
-            "Agents" : [("compliance", 0), ("officeAttendee", 0.2), ("gathering", 0.5)],
+            "Agents" : [("compliance", 0), ("officeAttendee", 0), ("gathering", 0.5)],
         },
        
         "baseP" :1.25,
         # for 10 people p < 0.6
         #for 100 people R0 = 4.02 when p = 1.25 with 100 simulation
-        # 0.2 for 1 agent
+        # 0.15 for 1 agent --> R0 4.25
         # using 0.2 for 100 agents resulted in R0 of 0.58 but they did infect 50 additional people
         "infectionSeedNumber": 10,
         "infectionSeedState": "exposed",
@@ -325,7 +325,7 @@ def main():
 
         # QUARANTINE
         "quarantineSamplingProbability" : 0,
-        "quarantineDelay":24*1,
+        "quarantineDelay":0,
         "walkinProbability" : {"infected Symptomatic Mild": 0.7, "infected Symptomatic Severe": 0.95},
         "quarantineSampleSize" : 100,
         "quarantineSamplePopulationSize":0.10,
@@ -335,51 +335,30 @@ def main():
         "quarantineInterval": 24*1,
         "falsePositive":0.03,
         "falseNegative":0.001,
+        "remoteStudentCount": 1000,
+        "delayedQuarantine" : True,
         
         # face mask
         "maskP":0.5,
-        "nonMaskBuildingType": [],#["dorm", "dining", "dining_hall_faculty", "social"],
+        "nonMaskBuildingType": ["dorm", "dining", "dining_hall_faculty", "social"],
         # OTHER parameters
         "transitName": "transit_space_hub",
         # change back to 0.001
         "offCampusInfectionP":0.125/700,
         "trackLocation" : ["_hub"],
-        "interventions":[5], # no office hour
-        "allowedActions": [],#["walkin"],
+        #possible values:
+        #    1: facemask
+        #    2: social distancing
+        #    3: testing for covid and quarantining
+        #    4: closing large buildings
+        #    5: removing office hours with professors
+        #    6: shut down large gathering 
+        #    7: remote classes
+        "interventions":[5],#[1,2,3, 4, 5, 6, 7], # no office hour
+        "allowedActions": [],#["walkin"],#["walkin"],
         "massInfectionRatio":0.10,
         "randomSocial":False,
     }
-    """
-    0.7
-    dorm 433
-classroom 415
-dining 59
-dining_hall_faculty 0
-library 80
-gym 209
-social 239
-transit 0
-offCampus 0
-office 1
-
-
-0.8
-******************** abstactly represented location:
-large gathering 200
-office hour count 0
-******************** filtering by building type:
-dorm 444
-classroom 588
-dining 52
-dining_hall_faculty 0
-library 117
-gym 215
-social 321
-transit 0
-offCampus 0
-office 2
-0 student
-    """
     # you can control for multiple interventions by adding a case:
     #  [(modified attr1, newVal), (modified attr2, newVal), ...]
     simulationControls = [
@@ -388,11 +367,11 @@ office 2
         [("booleanAssignment",{"Agents" : [("compliance", 0.66), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
         [("booleanAssignment",{"Agents" : [("compliance", 1), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
     ]
-    R0_controls = [("infectionSeedNumber", 100),("quarantineSamplingProbability", 0),
+    R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
-    #simpleCheck(modelConfig, days=100, visuals=True)
+    simpleCheck(modelConfig, days=100, visuals=True)
     
-    R0_simulation(modelConfig, R0_controls,100, debug=True, visual=True)
+    #R0_simulation(modelConfig, R0_controls,20, debug=True, visual=True)
     
     
     
@@ -679,15 +658,18 @@ class AgentBasedModel:
         for index, faculty_sche in enumerate(fac_schedule):
             fac_schedule[index] = [[roomIds[a] if isinstance(a, int) else a for a in row] for row in faculty_sche]
         
+        
         for index, student_schedule in enumerate(schedules):
+            """
             for row in student_schedule:
                 for a in row:
                     if isinstance(a[0], int):
                         if a[2][:3].lower() != self.rooms[roomIds[a[0]]].located_building[:3].lower():
                             pass
                             #print(a[0], a[2], self.rooms[roomIds[a[0]]].located_building)
+            """ 
             schedules[index] = [[roomIds[a[0]] if isinstance(a[0], int) else a for a in row] for row in student_schedule]
-       
+
         onCampusIndex, offCampusIndex, facultyIndex = 0, 0, 0
         offCampusSchedule, onCampusSchedule = [], [] 
         
@@ -696,10 +678,23 @@ class AgentBasedModel:
                 offCampusSchedule.append(schedule)
             else:
                 onCampusSchedule.append(schedule)
+
+        # takes care of remote students
+        remote = False
+        if 7 in self.config["interventions"]:
+            onCampusList = [agentId for agentId, agent in self.agents.items() if agent.Agent_type == "onCampus"]
+            minSize = min(len(onCampusList), self.config["remoteStudentCount"])
+            remoteStudentIds = set(np.random.choice(onCampusList, minSize, replace=False))
+            remote = True
+        
         for agentId, agent in self.agents.items():
             if agent.archetype == "student": # needs to be for students
                 if agent.Agent_type == "onCampus": # oncampus
-                    agent.schedule = onCampusSchedule[onCampusIndex]
+                    if remote and agentId in remoteStudentIds:
+                        initLoc = agent.initial_location
+                        agent.schedule = [[initLoc if isinstance(a, int) else a for a in row] for row in onCampusSchedule[onCampusIndex]]
+                    else:
+                        agent.schedule = onCampusSchedule[onCampusIndex]
                     onCampusIndex+=1
                 else: # offcampus
                     agent.schedule = offCampusSchedule[offCampusIndex]
@@ -1291,7 +1286,7 @@ class AgentBasedModel:
             goes over rooms and check if an infected person is inside and others were infected
         """
         # time it takes to transition states, negative means, states doesnt change
-        if 23 > self.time%24 > 6:
+        if 23 > self.time%24 > 6 and len(self.state2IdDict["recovered"]) != len(self.agents):
             transition = self.config["transitionTime"]
             transitionProbability = self.config["transitionProbability"]
             randVec = np.random.random(len(self.state2IdDict["susceptible"]))
@@ -1363,7 +1358,6 @@ class AgentBasedModel:
             contribution+= self.infectionContribution(agentId, lastUpdate)
             if self.facemaskIntervention and roomId != None:
                 if self.agents[agentId].compliance:
-                    print("face mask")
                     if self.rooms[roomId].building_type not in self.config["nonMaskBuildingType"]:
                         contribution*= self.maskP
         return contribution
@@ -1439,7 +1433,7 @@ class AgentBasedModel:
             print(list(self.parameters.keys()))
             data["Total infected"] = np.zeros(len(self.parameters[list(self.parameters.keys())[0]]))
             for key in self.parameters.keys():
-                if key in ["susceptible", "quarantine"]:
+                if key in ["susceptible", "quarantined", "recovered"]:
                     data[key] = self.parameters[key]
                 else:
                     data["Total infected"]+=np.array(self.parameters[key])
@@ -1466,15 +1460,18 @@ class AgentBasedModel:
             4: closing large buildings
             5: removing office hours with professors
             6: shut down large gathering 
+            7: remote classes
         """
         interventionIds = self.config["interventions"]
         for i in interventionIds:
             if i == 1:
                 # face mask
+                print("facemask")
                 self.maskP = self.config["maskP"]
                 self.facemaskIntervention = True
                 self.facemask_startTime = 0
             elif i==2:
+                print("social distancing")
                 self.intervention_socialDistance()
             elif i == 3:
                 # test for covid and quarantine
@@ -1488,7 +1485,17 @@ class AgentBasedModel:
                 self.officeHours = False
             elif i == 6:
                 self.largeGathering= False
+            elif i == 7: #hybrid
+                pass
+                # this is taken care in the self.studentFacultySchedule
         print("finished interventions")
+
+    def startRemoteClasses(self):
+        filteredList = [agentId for agentId, agent in self.agents.items() if agent.Agent_type=="onCampus"]
+        agentIdList = np.random.choice(filteredList, size=min(self.config["remoteStudentCount"], len(filtedList), replace=False))
+        for agentId in agentIdList:
+            pass
+
 
     def startQuarantineGroup(self):
         print("start quarantine Groups")
