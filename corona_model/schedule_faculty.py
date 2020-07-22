@@ -200,7 +200,7 @@ def scheduleCreator():
     #print(schedule[:5])
 
     #createMask(numAgent)
-    return schedule
+    return (schedule, randomizedAgents)
 
 def main():
    scheduleCreator()

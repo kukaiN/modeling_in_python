@@ -15,7 +15,9 @@ dining_hall,dining_hall_room,dining,large,1,0,0,6,0,0,500,0,0,100,transit_space_
 dining_hall_faculty,dining_faculty,dining_hall_faculty,large,1,0,0,1,0,0,300,0,0,10,transit_space_hub,3,1,1000
 library,library_leaf,library,large,1,0,0,6,0,0,100,0,0,50,transit_space_hub,2,1,3000
 gym,gym_leaf,gym,large,1,0,0,6,0,0,100,0,0,10,transit_space_hub,3,1,600
-social_space,socialLeaf,social,medium,1,0,3,0,0,1000,0,0,20,0,transit_space_hub,3,0,20000
+social_space,socialLeaf,social,medium,1,0,20,0,0,1000,0,0,20,0,transit_space_hub,3,0,20000
 transit space,transit_space,transit,large,1,0,0,1,0,0,1000,0,0,1000,transit_space_hub,1,1,100000
 offCampus,offCampus_leaf,offCampus,large,1,0,0,1,0,0,10000,0,0,700,transit_space_hub,1,1,10000
-office,office_leaf,office,large,3,0,0,1,0,0,200,0,0,100,transit_space_hub,2,2,1600
+STEM_office,STEM_office_leaf,office,large,1,0,0,1,0,0,200,0,0,200,transit_space_hub,2,2,2000
+HUM_office,HUM_office_leaf,office,large,1,0,0,1,0,0,100,0,0,100,transit_space_hub,2,2,1000
+ART_office,ART_office_leaf,office,large,1,0,0,1,0,0,100,0,0,100,transit_space_hub,2,2,1000
