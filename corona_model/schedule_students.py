@@ -73,8 +73,8 @@ def scheduleCreator():
     medium_building_size=[2,3,0]
     large_building_size=[5,3,3]
     num_STEM_buildings = [2,2,3] #number of [small,medium,large] buildings
-    num_Hum_buildings = [2,1,1]
-    num_Arts_buildings = [1,2,1]
+    num_Arts_buildings = [2,1,1]
+    num_Hum_buildings = [1,2,1]
     #total_num_classrooms = num_STEM_buildings[0]*sum(small_building_sizes) + num_STEM_buildings[1]*sum(medium_building_sizes) + num_STEM_buildings[2]*sum(large_building_sizes) + num_Hum_buildings[0]*sum(small_building_sizes) + num_Hum_buildings[1]*sum(medium_building_sizes) + num_Hum_buildings[2]*sum(large_building_sizes) + num_Arts_buildings[0]*sum(small_building_sizes) + num_Arts_buildings[1]*sum(medium_building_sizes) + num_Arts_buildings[2]*sum(large_building_sizes)
 
 

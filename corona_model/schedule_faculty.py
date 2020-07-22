@@ -66,8 +66,8 @@ def scheduleCreator():
     medium_building_size=[2,3,0]
     large_building_size=[5,3,3]
     num_STEM_buildings = [2,2,3] #number of [small,medium,large] buildings
-    num_Hum_buildings = [2,1,1]
-    num_Arts_buildings = [1,2,1]
+    num_Arts_buildings = [2,1,1]
+    num_Hum_buildings = [1,2,1]
 
     #Notes:
 
