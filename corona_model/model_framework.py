@@ -282,11 +282,12 @@ def main():
             "Agents" : [("compliance", 0), ("officeAttendee", 0.2), ("gathering", 0.5)],
         },
        
-        "baseP" :0.6,
+        "baseP" :1.25,
         # for 10 people p = 0.6
+        #for 100 people p = 1.3 - 1.2
         # 0.2 for 1 agent
         # using 0.2 for 100 agents resulted in R0 of 0.58 but they did infect 50 additional people
-        "infectionSeedNumber": 10,
+        "infectionSeedNumber": 100,
         "infectionSeedState": "exposed",
         "infectionContribution":{
             "exposed":0.1,
@@ -386,11 +387,11 @@ office 2
         [("booleanAssignment",{"Agents" : [("compliance", 0.66), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
         [("booleanAssignment",{"Agents" : [("compliance", 1), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
     ]
-    R0_controls = [("infectionSeedNumber", 10),("quarantineSamplingProbability", 0),
+    R0_controls = [("infectionSeedNumber", 100),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
     #simpleCheck(modelConfig, days=100, visuals=True)
     
-    R0_simulation(modelConfig, R0_controls,10, debug=True, visual=True)
+    R0_simulation(modelConfig, R0_controls,100, debug=True, visual=True)
     
     
     
