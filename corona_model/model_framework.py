@@ -1063,8 +1063,9 @@ class AgentBasedModel:
         
     def updateSteps(self, step = 1):  
         for _ in range(step):
+            
             self.time+=1
-            if  23 > self.time%24 > 6: 
+            if  23 > self.time%24 > 6 and len(self.state2IdDict["recovered"]) != len(self.agents): 
                 # update 4 times to move the agents to their final destination
                 # 4 is the max number of updates required for moving the agents from room --> building_hub --> transit_hub --> building_hub --> room
                 for _ in range(4):
