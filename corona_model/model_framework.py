@@ -282,7 +282,7 @@ def main():
             "Agents" : [("compliance", 0), ("officeAttendee", 0.2), ("gathering", 0.5)],
         },
        
-        "baseP" :0.8,
+        "baseP" :0.6,
         # for 10 people p = 0.6
         # 0.2 for 1 agent
         # using 0.2 for 100 agents resulted in R0 of 0.58 but they did infect 50 additional people
@@ -390,7 +390,7 @@ office 2
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
     #simpleCheck(modelConfig, days=100, visuals=True)
     
-    R0_simulation(modelConfig, R0_controls,1, debug=True, visual=True)
+    R0_simulation(modelConfig, R0_controls,10, debug=True, visual=True)
     
     
     
@@ -1313,7 +1313,6 @@ class AgentBasedModel:
                                     #    self.R0Increase(roomId, totalInfection, randVec[index1])
                                     room.infectedNumber+=1
                                     index1+=1
-                                    print(f"{totalInfection}, Kv {room.Kv}, limit {room.limit}, contrib {self.infectionWithinPopulation(self.rooms[roomId].agentsInside, roomId)}")
                                     print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
                                
 
