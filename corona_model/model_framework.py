@@ -18,6 +18,7 @@ import schedule_students
 import schedule_faculty
 # for speed tests/debug
 import functools
+import cProfile
 
 def clock(func): # from version 2, page 203 - 205 of Fluent Python by Luciano Ramalho
     @functools.wraps(func)
@@ -281,10 +282,11 @@ def main():
             "Agents" : [("compliance", 0), ("officeAttendee", 0.2), ("gathering", 0.5)],
         },
        
-        "baseP" :0.5,
-        
-
-        "infectionSeedNumber": 100,
+        "baseP" :0.8,
+        # for 10 people p = 0.6
+        # 0.2 for 1 agent
+        # using 0.2 for 100 agents resulted in R0 of 0.58 but they did infect 50 additional people
+        "infectionSeedNumber": 10,
         "infectionSeedState": "exposed",
         "infectionContribution":{
             "exposed":0.1,
@@ -387,7 +389,11 @@ office 2
     R0_controls = [("infectionSeedNumber", 10),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
     #simpleCheck(modelConfig, days=100, visuals=True)
-    R0_simulation(modelConfig, R0_controls,10, debug=True, visual=True) 
+    
+    R0_simulation(modelConfig, R0_controls,1, debug=True, visual=True)
+    
+    
+    
     allInSimulation = [
         [("booleanAssignment",{"Agents" : [("compliance", 0.5), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
         [("booleanAssignment",{"Agents" : [("compliance", 1), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
@@ -1306,7 +1312,8 @@ class AgentBasedModel:
                                     #    self.R0Increase(roomId, totalInfection, randVec[index1])
                                     room.infectedNumber+=1
                                     index1+=1
-                                    # print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
+                                    print(f"{totalInfection}, Kv {room.Kv}, limit {room.limit}, contrib {self.infectionWithinPopulation(self.rooms[roomId].agentsInside, roomId)}")
+                                    print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
                                
 
                 # this loop takes care of agent's state transitions
@@ -1354,8 +1361,8 @@ class AgentBasedModel:
             contribution+= self.infectionContribution(agentId, lastUpdate)
             if self.facemaskIntervention and roomId != None:
                 if self.agents[agentId].compliance:
-    
-                    if self.rooms[roomId].building_type  not in self.config["nonMaskBuildingType"]:
+                    print("face mask")
+                    if self.rooms[roomId].building_type not in self.config["nonMaskBuildingType"]:
                         contribution*= self.maskP
         return contribution
 
@@ -1599,4 +1606,4 @@ class AgentBasedModel:
             room.capacity*=2                     
                             
 if __name__ == "__main__":
-    main()    
+    main() 

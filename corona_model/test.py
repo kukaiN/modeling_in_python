@@ -1,5 +1,6 @@
 import schedule_students as sts
 import numpy as np
+import time
 
 #schedule = sts.main()
 
@@ -62,3 +63,36 @@ if __name__ == '__main__':
     print("random", np.random.choice([1, 2, 3]))
     for x in b:
         print(x)
+    """
+    t1 = time.time()
+    for _ in range(200000):
+        a = np.random.random(8000)
+
+    t2 =time.time()
+    for _ in range(200000):
+        p = 5
+    for _ in range(200000): 
+        z = np.zeros(100000)
+    for _ in range(200000):
+        v = "greergeg"
+    for _ in range(200000):
+        y = "greergeg"
+    for _ in range(200000):
+        t = "greergeg"
+    for _ in range(200000):
+        w = "greergeg"
+    for _ in range(200000):
+        t = "greergeg"
+    for _ in range(200000):
+        i = "greergeg"
+    t3 = time.time()
+    """
+    def a():
+        tt = 10
+    
+    import cProfile
+    import profile
+    import model_framework
+
+if __name__ == '__main__':
+    profile.runctx('model_framework.main()', globals(), {})
