@@ -561,7 +561,7 @@ def roomFactory(room_df, slotVal):
         def enter(self, agentId):
             """ a put the id of the agent that entered the room"""
             if self.checkCapacity():
-                self.agentsInside.append(agentId)
+                self.agentsInside.add(agentId)
 
         def checkCapacity(self):
             """return a boolean, return True if theres capacity for one more agent, False if the room is at max capacity 
@@ -574,7 +574,7 @@ def roomFactory(room_df, slotVal):
         def leave(self, agentId):
             """ remove the id of the agent that exited the room"""
             if agentId in self.agentsInside:
-                self.agentsInside.remove(agentId)
+                self.agentsInside.discard(agentId)
         
     tempDict = dict()
     for index, row in room_df.iterrows():
@@ -920,7 +920,7 @@ class AgentBasedModel:
         # initialize
         print("*"*20)
         for rooms in self.rooms.values():
-            rooms.agentsInside = []
+            rooms.agentsInside = set()
         # building_type
         bType_RoomId_Dict = dict()
         for buildingId, building in self.buildings.items():
@@ -947,7 +947,7 @@ class AgentBasedModel:
                 pass
             agent.currLocation = location
             agent.initial_location = location
-            self.rooms[location].agentsInside.append(agentId)
+            self.rooms[location].agentsInside.add(agentId)
         
     def extraInitialization(self):
         self.globalCounter = 0
@@ -1172,9 +1172,10 @@ class AgentBasedModel:
 
     def logData(self):
         # find total infected and add them to the room_log
-        for roomId, room in self.rooms.items():
-            total_infected = sum(self.countWithinAgents(room.agentsInside, stateName) for stateName in self.config["AgentPossibleStates"]["infected"])
-            self.room_log[roomId].append(total_infected)
+        if not self.R0:
+            for roomId, room in self.rooms.items():
+                total_infected = sum(self.countWithinAgents(room.agentsInside, stateName) for stateName in self.config["AgentPossibleStates"]["infected"])
+                self.room_log[roomId].append(total_infected)
         
         # this is the total number of agents in the room
         for roomId, room in self.rooms.items():
@@ -1412,7 +1413,7 @@ class AgentBasedModel:
         if self.storeVal and self.time%self.timeIncrement == 0:
             self.timeSeries.append(self.time)
             for param in self.parameters.keys():
-                self.parameters[param].append(self.countAgents(param, attrName="state"))
+                self.parameters[param].append(len(self.state2IdDict[param]))
 
     def returnStoredInfo(self):
         return self.parameters

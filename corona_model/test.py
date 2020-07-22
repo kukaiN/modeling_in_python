@@ -93,6 +93,8 @@ if __name__ == '__main__':
     import cProfile
     import profile
     import model_framework
+    def test():
+        print(5)
 
 if __name__ == '__main__':
-    profile.runctx('model_framework.main()', globals(), {})
+    profile.runctx('', globals(), {})
