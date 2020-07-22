@@ -233,6 +233,7 @@ def R0_simulation(modelConfig, R0Control, simulationN=10, debug=False, visual=Fa
     print("R0 is", R0Values)
     if visual:
         new_model.visualOverTime()
+    print("time:", time.time()-t1)
     data = statfile.analyzeData(R0Values)
     #pickleName = flr.fullPath("R0Data.pkl", "picklefile")
     # save the data just in case
@@ -240,7 +241,7 @@ def R0_simulation(modelConfig, R0Control, simulationN=10, debug=False, visual=Fa
     print(data)
     print("(npMean, stdev, rangeVal, median)")
     statfile.boxplot(R0Values,True, "R0 simulation", "cases", "infected people (R0)", ["base model"])
-    print("time:", time.time()-t1)
+    
     
 def main():
     """intialize and run the model"""    
@@ -283,11 +284,11 @@ def main():
         },
        
         "baseP" :1.25,
-        # for 10 people p = 0.6
-        #for 100 people p = 1.3 - 1.2
+        # for 10 people p < 0.6
+        #for 100 people R0 = 4.02 when p = 1.25 with 100 simulation
         # 0.2 for 1 agent
         # using 0.2 for 100 agents resulted in R0 of 0.58 but they did infect 50 additional people
-        "infectionSeedNumber": 100,
+        "infectionSeedNumber": 10,
         "infectionSeedState": "exposed",
         "infectionContribution":{
             "exposed":0.1,
