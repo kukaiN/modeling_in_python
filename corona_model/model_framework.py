@@ -679,6 +679,8 @@ class AgentBasedModel:
             else:
                 onCampusSchedule.append(schedule)
 
+
+
         # takes care of remote students
         remote = False
         if 7 in self.config["interventions"]:
@@ -702,6 +704,8 @@ class AgentBasedModel:
             else:# faculty
                 facultyType = randomizedFac[facultyIndex]
                 print(facultyType)
+                if agentId %100 == 0:
+                    print(fac_schedule[facultyIndex])
                 agent.schedule = fac_schedule[facultyIndex] 
                 facultyIndex+=1
          # this gets rid of "sleep", "Off", "dorm"
