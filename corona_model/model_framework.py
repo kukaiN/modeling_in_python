@@ -369,7 +369,7 @@ def main():
     ]
     R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
-    simpleCheck(modelConfig, days=100, visuals=True)
+    simpleCheck(modelConfig, days=150, visuals=True)
     
     #R0_simulation(modelConfig, R0_controls,20, debug=True, visual=True)
     
@@ -1324,7 +1324,7 @@ class AgentBasedModel:
                         self.changeStateDict(agentId, "quarantined", exitState)
                     elif self.agents[agentId].transitionTime() < self.time and state != "quarantined" and state != "susceptible" and transition[state] > 0:
                         cdf = 0
-                        if (agentId in self.R0_agentIds) or (self.R0_agentId == agentId and (self.agents[agentId].state == "exposed" or self.agents[agentId].state == "infected Asymptomatic")):
+                        if False and ((agentId in self.R0_agentIds) or (self.R0_agentId == agentId and (self.agents[agentId].state == "exposed" or self.agents[agentId].state == "infected Asymptomatic"))):
                                 # only for R0, go to the worst case scenario, exposed --> infected Asymptomatic --> infected Symptomatic Mild
                             tup = transitionProbability[state][0]
                             self.changeStateDict(agentId, self.agents[agentId].state, tup[0])
