@@ -369,9 +369,9 @@ def main():
     ]
     R0_controls = [("infectionSeedNumber", 10),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
-    simpleCheck(modelConfig, days=100, visuals=True)
+    #simpleCheck(modelConfig, days=100, visuals=True)
     
-    #R0_simulation(modelConfig, R0_controls,20, debug=True, visual=True)
+    R0_simulation(modelConfig, R0_controls,20, debug=True, visual=True)
     
     
     
@@ -450,7 +450,7 @@ def agentFactory(agent_df, slotVal):
             hourOfDay = currTime%24
             if self.state == "quarantined":
                 return self.initial_location
-            elif self.state == "infected Symptomatic Severe" and currTime>self.lastUpdate+48:
+            elif self.state == "infected Symptomatic Severe" and currTime>self.lastUpdate+120:
                 return self.initial_location
             if dayOfWeek > 5: # its a weekend
                 return self.schedule[2][hourOfDay]
@@ -601,7 +601,7 @@ class AgentBasedModel:
         self.R0 = False
         self.R0_agentId = -1
         self.R0_agentIds = [-1]
-        # debug count
+        # debug/ additional requirements and features 
         self.gathering_count = 0
         self.officeHourCount = 0
         self.facemaskIntervention = False
@@ -609,7 +609,7 @@ class AgentBasedModel:
         self.largeGathering = True
         self.quarantineList = []
         self.R0_agentIds = []
-
+        self.facultyDiningHall = -1
         # rename in the future, used to cache informstion to reduce the number of filtering thats happening in the future run
         self.state2IdDict=dict()
    
@@ -647,14 +647,15 @@ class AgentBasedModel:
         fac_schedule, randomizedFac = schedule_faculty.scheduleCreator()
         roomIds = self.findMatchingRooms("building_type", "classroom")
         def numEntry(schedules, itemName):
-            count = 0
+            count = [0, 0, 0]
             for schedule in schedules:
-                for row in schedule:
+                for i, row in enumerate(schedule):
                     for item in row:
                         if item == itemName:
-                            count+=1
+                            count[i]+=1
             return count
-        print("faculty dining", numEntry(fac_schedule, "dining"))
+        diningCount = numEntry(fac_schedule, "dining")
+        print("# of faculty dining entry ", sum(diningCount), "heres the break down", diningCount)
         #print(len(roomIds), 95)
         #self.rooms[roomId].room_name
         #print(roomIds)
@@ -668,9 +669,22 @@ class AgentBasedModel:
         stem = self.findMatchingRooms("located_building", "STEM_office")
         art = self.findMatchingRooms("located_building", "HUM_office")
         hum = self.findMatchingRooms("located_building", "ART_office")
-   
+
+        diningHallId = self.findMatchingRooms("building_type", attrVal="dining")
+        print("heres the diningHall id", diningHallId)
+        # set the last room to the faculty dining room
+        facultyDiningRoom = diningHallId[0]
+        self.facultyDiningHall = facultyDiningRoom
+        self.rooms[facultyDiningRoom].room_name = "faculty_dining_room"
+        self.rooms[facultyDiningRoom].capacity = 200
+        self.rooms[facultyDiningRoom].limit = 200
+        self.rooms[facultyDiningRoom].Kv = 2
+        self.rooms[facultyDiningRoom].building_type = "faculty_dining_room"
+
+        print("Id == ", self.facultyDiningHall)
+        print(self.rooms[facultyDiningRoom].__slots__)
         for index, faculty_sche in enumerate(fac_schedule):
-            bb = [[roomIds[a] if isinstance(a, int) else ("dining_hall_faculty" if a == "dining" else a) for a in row] for row in faculty_sche]
+            bb = [[roomIds[a] if isinstance(a, int) else ("faculty_dining_room" if a == "dining" else a) for a in row] for row in faculty_sche]
             fac_schedule[index] = bb
         for index, (facSche, randFac) in enumerate(zip(fac_schedule, randomizedFac)):
             replacement = stem if randFac == "S" else (art if randFac == "A" else hum)
@@ -727,7 +741,7 @@ class AgentBasedModel:
          # this gets rid of "sleep", "Off", "dorm"
         for entry in ["sleep", "Off", "dorm"]:
             self.replaceScheduleEntry(entry)
-        self.replaceByType(agentParam="Agent_type", agentParamValue="faculty", partitionTypes="dining_hall_faculty", perEntry=False)
+        self.replaceByType(agentParam="Agent_type", agentParamValue="faculty", partitionTypes="faculty_dining_room", perEntry=False)
         print("social space random?",self.config["randomSocial"])
         if self.config["randomSocial"]:
             print("*"*20, "random social, please fix this")
@@ -738,6 +752,16 @@ class AgentBasedModel:
             self.replaceByType(partitionTypes=["library", "dining","gym", "office", "social"])
         print("finished schedules")
 
+
+        """
+        for agentId, agent in self.agents.items():
+            if agentId > 2000 and agentId%100 == 0:
+                print("below", "*"*20)
+                print(agent.schedule[:2])
+                print(self.convertToRoomName(agent.schedule[:2]))
+        """  
+
+    
        
     
     def replaceByType(self, agentParam=None, agentParamValue=None, partitionTypes=None, perEntry=False):
@@ -1063,7 +1087,7 @@ class AgentBasedModel:
 
     def findMatchingRooms(self, partitionAttr, attrVal=None, strType=False):
         """
-            returns a list of room IDs that have a specific value for the roomAttr of its parameter!!!!!
+            returns a list of room IDs that matches the criterion: if object.attrVal == partitionAttr
         
             Parameters:
             - roomParam: the attribute name
