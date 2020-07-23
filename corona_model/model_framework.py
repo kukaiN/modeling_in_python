@@ -369,9 +369,9 @@ def main():
     ]
     R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
-    simpleCheck(modelConfig, days=100, visuals=True)
+    #simpleCheck(modelConfig, days=100, visuals=True)
     
-    #R0_simulation(modelConfig, R0_controls,20, debug=True, visual=True)
+    R0_simulation(modelConfig, R0_controls,20, debug=True, visual=True)
     
     
     
@@ -912,7 +912,7 @@ class AgentBasedModel:
     def initializeR0(self):
         self.R0 = True
         for agentIdVal in self.agents.keys():
-            self.changeStateDict(agentIdVal, "susceptible", "susceptible")        
+            self.changeStateDict(agentIdVal, self.config["infectionSeedState"], "susceptible")        
         onCampusStudents = [agentId for agentId, agent in self.agents.items() if agent.Agent_type=="onCampus"]
         self.R0_agentIds = list(np.random.choice(onCampusStudents,size=self.config["infectionSeedNumber"], replace=False))
         self.R0_agentId = self.R0_agentIds[0]
