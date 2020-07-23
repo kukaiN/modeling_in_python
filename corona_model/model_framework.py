@@ -646,6 +646,15 @@ class AgentBasedModel:
         schedules, onVsOffCampus = schedule_students.scheduleCreator()
         fac_schedule, randomizedFac = schedule_faculty.scheduleCreator()
         roomIds = self.findMatchingRooms("building_type", "classroom")
+        def numEntry(schedules, itemName):
+            count = 0
+            for schedule in schedules:
+                for row in schedule:
+                    for item in row:
+                        if item == itemName:
+                            count+=1
+            return count
+        print("faculty dining", numEntry(fac_schedule, "dining"))
         #print(len(roomIds), 95)
         #self.rooms[roomId].room_name
         #print(roomIds)
@@ -655,9 +664,20 @@ class AgentBasedModel:
 
         #print([room.located_building for roomId, room in self.rooms.items()])
         
+        # works if there's only one valid room
+        stem = self.findMatchingRooms("located_building", "STEM_office")[0]
+        art = self.findMatchingRooms("located_building", "HUM_office")[0]
+        hum = self.findMatchingRooms("located_building", "ART_office")[0]
+   
         for index, faculty_sche in enumerate(fac_schedule):
-            fac_schedule[index] = [[roomIds[a] if isinstance(a, int) else a for a in row] for row in faculty_sche]
-        
+            bb = [[roomIds[a] if isinstance(a, int) else ("dining_hall_faculty" if a == "dining" else a) for a in row] for row in faculty_sche]
+            fac_schedule[index] = bb
+        for index, (facSche, randFac) in enumerate(zip(fac_schedule, randomizedFac)):
+            replacement = stem if randFac == "S" else (art if randFac == "A" else hum)
+            for i, row in enumerate(facSche):
+                for j, item in enumerate(row):
+                    if item == "office":
+                        fac_schedule[index][i][j] = replacement
         
         for index, student_schedule in enumerate(schedules):
             """
@@ -702,17 +722,12 @@ class AgentBasedModel:
                     agent.schedule = offCampusSchedule[offCampusIndex]
                     offCampusIndex+=1
             else:# faculty
-                facultyType = randomizedFac[facultyIndex]
-                print(facultyType)
-                if agentId %100 == 0:
-                    print(fac_schedule[facultyIndex])
                 agent.schedule = fac_schedule[facultyIndex] 
                 facultyIndex+=1
          # this gets rid of "sleep", "Off", "dorm"
         for entry in ["sleep", "Off", "dorm"]:
             self.replaceScheduleEntry(entry)
         self.replaceByType(agentParam="Agent_type", agentParamValue="faculty", partitionTypes="dining_hall_faculty", perEntry=False)
-        input()
         print("social space random?",self.config["randomSocial"])
         if self.config["randomSocial"]:
             print("*"*20, "random social, please fix this")
@@ -722,9 +737,9 @@ class AgentBasedModel:
             print("*"*20, "non random")
             self.replaceByType(partitionTypes=["library", "dining","gym", "office", "social"])
         print("finished schedules")
-        
-        
 
+       
+    
     def replaceByType(self, agentParam=None, agentParamValue=None, partitionTypes=None, perEntry=False):
         """
             go over the schedules of the agents of a specific type and convert entries in their schedules
@@ -737,17 +752,14 @@ class AgentBasedModel:
         """
         # filter rooms with specific value for building_type, returned roomIds dont include hub ids
         index = 0
-        if not isinstance(partitionTypes, list): # if only one value is passed\
-            if partitionTypes == "dining_hall_faculty":
-                print("hello"*20)
+        if not isinstance(partitionTypes, list): # if only one value is passed
+        
             if agentParam != None and agentParamValue != None:
                 filteredId = [agentId for agentId, agent in self.agents.items() if getattr(agent, agentParam) == agentParamValue]
-                if len(filteredId) > 0:
-                    print("filtering works")
+              
             else: filteredId = list(self.agents.keys())
             roomIds = self.findMatchingRooms("building_type", partitionTypes)
-            if len(roomIds) > 0:
-                print("room exists") 
+           
             if not perEntry:
                 randomVec = np.random.choice(roomIds, size=len(filteredId), replace=True)
             for agentId in filteredId:
