@@ -928,6 +928,7 @@ class AgentBasedModel:
         for key, value in self.parameters.items():
             if key != "susceptible":
                 counter += value[-1]
+        self.printRelevantInfo()
         print(f"# infected: {counter}, initial: {self.config['infectionSeedNumber']}, Ave R0: {(counter - self.config['infectionSeedNumber'])/self.config['infectionSeedNumber']}")
         return (counter - self.config["infectionSeedNumber"])/self.config["infectionSeedNumber"]
 
