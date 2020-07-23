@@ -367,7 +367,7 @@ def main():
         [("booleanAssignment",{"Agents" : [("compliance", 0.66), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
         [("booleanAssignment",{"Agents" : [("compliance", 1), ("officeAttendee", 0.2), ("gathering", 0.5)]})],
     ]
-    R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
+    R0_controls = [("infectionSeedNumber", 10),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
     simpleCheck(modelConfig, days=100, visuals=True)
     
