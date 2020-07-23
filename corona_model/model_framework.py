@@ -665,9 +665,9 @@ class AgentBasedModel:
         #print([room.located_building for roomId, room in self.rooms.items()])
         
         # works if there's only one valid room
-        stem = self.findMatchingRooms("located_building", "STEM_office")[0]
-        art = self.findMatchingRooms("located_building", "HUM_office")[0]
-        hum = self.findMatchingRooms("located_building", "ART_office")[0]
+        stem = self.findMatchingRooms("located_building", "STEM_office")
+        art = self.findMatchingRooms("located_building", "HUM_office")
+        hum = self.findMatchingRooms("located_building", "ART_office")
    
         for index, faculty_sche in enumerate(fac_schedule):
             bb = [[roomIds[a] if isinstance(a, int) else ("dining_hall_faculty" if a == "dining" else a) for a in row] for row in faculty_sche]
@@ -677,7 +677,7 @@ class AgentBasedModel:
             for i, row in enumerate(facSche):
                 for j, item in enumerate(row):
                     if item == "office":
-                        fac_schedule[index][i][j] = replacement
+                        fac_schedule[index][i][j] = np.random.choice(replacement)
         
         for index, student_schedule in enumerate(schedules):
             """
