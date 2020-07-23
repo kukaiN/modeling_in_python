@@ -283,7 +283,7 @@ def main():
             "Agents" : [("compliance", 0), ("officeAttendee", 0), ("gathering", 0.5)],
         },
        
-        "baseP" :1,
+        "baseP" :1.25,
         # for 10 people p < 0.6
         #for 100 people R0 = 4.02 when p = 1.25 with 100 simulation
         # 0.15 for 1 agent --> R0 4.25
