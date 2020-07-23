@@ -19,5 +19,5 @@ social_space,socialLeaf,social,medium,1,0,20,0,0,1000,0,0,20,0,transit_space_hub
 transit space,transit_space,transit,large,1,0,0,1,0,0,1000,0,0,1000,transit_space_hub,1,1,100000
 offCampus,offCampus_leaf,offCampus,large,1,0,0,1,0,0,10000,0,0,700,transit_space_hub,1,1,10000
 STEM_office,STEM_office_leaf,office,large,1,0,0,1,0,0,200,0,0,40,transit_space_hub,2,2,2000
-HUM_office,HUM_office_leaf,office,large,1,0,0,1,0,0,100,0,0,20,transit_space_hub,2,2,1000
-ART_office,ART_office_leaf,office,large,1,0,0,1,0,0,100,0,0,20,transit_space_hub,2,2,1000
+HUM_office,HUM_office_leaf,office,large,1,0,0,1,0,0,100,0,0,40,transit_space_hub,2,2,1000
+ART_office,ART_office_leaf,office,large,1,0,0,1,0,0,100,0,0,40,transit_space_hub,2,2,1000
