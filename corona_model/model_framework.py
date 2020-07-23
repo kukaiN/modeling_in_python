@@ -291,7 +291,7 @@ def main():
         "infectionSeedNumber": 10,
         "infectionSeedState": "exposed",
         "infectionContribution":{
-            "exposed":0.1,
+           
             "infected Asymptomatic":0.5,
             "infected Asymptomatic Fixed":0.5,
             "infected Symptomatic Mild":1,
@@ -369,9 +369,9 @@ def main():
     ]
     R0_controls = [("infectionSeedNumber", 1),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
-    #simpleCheck(modelConfig, days=100, visuals=True)
+    simpleCheck(modelConfig, days=100, visuals=True)
     
-    R0_simulation(modelConfig, R0_controls,20, debug=True, visual=True)
+    #R0_simulation(modelConfig, R0_controls,20, debug=True, visual=True)
     
     
     
