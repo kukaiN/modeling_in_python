@@ -311,7 +311,7 @@ def main():
         "quarantineSamplingProbability" : 0,
         "quarantineDelay":0,
         "walkinProbability" : {"infected Symptomatic Mild": 0.7, "infected Symptomatic Severe": 0.95},
-        "quarantineSampleSize" : 200,
+        "quarantineSampleSize" : 100,
         "quarantineSamplePopulationSize":0.10,
         "quarantineRandomSubGroup": False,
         "closedBuildings": ["eating", "gym", "study"],
@@ -342,7 +342,7 @@ def main():
         "interventions":[5],#[1,3,4,5,6], # no office hour
         "allowedActions": [],#["walkin"],#["walkin"],
         "massInfectionRatio":0.10,
-        "complianceRatio": 1,
+        "complianceRatio": 0,
         "randomSocial":False,
     }
     # you can control for multiple interventions by adding a case:
@@ -356,9 +356,13 @@ def main():
     R0_controls = [("infectionSeedNumber", 10),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
     
-   
+    allIn = [("complianceRatio", 1), ("interventions", [1,3,4,5,6]), ("allowedActions", ["walkin"]),]
+
     
-    simpleCheck(modelConfig, days=100, visuals=True, name="BaseModel_125p")
+    configCopy = dict(modelConfig)
+    for variableTup in allIn:
+        configCopy[variableTup[0]] = variableTup[1]
+    simpleCheck(configCopy, days=100, visuals=True, name="AllIn_125p")
     
     #R0_simulation(modelConfig, R0_controls,20, debug=True, visual=True)
     
@@ -1451,11 +1455,26 @@ class AgentBasedModel:
             elif i == 4:
                 self.buildingClosure = True
                 self.closedLocation = self.config["closedBuildings"]
+                self.closeBuildings()
             elif i == 5:
                 self.officeHours = False
             elif i == 6:
                 self.largeGathering= False
         print("finished initializing interventions")
+
+
+    def closeBuildings(self):
+        badLocations = set(self.findMatchingRooms("building_type", "library") + self.findMatchingRooms("building_type", "gym")) 
+        for agentId, agent in self.agents.items():
+            for i, row in enumerate(agent.schedule):
+                for j, item in enumerate(row):
+                    if item in badLocations:
+                        self.agents[agentId].schedule[i][j] = agent.initial_location
+        
+        dining = self.findMatchingRooms("building_type", "dining")
+        dining2 = self.findMatchingRooms("building_type", "faculty_dining_room")
+        for roomId in dining + dining2:
+            self.rooms[roomId].Kv = 0
 
     def startQuarantineGroup(self):
         print("start quarantine Groups")
