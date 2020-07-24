@@ -1488,8 +1488,21 @@ class AgentBasedModel:
                 agentTypeDict[agent.Agent_type] = agentTypeDict.get(agent.Agent_type, 0) + 1
         print("*"*20, "# infected based on type")
         print(agentTypeDict.items())
+        totalExposed = len(self.agents) - self.parameters["susceptible"][-1] - self.parameters["falsePositive"][-1]
         
-        print(f"p: {self.config['baseP']}, R0: {self.R0}, max infected {self.R0}")
+        data = dict()
+        data["TotalInfected"] = np.zeros(len(self.parameters[list(self.parameters.keys())[0]]))
+        for key in self.parameters.keys():
+            if key in ["susceptible", "quarantined", "recovered"]:
+                data[key] = self.parameters[key]
+            elif key not in self.config["AgentPossibleStates"]["debugAndGraphingPurpose"]: #ignore keys with debug purpose add the rest to infection count
+                data["TotalInfected"]+=np.array(self.parameters[key])
+        
+        
+        
+        maxInfected = max(data["TotalInfected"])
+        highestGrowth = "not yet"
+        print(f"p: {self.config['baseP']}, R0: {self.R0}, total ever in exposed {totalExposed}, max infected {maxInfected}")
  
     def quarantine(self): 
         if self.config["quarantineRandomSubGroup"]: # if random
