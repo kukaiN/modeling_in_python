@@ -362,8 +362,8 @@ def main():
     configCopy = dict(modelConfig)
     for variableTup in allIn:
         configCopy[variableTup[0]] = variableTup[1]
-    simpleCheck(configCopy, days=100, visuals=True, name="AllIn_125p")
-    
+    simpleCheck(configCopy, days=100, visuals=True, name="Library_125p")
+    # for dining add return at the end
     #R0_simulation(modelConfig, R0_controls,20, debug=True, visual=True)
     
     
@@ -602,6 +602,7 @@ class AgentBasedModel:
         self.quarantineList = []
         self.falsePositiveList = []
         self.R0_agentIds = []
+        self.masksOn = False
    
         # rename in the future, used to cache informstion to reduce the number of filtering thats happening in the future run
         self.state2IdDict=dict()
@@ -1110,7 +1111,10 @@ class AgentBasedModel:
             print(f"big gathering at day {self.time/24}, at the gathering there were {counter} healthy out of {len(totalSubset)} and {newly_infected} additionally infected agents,", totalInfection)
 
     def gathering_infection(self, subset):
-        contribution = self.infectionWithinPopulation(subset)
+        if self.masksOn:
+            contribution = self.infectionWithinPopulation(subset, -1)
+        else:
+            contribution = self.infectionWithinPopulation(subset)
         print(f"gathering {(50*(int(len(subset)/50)+1))}, numerator {(self.config['baseP']*3*contribution)}")
         cummulativeFunc = (self.config["baseP"]*3*contribution)/(40*(int(len(subset)/40)+1))
         return cummulativeFunc
@@ -1325,7 +1329,9 @@ class AgentBasedModel:
             if self.facemaskIntervention and self.agents[agentId].compliance:
                 if roomId!=None:
                     #if self.rooms[roomId].building_type in self.config["nonMaskExceptionHub"]
-                    if self.rooms[roomId].building_type in self.config["nonMaskBuildingType"] and not self.rooms[roomId].room_name.endswith("_hub"):
+                    if roomId == -1:
+                        individualContribution*=self.maskP 
+                    elif self.rooms[roomId].building_type in self.config["nonMaskBuildingType"] and not self.rooms[roomId].room_name.endswith("_hub"):
                         individualContribution*=self.maskP 
                 else:
                     individualContribution*=self.maskP   
@@ -1464,13 +1470,16 @@ class AgentBasedModel:
 
 
     def closeBuildings(self):
-        badLocations = set(self.findMatchingRooms("building_type", "library") + self.findMatchingRooms("building_type", "gym")) 
+        library = self.findMatchingRooms("building_type", "library")
+        gym =  self.findMatchingRooms("building_type", "gym") 
+        #badLocations = library + gym
+        badLocations = gym
         for agentId, agent in self.agents.items():
             for i, row in enumerate(agent.schedule):
                 for j, item in enumerate(row):
                     if item in badLocations:
                         self.agents[agentId].schedule[i][j] = agent.initial_location
-        
+        #return
         dining = self.findMatchingRooms("building_type", "dining")
         dining2 = self.findMatchingRooms("building_type", "faculty_dining_room")
         for roomId in dining + dining2:
