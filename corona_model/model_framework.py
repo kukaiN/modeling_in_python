@@ -2,10 +2,7 @@ import os
 import random
 import pandas as pd
 import pickle
-
 import numpy as np
-
-#mport schedule
 import time
 import copy
 import itertools
@@ -311,7 +308,7 @@ def main():
         "quarantineSamplingProbability" : 0,
         "quarantineDelay":0,
         "walkinProbability" : {"infected Symptomatic Mild": 0.7, "infected Symptomatic Severe": 0.95},
-        "quarantineSampleSize" : 100,
+        "quarantineSampleSize" : 400,
         "quarantineSamplePopulationSize":0.10,
         "quarantineRandomSubGroup": False,
         "closedBuildings": ["eating", "gym", "study"],
@@ -326,7 +323,8 @@ def main():
         "nonMaskBuildingType": ["dorm", "dining", "faculty_dining_hall"],
         "nonMaskExceptionsHub": ["dorm", "dining"],
         "semiMaskBuilding": ["social", "large gathering"],
-        
+        "openHub" : ["dining", "faculty_dining_room"],
+      
         # OTHER parameters
         "transitName": "transit_space_hub",
         # change back to 0.001
@@ -356,13 +354,12 @@ def main():
     R0_controls = [("infectionSeedNumber", 10),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
     
-    allIn = [("complianceRatio", 1), ("interventions", [1,3,4,5,6]), ("allowedActions", ["walkin"]),]
+    #allIn = [("complianceRatio", 1), ("interventions", [1,3,4,5,6]), ("allowedActions", ["walkin"]),]
 
-    
     configCopy = dict(modelConfig)
     for variableTup in allIn:
         configCopy[variableTup[0]] = variableTup[1]
-    simpleCheck(configCopy, days=100, visuals=True, name="Library_125p")
+    simpleCheck(modelConfig, days=100, visuals=True, name="newBase_125p")
     # for dining add return at the end
     #R0_simulation(modelConfig, R0_controls,20, debug=True, visual=True)
     
@@ -445,12 +442,11 @@ def agentFactory(agent_df, slotVal):
                 return self.initial_location
             elif self.state == "infected Symptomatic Severe" and currTime>self.lastUpdate+120:
                 return self.initial_location
-            if dayOfWeek > 5: # its a weekend
+            if dayOfWeek > 3: # its a weekend
                 return self.schedule[2][hourOfDay]
             elif dayOfWeek & 1: # bit and, its an odd day
                 return self.schedule[1][hourOfDay]
             else: # its an even day
-  
                 return self.schedule[0][hourOfDay]
 
         def move(self, adjDict):
@@ -1069,7 +1065,7 @@ class AgentBasedModel:
                 if modTime == 8:
                     self.checkForWalkIn()
                 if self.quarantineIntervention and self.time%self.quarantineInterval == 0 and self.time > self.config["quarantineOffset"]: 
-                    self.quarantine()
+                    self.testForDisease()
                 self.delayed_quarantine()
             if self.storeVal and self.time%self.timeIncrement == 0:
                 self.storeInformation()
@@ -1077,7 +1073,7 @@ class AgentBasedModel:
         
             if self.time%24==0:
                 self.date+=1
-                if self.date%7 > 4:
+                if self.date%7 > 3: ###############################
                     self.dateDescriptor = "W"
                 elif self.date%2 == 0:
                     self.dateDescriptor = "E"
@@ -1336,7 +1332,9 @@ class AgentBasedModel:
                 else:
                     individualContribution*=self.maskP   
             elif self.facemaskIntervention:
-                if self.rooms[roomId].building_type not in self.config["semiMaskBuilding"]:
+                if roomId!=None:
+                    individualContribution*=self.maskP 
+                elif self.rooms[roomId].building_type not in self.config["semiMaskBuilding"]:
                     individualContribution*=self.maskP   
 
             contribution+= individualContribution
@@ -1457,11 +1455,12 @@ class AgentBasedModel:
                 # test for covid and quarantine
                 self.quarantineIntervention = True
                 self.quarantineInterval = self.config["quarantineInterval"]
-                self.startQuarantineGroup()
+                self.createTestingGroup()
             elif i == 4:
                 self.buildingClosure = True
                 self.closedLocation = self.config["closedBuildings"]
                 self.closeBuildings()
+                self.closeLeafOpenHub()
             elif i == 5:
                 self.officeHours = False
             elif i == 6:
@@ -1479,13 +1478,23 @@ class AgentBasedModel:
                 for j, item in enumerate(row):
                     if item in badLocations:
                         self.agents[agentId].schedule[i][j] = agent.initial_location
-        #return
-        dining = self.findMatchingRooms("building_type", "dining")
-        dining2 = self.findMatchingRooms("building_type", "faculty_dining_room")
-        for roomId in dining + dining2:
-            self.rooms[roomId].Kv = 0
+    
+    def closeLeafOpenHub(self):
+        """
+            This function close down buildings, but keeps Hubs open, for buildings listed in the "openHub" entry in the config
+            leafs of the building are closed by dialing Kv to 0, meaning agents who visit the rooms cant get infected, but the hub is unchanged,
+            so the agents can go to the room without the fear of getting infected, but infection is turned on for the hub. 
 
-    def startQuarantineGroup(self):
+            Parameters:
+            - None
+        """
+        openHubLoc = self.config["openHub"]
+        for buildingType in openHubLoc:
+            roomIds = self.findMatchingRooms("building_type", buildingType)
+            for roomId in roomIds:
+                self.rooms[roomId].Kv = 0
+
+    def createTestingGroup(self):
         print("start quarantine Groups")
         if self.config["quarantineRandomSubGroup"]: # do nothing if quarantine screening is with random samples from the population
             self.groupIds = [agentId for agentId, agent in self.agents.items() if agent.Agent_type != "faculty"]
@@ -1503,7 +1512,9 @@ class AgentBasedModel:
             self.quarantineGroupNumber, self.quarantineGroupIndex = len(self.groupIds), 0
     
     def final_check(self):
-        
+        """
+            used to print relevant inormation
+        """
         # type and count dictionary
         buildingTCdict = dict()
         for buildingId, building in self.buildings.items():
@@ -1549,11 +1560,18 @@ class AgentBasedModel:
         highestGrowth = "not yet"
         print(f"p: {self.config['baseP']}, R0: {self.R0}, total ever in exposed {totalExposed}, max infected {maxInfected}")
  
-    def quarantine(self): 
+    def testForDisease(self): 
+        """
+            This function tests people randomly or by batch, and save the result in the log.  The log is read and with a delay, the agents who are listed in the log is qurantined
+            the false positive rate adds uninfected agents to the log.  The false negative rate is related to the number of infected agents that can get a false result (not-infected),
+            otherwise they go through the normal screening process and they get added to the log based on their state.
+
+            Parameters:
+            - None
+        """
         if self.config["quarantineRandomSubGroup"]: # if random
             listOfId = np.random.choice(self.groupIds, size=self.config["quarantineSampleSize"], replace=False)
         else: # we cycle through groups to check infected
-            #print("quarantine cycle group number:", self.quarantineGroupIndex)
             listOfId = self.groupIds[self.quarantineGroupIndex]
             self.quarantineGroupIndex = (self.quarantineGroupIndex+1)% self.quarantineGroupNumber
         size = len(listOfId)
@@ -1568,20 +1586,30 @@ class AgentBasedModel:
         falseNegVec = np.random.random(len(normalScreeningId))
         # these are people who are normally screened
         for i, agentId in enumerate(normalScreeningId):
+            # double the difficulty to catch Asymptomatic compared to symptomatic
             coeff = 1 if self.agents[agentId].state != "infected Asymptomatic Fixed" else 2
             if self.agents[agentId].state in self.config["AgentPossibleStates"]["infected"]:
-                if falseNegVec[i] > coeff*self.config["falseNegative"]: # not false positive
+                if falseNegVec[i] > coeff*self.config["falseNegative"]: # infected and not a false positive result
                     delayedList.append(agentId)
 
 
         self.falsePositiveList.append(fpDelayedList)
         self.quarantineList.append(delayedList)
         
+    def delayed_quarantine(self): 
+        """
+            the people who gets a mandatory testing will get their results in t time (t=0 means the result are given without any delay),
+            in the testing phase, the agents are tested and the people who had false positive result and people with the covid is quarantined
+            The agents are put in the quarantine state after a delay, and if the delay > time between successive testing, then there's a backlog with the resultsbeing returned. 
+            since the testing and isolating based on the results could have a delay, I use a FIFO queue, meaning you get the results for the 1st group first, then 2nd, then 3rd, ....
 
-    def delayed_quarantine(self):    
+            Parameters:
+            - None
+        """
+        # if its the right time to give the results back to the agents  
         if self.quarantineIntervention and (self.time-self.config["quarantineDelay"])%self.quarantineInterval == 0 and self.time > self.config["quarantineOffset"]:
-            if len(self.quarantineList) > 0:  
-                quarantined_agent = self.quarantineList.pop(0)
+            if len(self.quarantineList) > 0:  # if the number of agent to isolate/quarantine is greater than zero
+                quarantined_agent = self.quarantineList.pop(0) # get the test result for the first group in the queue
                 falsePos_agent = self.falsePositiveList.pop(0)
                 print(f"at time: {self.time}, {self.config['quarantineDelay']} hour delayed isolation of {len(quarantined_agent) + len(falsePos_agent)} agents, there are {len(self.quarantineList)} group backlog")
                 for agentId in quarantined_agent:
@@ -1590,10 +1618,12 @@ class AgentBasedModel:
                     self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
                     self.addFalsePositive(agentId)
                 
-
     def checkForWalkIn(self):
         """
-        when its 8AM, people with symptoms will walkin for a check up, the probability that they will walkin differs based on how severe it is
+        when its 8AM, agents with symptoms will walkin for a check up, the probability that they will walkin differs based on how severe it is.
+
+        Parameters:
+        - None
         """
         if self.walkIn: # if people have a tendency of walkins and if it's 8AM
             mild, severe = self.state2IdDict["infected Symptomatic Mild"], self.state2IdDict["infected Symptomatic Severe"] 
