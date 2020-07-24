@@ -66,7 +66,7 @@ def makeGraph(vertices, vertexLabels, edges, buildings, buildingRoom, roomDict, 
     plt.tight_layout()
     plt.show()
 
-def timeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle = ["r-", "b.", "g--"], animatePlt=True):
+def timeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle = ["r-", "b.", "g--"], savePlt=False, saveName="defaultImage.png", animatePlt=True):
     fig, ax= plt.subplots(figsize = (10, 5))
     plt.xlim(xLim[0], xLim[1])
     plt.ylim(yLim[0], yLim[1])
@@ -79,7 +79,11 @@ def timeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle = ["r-", "b.", "g
     plt.title("Agent's state over time")
     leg = ax.legend()
     # show static graph
-    plt.show()    
+    if savePlt:
+        print("image saved as", saveName)
+        plt.savefig(saveName)
+    else:
+        plt.show()    
     # show animated graph
     if animatePlt:
         showAnimation(timeIntervals, animateData, xLim, yLim, len(timeIntervals))

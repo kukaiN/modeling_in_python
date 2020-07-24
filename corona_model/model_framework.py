@@ -155,7 +155,7 @@ def createModel(modelConfig, debug=False):
     model.configureDebug(debug)
     return model
 
-def simpleCheck(modelConfig, days=100, visuals=True):
+def simpleCheck(modelConfig, days=100, visuals=True, name="default"):
     """
         runs one simulatons with the given config and showcase the number of infection and the graph
     """
@@ -187,8 +187,10 @@ def simpleCheck(modelConfig, days=100, visuals=True):
     for description, tupVal in zip(("doublingTime", "doublingInterval", "doublingValue"), tup):
         print(description, tupVal)
     if visuals:
-        model.visualOverTime(False)
-        model.visualOverTime(True)
+        fileformat = ".png"
+        model.visualOverTime(False, True, name+fileformat)
+        name+="_total"
+        model.visualOverTime(True, True, name+fileformat)
     #model.visualizeBuildings()
 
 def R0_simulation(modelConfig, R0Control, simulationN=10, debug=False, visual=False):
@@ -337,7 +339,7 @@ def main():
         #    5: removing office hours with professors
         #    6: shut down large gathering 
      
-        "interventions":[3, 5],#[1,3,4,5,6], # no office hour
+        "interventions":[5],#[1,3,4,5,6], # no office hour
         "allowedActions": [],#["walkin"],#["walkin"],
         "massInfectionRatio":0.10,
         "complianceRatio": 1,
@@ -353,7 +355,10 @@ def main():
     ]
     R0_controls = [("infectionSeedNumber", 10),("quarantineSamplingProbability", 0),
                     ("allowedActions",[]),("quarantineOffset", 20*24), ("interventions", [5])]
-    simpleCheck(modelConfig, days=100, visuals=True)
+    
+   
+    
+    simpleCheck(modelConfig, days=100, visuals=True, name="BaseModel_125p")
     
     #R0_simulation(modelConfig, R0_controls,20, debug=True, visual=True)
     
@@ -856,7 +861,6 @@ class AgentBasedModel:
             self.roomsInBuilding[self.buildingNameId[room.located_building]].append(roomId)  
             self.buildings[self.buildingNameId[room.located_building]].roomsInside = self.buildings[self.buildingNameId[room.located_building]].roomsInside + [roomId] 
         
-
     def generateAgentFromDf(self, counterColumn="totalCount"):
         """
         use this to multiple the number of agents, multiplies by looking at the counterColumn
@@ -1313,11 +1317,19 @@ class AgentBasedModel:
         contribution = 0
         for agentId in agentIds:
             lastUpdate = self.agents[agentId].lastUpdate
-            contribution+= self.infectionContribution(agentId, lastUpdate)
-            if self.facemaskIntervention and roomId != None:
-                if self.agents[agentId].compliance:
-                    if self.rooms[roomId].building_type not in self.config["nonMaskBuildingType"]:
-                        contribution*= self.maskP
+            individualContribution =  self.infectionContribution(agentId, lastUpdate)
+            if self.facemaskIntervention and self.agents[agentId].compliance:
+                if roomId!=None:
+                    #if self.rooms[roomId].building_type in self.config["nonMaskExceptionHub"]
+                    if self.rooms[roomId].building_type in self.config["nonMaskBuildingType"] and not self.rooms[roomId].room_name.endswith("_hub"):
+                        individualContribution*=self.maskP 
+                else:
+                    individualContribution*=self.maskP   
+            elif self.facemaskIntervention:
+                if self.rooms[roomId].building_type not in self.config["semiMaskBuilding"]:
+                    individualContribution*=self.maskP   
+
+            contribution+= individualContribution
         return contribution
 
     def infectionContribution(self, agentId, lastUpdate):
@@ -1383,7 +1395,12 @@ class AgentBasedModel:
                 break
         return massInfectionTime
 
-    def visualOverTime(self, boolVal = True):
+    def visualOverTime(self, boolVal = True, savePlt=False, saveName="defaultpic.png"):
+        """
+        Parameters:
+        - boolVal
+        - saveName
+        """
         if boolVal:
             data = dict()
             print(list(self.parameters.keys()))
@@ -1399,7 +1416,7 @@ class AgentBasedModel:
             data = {k:v for k,v in self.parameters.items() if k not in self.config["AgentPossibleStates"]["debugAndGraphingPurpose"]}
         data["susceptible"] = np.array(self.parameters["falsePositive"]) + np.array(data["susceptible"])    
         print([(key, value[-1]) for key, value in data.items()])
-        vs.timeSeriesGraph(self.timeSeries, (0, self.time+1), (0,len(self.agents)), data, animatePlt=False)
+        vs.timeSeriesGraph(self.timeSeries, (0, self.time+1), (0,len(self.agents)), data, savePlt=savePlt, saveName=saveName, animatePlt=False)
     
     def visualizeBuildings(self):
         pairs = [(room, adjRoom[0]) for room, adjRooms in self.adjacencyDict.items() for adjRoom in adjRooms]
