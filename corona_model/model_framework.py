@@ -70,7 +70,7 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
         model.visualOverTime(False, True, modelName+fileformat)
         modelName+="_total"
         model.visualOverTime(True, True, modelName+fileformat)
-    #model.visualizeBuildings()
+    model.visualizeBuildings()
 
 def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, visual=False):
    
@@ -747,6 +747,14 @@ class AgentBasedModel:
             self.agents[agentId].initial_location = offCampusLeaf
             self.rooms[offCampusLeaf].agentsInside.add(agentId)
 
+    def setToRemote(self, agentId, offCampusLeaf,  scheduleTemp):
+            self.agents[agentId].schedule = scheduleTemp
+            initalLoc = self.agents[agentId].currLocation
+            self.rooms[initalLoc].agentsInside.discard(agentId)
+            self.agents[agentId].currLocation = offCampusLeaf
+            self.agents[agentId].initial_location = offCampusLeaf
+            self.rooms[offCampusLeaf].agentsInside.add(agentId)
+
     def studentFacultySchedule(self):
         """
             calls the schedule creator and replace general notion of locations with specific location Id,
@@ -776,6 +784,8 @@ class AgentBasedModel:
 
         schedules, onVsOffCampus = schedule_students.scheduleCreator()
         fac_schedule, randomizedFac = schedule_faculty.scheduleCreator()
+        for i in np.random.choice(range(360), size=10, replace=False):
+            print(fac_schedule[i])
         classrooms = self.findMatchingRooms("building_type", "classroom")
         stem = self.findMatchingRooms("located_building", "STEM_office")
         art = self.findMatchingRooms("located_building", "HUM_office")
@@ -784,10 +794,13 @@ class AgentBasedModel:
         if self.closedBuilding_intervention:
             closedBuilding = set(self.initializeClosingBuilding())
             schedules = [
-                [[item if item not in closedBuilding else ("sleep" if random.random() < 0.5 else "social") for item in row] for row in uniqueSchedule] 
-                    for uniqueSchedule in schedules]
+                [[item if item not in closedBuilding else "sleep" for item in row] for row in uniqueSchedule] 
+                    for uniqueSchedule in schedules]# ("sleep" if random.random() < 0.5 else "social")
             fac_schedule = [
-                [[item if item not in closedBuilding else  "Off" for item in row] for row in uniqueSchedule] 
+                [[item if item not in closedBuilding else "Off" for item in row] for row in uniqueSchedule] 
+                    for uniqueSchedule in fac_schedule]
+        schedules = [
+                [[item if item != "social" else ("sleep" if random.random() < 0.75 else "social") for item in row] for row in uniqueSchedule] 
                     for uniqueSchedule in schedules]
         # assign one dining room as faculty only
         facultyDiningRoom = self.findMatchingRooms("building_type", "dining")[0]
@@ -808,7 +821,7 @@ class AgentBasedModel:
                         if item == "office": # choose a random office within their department
                             if self.closedBuilding_intervention and "office" in closedBuilding:
                                 print("replacing")
-                                fac_schedule[index][i][j] = "sleep"
+                                fac_schedule[index][i][j] = "Off"
                             else:    
                                 fac_schedule[index][i][j] = favoriteOffice
                         elif item == "dining": # convert to faculty dining to restict area to faculty only space
@@ -839,11 +852,14 @@ class AgentBasedModel:
                     agent.schedule = onCampusSchedule[onCampusIndex]
                 onCampusIndex+=1
             elif agent.Agent_type == "offCampus": # offcampus
-                agent.schedule = offCampusSchedule[offCampusIndex]
+                if self.hybridClass_intervention:
+                    agent.schedule = offCampusScheduleTemplate
+                else:
+                    agent.schedule = offCampusSchedule[offCampusIndex]
                 offCampusIndex+=1
             else:# faculty
                 if facultyIndex in remoteFacultyIndices: # this faculty is teaching remote
-                    self.setOffCampus(agentId,offCampusLeaf, offCampusScheduleTemplate)
+                    self.setToRemote(agentId,offCampusLeaf, offCampusScheduleTemplate)
                 else:
                     agent.schedule = fac_schedule[facultyIndex] 
                 facultyIndex+=1
@@ -855,17 +871,16 @@ class AgentBasedModel:
         self.replaceByType(partitionTypes=["library", "dining","gym", "office", "social"])
         print("finished schedules")
         
-        """
+        
         # print sample faculty schedules
         for agentId, agent in self.agents.items():
             
-            if agentId%100 == 0 and agentId > 2000:
+            if agentId%10 == 0 and agentId > 2000:
                 print("below", "*"*20, agent.Agent_type)
                 #print(agent.schedule[:2])
                 print(self.convertScheduleToRoomName(agent.schedule[:2]))
-        input()
-        """
-   
+        
+        
     def replaceScheduleEntry(self, antecedent):
         """
             replace locations with each agent's initial location
@@ -1100,8 +1115,13 @@ class AgentBasedModel:
                                 index1+=1
                                 if self._debug:
                                     contribution = self.infectionWithinPopulation(self.rooms[roomId].agentsInside, roomId)
-                                    print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room, contrib: {contribution}")
-                                
+                                    
+                                    if room.building_type == "social":
+                                        print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {(5*int(len(self.rooms[roomId].agentsInside)/5+1))},  {len(room.agentsInside)} people in room, contrib: {contribution}")
+                                    else:
+                                        print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room, contrib: {contribution}")
+
+
             # this loop takes care of agent's state transitions
             for agentId in room.agentsInside:   
                 state = self.agents[agentId].state

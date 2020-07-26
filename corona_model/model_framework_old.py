@@ -628,6 +628,7 @@ class AgentBasedModel:
         self.state2IdDict[newState].add(agentId)# then add them to the new state list
         self.agents[agentId].changeState(self.time, newState, self.config["transitionTime"][newState])
     
+    # fin
     def addFalsePositive(self, agentId):
         self.state2IdDict["falsePositive"].add(agentId)
 
@@ -886,7 +887,8 @@ class AgentBasedModel:
             rowCopy = row.drop(counterColumn).to_dict()
             tempList+=[rowCopy for _ in range(counter)]
         self.agent_df = pd.DataFrame(tempList)     
-        
+    
+    # fin
     def initializeR0(self):
         self.R0 = True
         for agentIdVal in self.agents.keys():
@@ -900,6 +902,7 @@ class AgentBasedModel:
      
         self.R0_agentIds = set(self.R0_agentIds)
      
+    # fin
     def returnR0(self):
         counter = 0
         for key, value in self.parameters.items():

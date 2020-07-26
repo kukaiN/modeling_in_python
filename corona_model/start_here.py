@@ -27,7 +27,7 @@ def main():
             "ExtraParameters": ["buildingId","roomsInside"],
         },
         "Infection" : {
-            "baseP" : 1.25,
+            "baseP" : 1,
             "SeedNumber" : 10,
             "SeedState" : "exposed",
             "Contribution" : {
@@ -74,7 +74,7 @@ def main():
             #    5: removing office hours with professors
             #    6: shut down large gathering 
             "transitName": "transit_space_hub",
-            "offCampusInfectionProbability":0.125/700,
+            "offCampusInfectionProbability":0.125/880,
             "massInfectionRatio":0.10,
             "complianceRatio": 0,
             "stateCounterInterval": 1,
@@ -104,8 +104,8 @@ def main():
             
             "offset": 9, # start at 9AM
             "checkupFrequency": 24*1,
-            "falsePositive":0.03,
-            "falseNegative":0.001,
+            "falsePositive":0.001,
+            "falseNegative":0#0.03,
         },
         "ClosingBuildings": {
             "ClosedBuildingType" : ["gym", "library"],
@@ -163,7 +163,7 @@ def main():
         "Moderate+Facemask": {
             "World": [
                 ("TurnedOnInterventions", ["FaceMask", "Quarantine"]),
-                ("ComplianceRatio", 1)
+                ("ComplianceRatio", 1),
             ],
             "Quarantine": [
                 ("ResultLatency", 3*24), 
@@ -189,15 +189,20 @@ def main():
         "Maximal": {
             "World": [
                 ("TurnedOnInterventions", ["FaceMask", "Quarantine", "ClosingBuildings","HybridClasses"]),
-                ("ComplianceRatio", 1)
+                ("ComplianceRatio", 1),
+                
+            ],
+            "Infection":[
+                ("SeedNumber", 5),
             ],
             "Quarantine": [
                 ("ResultLatency", 1*24), 
-                ("SampleSizeForTesting", 500)
+                ("SampleSizeForTesting", 500),
+                ("BatchSize", 500)
                 ],
             "ClosingBuildings": [
                 ("ClosedBuildingType", ["gym", "library", "office"]),
-                ("ClosedButKeepHubOpened", ["dining"]),
+                ("ClosedButKeepHubOpened", ["dining", "dorm"]),# remove dorm later !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
             ]
         },
     }
@@ -207,15 +212,16 @@ def main():
     R0_Dict = dict()
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
         configCopy = dict(modelConfig)
+        print("*"*20)
         print(f"started working on initializing the simualtion for {modelName}")
         for categoryKey, listOfControls in modelControl.items():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
-        if index > -1:
-            #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName="images\\"+modelName)
-            returnVal = model_framework.R0_simulation(modelConfig, R0_controls,20, debug=True, visual=False)
-            R0Dict[modelName] = returnVal
-            break
+        if index > 4:
+            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName="images\\"+modelName)
+            #returnVal = model_framework.R0_simulation(modelConfig, R0_controls,20, debug=True, visual=False)
+            #R0Dict[modelName] = returnVal
+            
     print(R0Dict.items())
 if __name__ == "__main__":
     main()
