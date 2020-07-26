@@ -87,8 +87,8 @@ def createPartitions(df):
         rowList.append(hubDict)
     return pd.DataFrame(rowList)
 
-def mod_building(fileName, folder):
-    original_df = flr.make_df(folder,fileName)
+def mod_building(fileName, folder, debug=True):
+    original_df = flr.make_df(folder,fileName, debug=debug)
     building_df = assignUniqueName(createSuperStruc(original_df), "building_name")
     building_df.index+=1
     room_df = createPartitions(building_df)

@@ -95,6 +95,8 @@ if __name__ == '__main__':
     import model_framework
     def test():
         print(5)
+    
+    print("here", 5&1)
 
 if __name__ == '__main__':
     profile.runctx('model_framework.main()', globals(), {})

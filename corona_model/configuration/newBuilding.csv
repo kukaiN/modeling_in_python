@@ -11,8 +11,7 @@ hum_L,class,classroom,large,1,5,3,3,20,30,40,15,20,30,transit_space_hub,2,1,2250
 art_S,class,classroom,small,2,3,0,0,20,30,40,15,20,30,transit_space_hub,2,1,450
 art_M,class,classroom,medium,1,2,3,0,20,30,40,15,20,30,transit_space_hub,2,1,900
 art_L,class,classroom,large,1,5,3,3,20,30,40,15,20,30,transit_space_hub,2,1,2250
-dining_hall,dining_hall_room,dining,large,1,0,1,6,0,300,500,0,20,100,transit_space_hub,2,1,1000
-dining_hall_faculty,dining_faculty,dining_hall_faculty,large,0,0,0,1,0,0,300,0,0,50,transit_space_hub,3,1,1000
+dining_hall,dining_hall_room,dining,large,1,0,1,6,0,300,500,0,20,100,transit_space_hub,2,1,6000
 library,library_leaf,library,large,1,0,0,6,0,0,100,0,0,50,transit_space_hub,2,1,3000
 gym,gym_leaf,gym,large,1,0,0,6,0,0,100,0,0,10,transit_space_hub,3,1,600
 social_space,socialLeaf,social,medium,1,0,20,0,0,1000,0,0,20,0,transit_space_hub,3,0,20000

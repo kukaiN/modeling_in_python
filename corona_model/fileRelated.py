@@ -126,7 +126,7 @@ def formatData(folder, fileName):
     new_df.columns = header
     return new_df
 
-def make_df(folder, fileName):
+def make_df(folder, fileName, debug=True):
     """
         creates a panda dataframe from the contents in a csv file
     
@@ -136,8 +136,9 @@ def make_df(folder, fileName):
     """
     a = formatData(folder, fileName)
     a.fillna(0, inplace =True)
-    print("this is a preview of the data that you're loading:")
-    print(a.head(3))
+    if debug:
+        print("this is a preview of the data that you're loading:")
+        print(a.head(3))
     return a
 
 
