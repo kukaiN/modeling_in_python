@@ -851,9 +851,9 @@ class AgentBasedModel:
             fac_schedule = [
                 [[item if item not in closedBuilding else "Off" for item in row] for row in uniqueSchedule] 
                     for uniqueSchedule in fac_schedule]
-        schedules = [
-                [[item if item != "social" else ("sleep" if random.random() < 0.75 else "social") for item in row] for row in uniqueSchedule] 
-                    for uniqueSchedule in schedules]
+        #schedules = [
+        #        [[item if item != "social" else ("sleep" if random.random() < 0.75 else "social") for item in row] for row in uniqueSchedule] 
+        #            for uniqueSchedule in schedules]
         # assign one dining room as faculty only
         facultyDiningRoom = self.findMatchingRooms("building_type", "dining")[0]
         self.rooms[facultyDiningRoom].room_name = "faculty_dining_room"

@@ -229,7 +229,7 @@ def main():
                 files = "images/"
         else:
             R0Count = 1
-        if index > 3:
+        if index in [5]:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+typeName+modelName+"_"+str(simulationNum))
             #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, visual=False)
