@@ -212,6 +212,7 @@ def main():
         "World": []
     }
     R0Dict = dict()
+    simulationNum = "1"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
         configCopy = dict(modelConfig)
         print("*"*20)
@@ -220,19 +221,19 @@ def main():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
         if index < 1:
-            R0Count = 100
+            R0Count = 50
             osName = platform.system()
             if osName.lower() == "windows":
                 files = "images\\"
             else:
                 files = "images/"
         else:
-            R0Count = 20
+            R0Count = 10
         if index in [0, 1, 2, 3, 4, 5]:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
-            model_framework.simpleCheck(configCopy, days=20, visuals=True, debug=False, modelName=files+typeName+modelName)
-            returnVal = model_framework.R0_simulation(modelConfig, R0_controls,100, debug=False, visual=False)
-            R0Dict[modelName] = returnVal
+            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+typeName+modelName+"_"+str(simulationNum))
+            #returnVal = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, visual=False)
+            #R0Dict[modelName] = returnVal
             
     print(R0Dict.items())
 if __name__ == "__main__":
