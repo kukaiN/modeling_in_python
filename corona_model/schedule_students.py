@@ -40,12 +40,12 @@ def pickClass(tickets,ASched,BSched):
 ## 'gym', 'library','social','dining','sleep','dorm'
    
 
-def scheduleCreator():
+def scheduleCreator(social):
     #Params
     g = 0.15 # the probability of going to the gym on any particular day
-    s = 0.1 # the probability of going to a social space
+    s = social # the probability of going to a social space
     lib = 0.25 # the probability of going to the library
-    sp = 0.1 #the probability of going to a social space, as an off-campus student
+    sp = social #the probability of going to a social space, as an off-campus student
     libp = 0.25 #the probability or going to the library, as an off-campus student
     d = 1 - s - lib # the probability of going back to your dorm for an off campus student
 
@@ -561,7 +561,7 @@ def scheduleCreator():
     return (schedule, OnorOff)
 
 def main():
-    schedule = scheduleCreator()
+    schedule = scheduleCreator(0.15)
     print(schedule[0][:5])
 if __name__ == "__main__":
     main()
