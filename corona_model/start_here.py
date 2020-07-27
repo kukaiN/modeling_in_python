@@ -80,6 +80,7 @@ def main():
             "massInfectionRatio":0.10,
             "complianceRatio": 0,
             "stateCounterInterval": 5,
+            "socialInteraction": 0.2,
            
         },
        
@@ -212,7 +213,7 @@ def main():
         "World": []
     }
     R0Dict = dict()
-    simulationNum = "3"
+    simulationNum = "5"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
         configCopy = dict(modelConfig)
         print("*"*20)
@@ -221,14 +222,14 @@ def main():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
         if index < 1:
-            R0Count = 1
+            R0Count = 20
             osName = platform.system()
             if osName.lower() == "windows":
                 files = "images\\"
             else:
                 files = "images/"
         else:
-            R0Count = 1
+            R0Count = 10
         if index in [5]:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+typeName+modelName+"_"+str(simulationNum))

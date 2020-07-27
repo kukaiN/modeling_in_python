@@ -5,7 +5,7 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-def makeGraph(vertices, edges, vertices2Cluster, cluster2Vertices,clusterName, directed=False):
+def makeGraph(vertices, edges, vertices2Cluster, cluster2Vertices,clusterName, roomCapacity, directed=False):
     """
         get the partitions and their adjacency list to create a graph
         The graph will show the label of partitions that have more edges than the threshold 
@@ -17,33 +17,33 @@ def makeGraph(vertices, edges, vertices2Cluster, cluster2Vertices,clusterName, d
   
     # this part dictates the size and color
     sizeList, colorList, labelList = [], [], dict()
-    lables = False
-    colorbar = False
+    lables, colorbar = False, False
     #colors = dict((key, index/len(buildings)) for index, key in enumerate(buildingRoom.keys()))
-    colors = dict(buildingId:index/len(cluster) for index (buildingId, cluster) in enumerate(cluster2Vertices.items()))
+    colors = dict((buildingId, index/len(cluster)) for index ,(buildingId, cluster) in enumerate(cluster2Vertices.items()))
     #typeName = set(bType.building_type for bType in buildings.values())
     #taken care by clusterName
     typeName = clusterName
     typeCount = len(typeName)
     
    
-    typeColor = dict((key,index/typeCount) for index, key in enumerate(reversed(sorted(typeName))))
+    groupColor = dict((key,index/typeCount) for index, key in enumerate(sorted(typeName)))
     basedOnType = True
     cmap = mpl.cm.get_cmap("gist_rainbow")
     for node in nx.nodes(G):
         connection = len(list(nx.neighbors(G, node)))
-        if roomDict[node].capacity > 5000:
+        buildingId = vertices2Cluster[node]
+        if roomCapacity[node] > 5000:
             sizeList.append(300)
         else:
             coeff = 2 if connection < 20 else 1 
             sizeList.append(int((coeff*connection*6000)/len(vertices)))
-        building = roomsToBuilding[node]
-        if lables:
-            labelList[node] = "" if connection < theshold else buildings[building].building_name+" :\n " +vertexLabels[node]
-        else: 
+        
+        if lables: # ignore
+            labelList[node] = "" if connection < theshold else clusterName[buildingId]+" :\n " +vertexLabels[node]
+        else: # no labels
             labelList[node] = ""
-        if basedOnType:
-            colorList.append(typeColor[buildings[building].building_type])
+        if basedOnType: # here
+            colorList.append(groupColor[clusterName[buildingId]])
         else:
             colorList.append(colors[building])
     
@@ -53,7 +53,7 @@ def makeGraph(vertices, edges, vertices2Cluster, cluster2Vertices,clusterName, d
     f = plt.figure(1)
     ax = f.add_subplot(1, 1, 1)
     handleList = []
-    for key, colorVal in sorted(typeColor.items()):
+    for key, colorVal in sorted(groupColor.items()):
         ax.plot([0], [0], color=cmap(colorVal), label=key)
         a = mpl.patches.Patch(color=cmap(colorVal), label=key)
         handleList.append(a)

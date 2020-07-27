@@ -833,8 +833,8 @@ class AgentBasedModel:
             self.remoteStudentIndices, self.remoteFacultyIndices = [], []
             
         """
-
-        schedules, onVsOffCampus = schedule_students.scheduleCreator()
+            
+        schedules, onVsOffCampus = schedule_students.scheduleCreator(self.config["World"]["socialInteraction"])
         fac_schedule, randomizedFac = schedule_faculty.scheduleCreator()
         #for i in np.random.choice(range(360), size=10, replace=False):
         #    print(fac_schedule[i])
@@ -1404,10 +1404,10 @@ class AgentBasedModel:
         pairs = [(room, adjRoom[0]) for room, adjRooms in self.adjacencyDict.items() for adjRoom in adjRooms]
         nameDict = dict((roomId, room.room_name) for roomId, room in self.rooms.items())
         Building2Rooms = {buildingId:building.roomsInside for buildingId, building in self.buildings.items()}
-        Rooms2Building = {roomId:buildingId for buildingId, value in Building2Rooms for roomId in value}
+        Rooms2Building = {roomId:buildingId for buildingId, value in Building2Rooms.items() for roomId in value}
         clusterName = {buildingId:building.building_type for buildingId, building in self.buildings.items()}
-        
-        vs.makeGraph(self.rooms.keys(), pairs,BuildingToRooms,Rooms2Building, clusterName)
+        RoomCapacity = {roomId:room.capacity for roomId, room.capacity in self.rooms.items()}
+        vs.makeGraph(self.rooms.keys(), pairs,Rooms2Building, Building2Rooms,clusterName, roomCapacity)
     
     def final_check(self):
         """
@@ -1559,6 +1559,7 @@ def main():
             "massInfectionRatio":0.10,
             "complianceRatio": 0,
             "stateCounterInterval": 5,
+            "socialInteraction": 0.2,
            
         },
        
