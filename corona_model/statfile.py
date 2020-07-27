@@ -106,6 +106,7 @@ def boxplot(data, oneD=True, pltTitle="Some Title", xlabel="Default X", ylabel="
         plt.savefig(saveName)
     else:
         plt.show()
+    plt.close()
 
 def changeOverUnitTime(listData):
     """

@@ -362,7 +362,6 @@ class AgentBasedModel:
         self.largeGathering=True
         self.gathering_count = 0
 
-
     def addKeys(self, tempDict):
         """
         create a reference to the passed config dictionary
@@ -1048,8 +1047,7 @@ class AgentBasedModel:
     
     def initializeR0(self):
         self.R0Calculation = True
-        
-     
+            
     def returnR0(self):
         counter = 0
         timeRem = self.time//self.timeIncrement
@@ -1060,7 +1058,6 @@ class AgentBasedModel:
         print(f"# infected: {counter}, initial: {self.config['Infection']['SeedNumber']}, Ave R0: {(counter - self.config['Infection']['SeedNumber'])/self.config['Infection']['SeedNumber']}")
         return (counter - self.config["Infection"]["SeedNumber"])/self.config["Infection"]["SeedNumber"]
     
-
     def initializeStoringParameter(self, listOfStatus):
         """
             tell the code which values to keep track of. 
@@ -1082,8 +1079,6 @@ class AgentBasedModel:
             for param in self.parameters.keys():
                 self.parameters[param][self.time//self.timeIncrement] = len(self.state2IdDict[param])
           
-
-
     def printRelevantInfo(self):
         """ print relevant information about the model and its current state, 
         this is the same as __str__ or __repr__, but this function is for debug purpose,
@@ -1101,7 +1096,6 @@ class AgentBasedModel:
             stateListTrunked.append(":".join([trunk(state), str(number)]))
         print(f"time: {self.time}, states occupied: {' | '.join(stateListTrunked)}")
 
-    
     def updateAgent(self):
         """call the update function on each person"""
         # change location if the old and new location is different
@@ -1329,7 +1323,6 @@ class AgentBasedModel:
                         if tupP[1] > self.config["Quarantine"]["falseNegative"]: # no false negatives
                             self.changeStateDict(agentId,self.agents[agentId].state, "quarantined")
          
-  
     def big_gathering(self):
         if self.largeGathering: # big gathering at sunday midnight
             agentIds = [agentId for agentId, agent in self.agents.items() if agent.gathering]
@@ -1410,7 +1403,11 @@ class AgentBasedModel:
     def visualizeBuildings(self):
         pairs = [(room, adjRoom[0]) for room, adjRooms in self.adjacencyDict.items() for adjRoom in adjRooms]
         nameDict = dict((roomId, room.room_name) for roomId, room in self.rooms.items())
-        vs.makeGraph(self.rooms.keys(), nameDict, pairs, self.buildings, self.roomsInBuilding, self.rooms)
+        Building2Rooms = {buildingId:building.roomsInside for buildingId, building in self.buildings.items()}
+        Rooms2Building = {roomId:buildingId for buildingId, value in Building2Rooms for roomId in value}
+        clusterName = {buildingId:building.building_type for buildingId, building in self.buildings.items()}
+        
+        #vs.makeGraph(self.rooms.keys(),pairs, ,BuildingToRooms, clusterName)
     
     def final_check(self):
         """
@@ -1486,7 +1483,125 @@ class AgentBasedModel:
 
 def main():
     import start_here
-    start_here.main()
+    modelConfig = {
+        "Agents" : {
+            "PossibleStates":{
+                "neutral" : ["susceptible", "exposed"],
+                "infected" : ["infected Asymptomatic", "infected Asymptomatic Fixed", "infected Symptomatic Mild", "infected Symptomatic Severe"],  
+                "recovered" : ["quarantined", "recovered"],
+                "debugAndGraphingPurpose": ["falsePositive"],
+                },
+            "ExtraParameters":[
+                        "agentId","path", "destination", "currLocation",
+                        "statePersistance","lastUpdate", "personality", 
+                        "arrivalTime", "schedule",  "gathering",
+                        # "travelTime", "officeAttendee",
+                ], # travelTime and officeAttendee will be commented out
+            "ExtraZipParameters": [("motion", "stationary"), ("infected", False), ("compliance", False)],
+            "booleanAssignment":[ ("gathering", 0.5)], # ("officeAttendee", 0),
+            
+        },
+        "Rooms" : {
+            "ExtraParameters": ["roomId","agentsInside","oddCap", "evenCap", "classname", "infectedNumber"],
+        },
+        "Buildings" : {
+            "ExtraParameters": ["buildingId","roomsInside"],
+        },
+        "Infection" : {
+            "baseP" : 1,
+            "SeedNumber" : 10,
+            "SeedState" : "exposed",
+            "Contribution" : {
+                "infected Asymptomatic":0.5,
+                "infected Asymptomatic Fixed":0.5,
+                "infected Symptomatic Mild":1,
+                "infected Symptomatic Severe":1,
+            },
+            # INFECTION STATE
+            "TransitionTime" : {
+                "susceptible" : -1, # never, unless acted on
+                "exposed" : 2*24, # 2 days
+                "infected Asymptomatic" : 2*24, # 2 days
+                "infected Asymptomatic Fixed" : 10*24, # 10 days
+                "infected Symptomatic Mild" : 10*24,# 10 Days
+                "infected Symptomatic Severe" : 10*24, # 10 days
+                "recovered" : -1, # never
+                "quarantined" : 24*14, # 2 weeks 
+            },
+            # INFECTION TRANSITION PROBABILITY
+            "TransitionProbability" : {
+                "susceptible" : [("exposed", 1)],
+                "exposed" : [("infected Asymptomatic", 0.85), ("infected Asymptomatic Fixed", 1)],
+                "infected Asymptomatic Fixed": [("recovered", 1)],
+                "infected Asymptomatic": [("infected Symptomatic Mild", 0.5), ("infected Symptomatic Severe", 1)],
+                "infected Symptomatic Mild": [("recovered", 1)],
+                "infected Symptomatic Severe": [("recovered", 1)],
+                "quarantined":[("susceptible", 1)],
+                "recovered":[("susceptible", 0.5), ("recovered", 1)],
+            },
+        },
+        "World" : {
+            "UnitTime" : "Hours",
+            # by having the supposed days to be simulated, 
+            # we can allocate the required space beforehand to speedup data storing
+            "InferedSimulatedDays":100,
+            # put the name(s) of intervention(s) to be turned on 
+            "TurnedOnInterventions":[],# ["HybridClasses", "ClosingBuildings", "Quarantine", "FaceMasks"], 
+            "permittedAction": [],#["walkin"],
+            #possible values:
+            #    1: facemask
+            #    3: testing for covid and quarantining
+            #    4: closing large buildings
+            #    5: removing office hours with professors
+            #    6: shut down large gathering 
+            "transitName": "transit_space_hub",
+            "offCampusInfectionProbability":0.125/880,
+            "massInfectionRatio":0.10,
+            "complianceRatio": 0,
+            "stateCounterInterval": 5,
+           
+        },
+       
+        # interventions
+        "FaceMasks" : {
+            "MaskInfectivity" : 0.5,
+            "MaskBlock":0.75,
+            "NonCompliantLeaf": ["dorm", "dining", "faculty_dining_hall"],
+            "CompliantHub" : ["dorm", "dining"],
+            "NonCompliantBuilding" : ["social", "largeGathering"],
+        },
+        "Quarantine" : {
+            # this dictates if we randomly sample the population or cycle through Batches
+            "RandomSampling": False,
+            # for random sampling from the agent population
+            "SamplingProbability" : 0,
+            "SampleSizeForTesting":50,
+            "ResultLatency":24,
+            "walkinProbability" : {
+                "infected Symptomatic Mild": 0.7, 
+                "infected Symptomatic Severe": 0.95,
+                },
+            "BatchSize" : 400,
+            
+            "offset": 9, # start at 9AM
+            "checkupFrequency": 24*1,
+            "falsePositive":0.001,
+            "falseNegative":0#0.03,
+        },
+        "ClosingBuildings": {
+            "ClosedBuildingType" : ["gym", "library"],
+            "ClosedButKeepHubOpened" : [],
+        },
+        "HybridClass":{
+            "RemoteStudentCount": 1000,
+            "RemoteFacultyCount": 180,
+            "TurnOffLargeGathering": True,
+        },
+
+    }
+    model = createModel(modelConfig)
+    model.visualizeBuildings()
+    #start_here.main()
 
 if __name__ == "__main__":
     main()
