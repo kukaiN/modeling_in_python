@@ -43,10 +43,10 @@ def pickClass(tickets,ASched,BSched):
 def scheduleCreator():
     #Params
     g = 0.15 # the probability of going to the gym on any particular day
-    s = 0.3 # the probability of going to a social space
+    s = 0.1 # the probability of going to a social space
     lib = 0.25 # the probability of going to the library
-    sp = 0.6 #the probability of going to a social space, as an off-campus student
-    libp = 0.4 #the probability or going to the library, as an off-campus student
+    sp = 0.1 #the probability of going to a social space, as an off-campus student
+    libp = 0.25 #the probability or going to the library, as an off-campus student
     d = 1 - s - lib # the probability of going back to your dorm for an off campus student
 
    
