@@ -198,7 +198,7 @@ def main():
                 ("SeedNumber", 5),
             ],
             "Quarantine": [
-                ("ResultLatency", 1*24), 
+                ("ResultLatency", 1*25), 
                 ("SampleSizeForTesting", 500),
                 ("BatchSize", 500)
                 ],
@@ -212,7 +212,7 @@ def main():
         "World": []
     }
     R0Dict = dict()
-    simulationNum = "1"
+    simulationNum = "2"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
         configCopy = dict(modelConfig)
         print("*"*20)
@@ -229,7 +229,7 @@ def main():
                 files = "images/"
         else:
             R0Count = 10
-        if index in [0, 1, 2, 3, 4, 5]:
+        if index > 3:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+typeName+modelName+"_"+str(simulationNum))
             #returnVal = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, visual=False)
