@@ -1,10 +1,11 @@
 import networkx as nx
+import math
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-def makeGraph(vertices, vertexLabels, edges, buildings, buildingRoom, roomDict, directed=False):
+def makeGraph(vertices, vertices2Cluster, cluster2Vertices,clusterName,  directed=False):
     """
         get the partitions and their adjacency list to create a graph
         The graph will show the label of partitions that have more edges than the threshold 
@@ -15,7 +16,7 @@ def makeGraph(vertices, vertexLabels, edges, buildings, buildingRoom, roomDict, 
     G = nx.DiGraph() if directed else nx.Graph()
     G.add_nodes_from(vertices) #G.nodes()
     G.add_edges_from(edges)
-
+  
     # this part dictates the size and color
     sizeList, colorList, labelList = [], [], dict()
     lables = False
@@ -24,7 +25,8 @@ def makeGraph(vertices, vertexLabels, edges, buildings, buildingRoom, roomDict, 
     typeName = set(bType.building_type for bType in buildings.values())
     typeCount = len(typeName)
     
-    typeColor = dict((key, index/typeCount) for index, key in enumerate(sorted(typeName)))
+   
+    typeColor = dict((key,index/typeCount) for index, key in enumerate(reversed(sorted(typeName))))
     basedOnType = True
     cmap = mpl.cm.get_cmap("gist_rainbow")
     for node in nx.nodes(G):
