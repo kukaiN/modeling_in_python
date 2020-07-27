@@ -70,7 +70,7 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
         model.visualOverTime(False, True, modelName+fileformat)
         modelName+="_total"
         model.visualOverTime(True, True, modelName+fileformat)
-    model.visualizeBuildings()
+    #model.visualizeBuildings()
 
 def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, visual=False):
    
@@ -364,9 +364,17 @@ class AgentBasedModel:
 
 
     def addKeys(self, tempDict):
-         self.config = tempDict
+        """
+        create a reference to the passed config dictionary
+        The dictionary should contain all the elements that will be in use for that specific simulation, or else there will be a key not found error
+        """
+        self.config = tempDict
 
     def initializeInterventionsAndPermittedActions(self):
+        """
+        Assign True or False to the intervention checklist, and turn it on or off.  
+        the actual ineterventions are not implimented in this function.  this function just tells the rest of the code whether it needs to deviate and run the interventions
+        """
         def inInterventions(interventionName):
             return True if interventionName.lower() in [intervention.lower() for intervention in self.config["World"]["TurnedOnInterventions"]] else False
     
@@ -379,9 +387,17 @@ class AgentBasedModel:
         print(f" (Facemask, {self.faceMask_intervention}), (Quarantine, {self.quarantine_intervention}), (Closed,  {self.closedBuilding_intervention}), (Hybrid, {self.hybridClass_intervention})")
 
     def configureDebug(self, debugBool):
+        """
+            set debug equal to True or False,
+            this enables or disables most of the messages in the console.  
+            turn this off when you want to run it a bit faster, turn it on if you need to observe the innerplay of the simulation
+        """
         self._debug=debugBool
 
     def loadAgent(self, fileName, folderName="configuration"):
+        """
+        load the agent dataframe
+        """
         self.agent_df = flr.make_df(folderName, fileName, debug=self._debug)
     
     def loadBuilder(self, filename, folderName="configuration"):
@@ -492,6 +508,9 @@ class AgentBasedModel:
             self.buildings[self.buildingNameId[room.located_building]].roomsInside = self.buildings[self.buildingNameId[room.located_building]].roomsInside + [roomId] 
     
     def booleanAssignment(self):
+        """
+        go through the agent's attributes that are True or False and assign a default value based on randomness
+        """
         for (VarName ,p_val) in self.config["Agents"]["booleanAssignment"]:
             self.agentAssignBool(p_val, VarName, replacement=False)  
     
@@ -523,7 +542,7 @@ class AgentBasedModel:
 
         # make schedules for each agents, outside of pickle for testing and for randomization
         self.booleanAssignment()
-        
+        self.initializeHybridClasses()
         self.initializeAgentsLocation()
         # start these two intervention after initializing agent's location, cause we remove agents from dorms
         # put agents in the right position
@@ -534,6 +553,27 @@ class AgentBasedModel:
         self.initializeFaceMask()
         self.initializeTestingAndQuarantine()
 
+    def initializeHybridClasses(self):
+        onCampusCount = self.countAgents("onCampus","Agent_type")
+        offCampusCount = self.countAgents("offCampus","Agent_type")
+        facultyCount = self.countAgents("faculty", "Agent_type")
+        offCampusLeaf = self.findMatchingRooms("building_type","offCampus")[0]
+        if self.hybridClass_intervention:
+            hybridDict = self.config["HybridClass"]
+            self.largeGathering = not hybridDict["TurnOffLargeGathering"]
+            # these are the number of agents we need to convert
+            remoteStudentCount = min(onCampusCount, hybridDict["RemoteStudentCount"]-offCampusCount)
+            remoteFacultyCount = min(facultyCount, hybridDict["RemoteFacultyCount"])
+            self.remoteCount = remoteStudentCount + remoteFacultyCount
+            if self._debug:
+                print(f"HybridClass in effect, {remoteStudentCount} many agents are re-configured (onCampus --> OffCampus), and {remoteFacultyCount} faculty are remote")
+            self.remoteStudentIndices = set(np.random.choice(range(onCampusCount), size=remoteStudentCount, replace=False))            
+            self.remoteFacultyIndices = set(np.random.choice(range(facultyCount), size=remoteFacultyCount, replace=False))
+            self.rooms[offCampusLeaf].limit+= self.remoteCount
+            self.rooms[offCampusLeaf].capacity+= self.remoteCount
+        else:
+            self.remoteStudentIndices, self.remoteFacultyIndices = [], []
+
     def initializeAgentsLocation(self):
         """
             change the agent's current location to match the initial condition
@@ -543,7 +583,17 @@ class AgentBasedModel:
         print("*"*20, "intializing Agents")
         possibleBType = {building.building_type for building in self.buildings.values()}
         counter = [0, 0, 0]
+        if self.hybridClass_intervention:
+            for roomId in self.findMatchingRooms("building_type", "dorm"):
+                self.rooms[roomId].capacity = 1
+        dormRoom = self.findMatchingRooms("building_type", "dorm")
+        print("we have dorm:", len(dormRoom))
+        print(self.countAgents("onCampus", "Agent_type"))
         for agentId, agent in self.agents.items():
+            if agentId in self.remoteStudentIndices:
+                agent.initial_location = "offCampus"
+            elif agentId in self.remoteFacultyIndices:
+                agent.initial_location = "offCampus"
             initialLoc = getattr(agent, "initial_location")
             if initialLoc in self.roomNameId.keys(): # if the room is specified
                 # convert the location name to the corresponding id
@@ -559,7 +609,7 @@ class AgentBasedModel:
                 location = np.random.choice([roomId for roomId in self.findMatchingRooms("building_type", initialLoc) if self.rooms[roomId].checkCapacity()])
                 counter[2]+=1
             else:
-                print("something wrong")
+                print("something wrong, possibly there are agents that dont have a valid spawn point, maybe increase capacity for some nodes?")
                 # either the name isnt properly defined or the room_id was given
                 pass
             agent.currLocation = location
@@ -614,6 +664,8 @@ class AgentBasedModel:
                 value+=[0 for _ in range(timeInterval - remainder)]
             
             a = np.array(value).reshape((-1,timeInterval))
+            #print(f"here is the usage for {buildingType}:")
+            #print(a)
             maxDict[buildingType] = max(maxDict.get(buildingType, 0), max(value))
             scheduleDict[self.rooms[key].room_name] = a
         nodes = ["gym", "library", "offCampus", "social"]
@@ -764,6 +816,7 @@ class AgentBasedModel:
         offCampusCount = self.countAgents("offCampus","Agent_type")
         facultyCount = self.countAgents("faculty", "Agent_type")
         offCampusLeaf = self.findMatchingRooms("building_type","offCampus")[0]
+        """
         if self.hybridClass_intervention:
             hybridDict = self.config["HybridClass"]
             self.largeGathering = not hybridDict["TurnOffLargeGathering"]
@@ -773,19 +826,19 @@ class AgentBasedModel:
             self.remoteCount = remoteStudentCount + remoteFacultyCount
             if self._debug:
                 print(f"HybridClass in effect, {remoteStudentCount} many agents are re-configured (onCampus --> OffCampus), and {remoteFacultyCount} faculty are remote")
-            remoteStudentIndices = set(np.random.choice(range(onCampusCount), size=remoteStudentCount, replace=False))            
-            remoteFacultyIndices = set(np.random.choice(range(facultyCount), size=remoteFacultyCount, replace=False))
+            self.remoteStudentIndices = set(np.random.choice(range(onCampusCount), size=remoteStudentCount, replace=False))            
+            self.remoteFacultyIndices = set(np.random.choice(range(facultyCount), size=remoteFacultyCount, replace=False))
             self.rooms[offCampusLeaf].limit+= self.remoteCount
             self.rooms[offCampusLeaf].capacity+= self.remoteCount
         else:
-            remoteStudentIndices, remoteFacultyIndices = [], []
+            self.remoteStudentIndices, self.remoteFacultyIndices = [], []
             
-        
+        """
 
         schedules, onVsOffCampus = schedule_students.scheduleCreator()
         fac_schedule, randomizedFac = schedule_faculty.scheduleCreator()
-        for i in np.random.choice(range(360), size=10, replace=False):
-            print(fac_schedule[i])
+        #for i in np.random.choice(range(360), size=10, replace=False):
+        #    print(fac_schedule[i])
         classrooms = self.findMatchingRooms("building_type", "classroom")
         stem = self.findMatchingRooms("located_building", "STEM_office")
         art = self.findMatchingRooms("located_building", "HUM_office")
@@ -811,7 +864,7 @@ class AgentBasedModel:
         offCampusScheduleTemplate = [[offCampusLeaf for _ in range(24)] for _ in range(3)]
         for index, (facSche, randFac) in enumerate(zip(fac_schedule, randomizedFac)):
             replacement = stem if randFac == "S" else (art if randFac == "A" else hum)
-            if index in remoteFacultyIndices:
+            if index in self.remoteFacultyIndices:
                 fac_schedule[index] = offCampusScheduleTemplate 
             else:
                 favoriteOffice = np.random.choice(replacement)
@@ -846,7 +899,7 @@ class AgentBasedModel:
         # assign the schedule to the correct agent
         for agentId, agent in self.agents.items():
             if agent.Agent_type == "onCampus": # oncampus
-                if onCampusIndex in remoteStudentIndices: # this student is learning remote
+                if onCampusIndex in self.remoteStudentIndices: # this student is learning remote
                     self.setOffCampus(agentId, offCampusLeaf,offCampusScheduleTemplate)
                 else:
                     agent.schedule = onCampusSchedule[onCampusIndex]
@@ -858,7 +911,7 @@ class AgentBasedModel:
                     agent.schedule = offCampusSchedule[offCampusIndex]
                 offCampusIndex+=1
             else:# faculty
-                if facultyIndex in remoteFacultyIndices: # this faculty is teaching remote
+                if facultyIndex in self.remoteFacultyIndices: # this faculty is teaching remote
                     self.setToRemote(agentId,offCampusLeaf, offCampusScheduleTemplate)
                 else:
                     agent.schedule = fac_schedule[facultyIndex] 
@@ -871,7 +924,7 @@ class AgentBasedModel:
         self.replaceByType(partitionTypes=["library", "dining","gym", "office", "social"])
         print("finished schedules")
         
-        
+        """
         # print sample faculty schedules
         for agentId, agent in self.agents.items():
             
@@ -879,7 +932,7 @@ class AgentBasedModel:
                 print("below", "*"*20, agent.Agent_type)
                 #print(agent.schedule[:2])
                 print(self.convertScheduleToRoomName(agent.schedule[:2]))
-        
+        """
         
     def replaceScheduleEntry(self, antecedent):
         """
@@ -999,9 +1052,10 @@ class AgentBasedModel:
      
     def returnR0(self):
         counter = 0
+        timeRem = self.time//self.timeIncrement
         for key, value in self.parameters.items():
             if key != "susceptible" and key != "falsePositive":
-                counter += value[-1]
+                counter += value[timeRem]                
         self.printRelevantInfo()
         print(f"# infected: {counter}, initial: {self.config['Infection']['SeedNumber']}, Ave R0: {(counter - self.config['Infection']['SeedNumber'])/self.config['Infection']['SeedNumber']}")
         return (counter - self.config["Infection"]["SeedNumber"])/self.config["Infection"]["SeedNumber"]
@@ -1085,7 +1139,8 @@ class AgentBasedModel:
                             self.changeStateDict(agentId,"susceptible", "exposed")
                             room.infectedNumber+=1
                             index+=1
-                            print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
+                            if self._debug:
+                                print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
                             
     def infection(self):
         """
@@ -1322,7 +1377,7 @@ class AgentBasedModel:
         for index, count in enumerate(counts):
             if count > len(self.agents)*self.config["massInfectionRatio"]:
                 massInfectionTime = index
-                break
+                
         return massInfectionTime
 
     def visualOverTime(self, boolVal = True, savePlt=False, saveName="defaultpic.png"):

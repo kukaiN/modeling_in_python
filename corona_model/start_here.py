@@ -1,4 +1,6 @@
 import model_framework
+import platform
+
 
 def main():
     """intialize and run the model, for indepth detail about the config or how to run the code, go to the github page for this code"""    
@@ -77,7 +79,7 @@ def main():
             "offCampusInfectionProbability":0.125/880,
             "massInfectionRatio":0.10,
             "complianceRatio": 0,
-            "stateCounterInterval": 1,
+            "stateCounterInterval": 5,
            
         },
        
@@ -202,14 +204,14 @@ def main():
                 ],
             "ClosingBuildings": [
                 ("ClosedBuildingType", ["gym", "library", "office"]),
-                ("ClosedButKeepHubOpened", ["dining", "dorm"]),# remove dorm later !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                ("ClosedButKeepHubOpened", ["dining"]),
             ]
         },
     }
     R0_controls = {
         "World": []
     }
-    R0_Dict = dict()
+    R0Dict = dict()
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
         configCopy = dict(modelConfig)
         print("*"*20)
@@ -217,10 +219,20 @@ def main():
         for categoryKey, listOfControls in modelControl.items():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
-        if index > 4:
-            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName="images\\"+modelName)
-            #returnVal = model_framework.R0_simulation(modelConfig, R0_controls,20, debug=True, visual=False)
-            #R0Dict[modelName] = returnVal
+        if index < 1:
+            R0Count = 100
+            osName = platform.system()
+            if osName.lower() == "windows":
+                files = "images\\"
+            else:
+                files = "images/"
+        else:
+            R0Count = 20
+        if index in [0, 1, 2, 3, 4, 5]:
+            typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
+            model_framework.simpleCheck(configCopy, days=20, visuals=True, debug=False, modelName=files+typeName+modelName)
+            returnVal = model_framework.R0_simulation(modelConfig, R0_controls,100, debug=False, visual=False)
+            R0Dict[modelName] = returnVal
             
     print(R0Dict.items())
 if __name__ == "__main__":
