@@ -1407,7 +1407,7 @@ class AgentBasedModel:
         Rooms2Building = {roomId:buildingId for buildingId, value in Building2Rooms for roomId in value}
         clusterName = {buildingId:building.building_type for buildingId, building in self.buildings.items()}
         
-        #vs.makeGraph(self.rooms.keys(),pairs, ,BuildingToRooms, clusterName)
+        vs.makeGraph(self.rooms.keys(), pairs,BuildingToRooms,Rooms2Building, clusterName)
     
     def final_check(self):
         """

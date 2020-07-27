@@ -5,14 +5,12 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-def makeGraph(vertices, vertices2Cluster, cluster2Vertices,clusterName,  directed=False):
+def makeGraph(vertices, edges, vertices2Cluster, cluster2Vertices,clusterName, directed=False):
     """
         get the partitions and their adjacency list to create a graph
         The graph will show the label of partitions that have more edges than the threshold 
     """
     theshold = 10 # rooms
-    # flip the direction of the building to room, to rooms to building
-    roomsToBuilding = dict((roomId, buildingId) for buildingId, rooms in buildingRoom.items() for roomId in rooms)
     G = nx.DiGraph() if directed else nx.Graph()
     G.add_nodes_from(vertices) #G.nodes()
     G.add_edges_from(edges)
@@ -21,8 +19,11 @@ def makeGraph(vertices, vertices2Cluster, cluster2Vertices,clusterName,  directe
     sizeList, colorList, labelList = [], [], dict()
     lables = False
     colorbar = False
-    colors = dict((key, index/len(buildings)) for index, key in enumerate(buildingRoom.keys()))
-    typeName = set(bType.building_type for bType in buildings.values())
+    #colors = dict((key, index/len(buildings)) for index, key in enumerate(buildingRoom.keys()))
+    colors = dict(buildingId:index/len(cluster) for index (buildingId, cluster) in enumerate(cluster2Vertices.items()))
+    #typeName = set(bType.building_type for bType in buildings.values())
+    #taken care by clusterName
+    typeName = clusterName
     typeCount = len(typeName)
     
    
