@@ -29,7 +29,7 @@ def main():
             "ExtraParameters": ["buildingId","roomsInside"],
         },
         "Infection" : {
-            "baseP" : 1,
+            "baseP" : 1.15,
             "SeedNumber" : 10,
             "SeedState" : "exposed",
             "Contribution" : {
@@ -75,6 +75,7 @@ def main():
             "complianceRatio": 0,
             "stateCounterInterval": 5,
             "socialInteraction": 0.15,
+            "LazySunday": True,
         },
        
         # interventions
@@ -213,7 +214,7 @@ def main():
         "World": []
     }
     R0Dict = dict()
-    simulationNum = "8"
+    simulationNum = "12"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
         configCopy = dict(modelConfig)
         print("*"*20)
@@ -230,9 +231,9 @@ def main():
                 files = "images/"
         else:
             R0Count = 10
-        if index in [6]:
+        if index in [0]:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
-            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=files+typeName+modelName+"_"+str(simulationNum))
+            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+typeName+modelName+"_"+str(simulationNum))
             #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, visual=False)
              
             

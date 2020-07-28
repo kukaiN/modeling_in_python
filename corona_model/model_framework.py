@@ -813,6 +813,8 @@ class AgentBasedModel:
             calls the schedule creator and replace general notion of locations with specific location Id,
             for example if the string "dorm" is in the schedule, it will be replaced by a room located in a building with "building_type" equal to "dorm"
         """
+        print(self.config["World"].items())
+        self.lazySunday = self.config["World"]["LazySunday"]
         onCampusCount = self.countAgents("onCampus","Agent_type")
         offCampusCount = self.countAgents("offCampus","Agent_type")
         facultyCount = self.countAgents("faculty", "Agent_type")
@@ -1025,13 +1027,23 @@ class AgentBasedModel:
             if  23 > modTime > 6 and len(self.state2IdDict["recovered"]) != len(self.agents): 
                 # update 4 times to move the agents to their final destination
                 # 4 is the max number of updates required for moving the agents from room --> building_hub --> transit_hub --> building_hub --> room
-                for _ in range(4):
-                    self.updateAgent()
-                    self.hub_infection()
+                if self.lazySunday and self.dateDescriptor == "LS":
+                    if self._debug:
+                        print(f"at time {self.time} lazy sunday, no one is moving")
+                    if modTime == 12 and False:
+                        locDic = dict()
+                        for agent in self.agents.values():
+                            agentLoc = self.rooms[agent.currLocation].located_building
+                            locDic[agentLoc] = locDic.get(agentLoc, 0)+1
+                        print("agents are in the location(s):", locDic.items())
+                else:
+                    for _ in range(4):
+                        self.updateAgent()
+                        self.hub_infection()
                 self.infection()
            
                 # if weekdays
-                if self.dateDescriptor != "W":
+                if self.dateDescriptor != "W" and self.dateDescriptor!="LS":
                     if modTime == 8:
                         self.checkForWalkIn()
                     if self.quarantine_intervention and self.time%self.quarantineInterval == self.config["Quarantine"]["offset"]: 
@@ -1047,8 +1059,10 @@ class AgentBasedModel:
 
             if modTime==0: # change the date once its past midnight
                 self.date+=1 # its the next day
-                if self.date%7 > 3: # Friday follows a "weekend" schedule
-                    self.dateDescriptor = "W"
+                if self.lazySunday and self.date%7 == 6:
+                        self.dateDescriptor = "LS"
+                elif self.date%7 > 3: # Friday follows a "weekend" schedule
+                    self.dateDescriptor = "W"  
                 elif self.date&1: # bitwise opperation, if date is an odd number, then its an even day because of 0 based index 
                     self.dateDescriptor = "E"
                 else:
@@ -1269,7 +1283,7 @@ class AgentBasedModel:
             Parameters:
             - None
         """
-        print("testing", self.time, self.dateDescriptor)
+        
         if self.config["Quarantine"]["RandomSampling"]: # if random
             listOfId = np.random.choice(self.groupIds, size=self.config["quarantineSampleSize"], replace=False)
         else: # we cycle through groups to check infected
@@ -1283,7 +1297,7 @@ class AgentBasedModel:
         # these people had false positive results and are quarantined
         for agentId in falsePositiveResult:
             fpDelayedList.append(agentId)
-            
+        
         falseNegVec = np.random.random(len(normalScreeningId))
         # these are people who are normally screened
         for i, agentId in enumerate(normalScreeningId):
@@ -1292,8 +1306,8 @@ class AgentBasedModel:
             if self.agents[agentId].state in self.config["Agents"]["PossibleStates"]["infected"]:
                 if falseNegVec[i] > coeff*self.config["Quarantine"]["falseNegative"]: # infected and not a false positive result
                     delayedList.append(agentId)
-
-
+        if self._debug or True:
+            print(f"testing at time {self.time}, dayDes: {self.dateDescriptor}, caught the following (FalsePositive: {len(fpDelayedList)}, infected: {len(delayedList)})")
         self.falsePositiveList.append(fpDelayedList)
         self.quarantineList.append(delayedList)
      
@@ -1310,17 +1324,17 @@ class AgentBasedModel:
         
         # if its the right time to give the results back to the agents  
         if self.quarantine_intervention and (self.time-self.config["Quarantine"]["ResultLatency"])%self.quarantineInterval == self.config["Quarantine"]["offset"]:
-            
             if len(self.quarantineList) > 0:  # if the number of agent to isolate/quarantine is greater than zero
-                print("delayed", self.time, self.dateDescriptor)
                 quarantined_agent = self.quarantineList.pop(0) # get the test result for the first group in the queue
                 falsePos_agent = self.falsePositiveList.pop(0)
-                print(f"at time: {self.time}, {self.config['Quarantine']['ResultLatency']} hour delayed isolation of {len(quarantined_agent) + len(falsePos_agent)} agents, there are {len(self.quarantineList)} group backlog")
-                for agentId in quarantined_agent:
-                    self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
-                for agentId in falsePos_agent:
-                    self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
-                    self.addFalsePositive(agentId)
+                if len(quarantined_agent)+len(falsePos_agent) > 0: 
+                    if self._debug or True:
+                        print(f"Isolating at time: {self.time}, {self.dateDescriptor}, {self.config['Quarantine']['ResultLatency']} delay isolation of {len(quarantined_agent) + len(falsePos_agent)} agents, there are {len(self.quarantineList)} group backlog")
+                    for agentId in quarantined_agent:
+                        self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
+                    for agentId in falsePos_agent:
+                        self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
+                        self.addFalsePositive(agentId)
 
     def addFalsePositive(self, agentId):
         self.state2IdDict["falsePositive"].add(agentId)
@@ -1581,6 +1595,7 @@ def main():
             "complianceRatio": 0,
             "stateCounterInterval": 5,
             "socialInteraction": 0.2,
+            "LazySunday": True,
            
         },
        
