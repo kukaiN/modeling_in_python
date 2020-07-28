@@ -196,7 +196,9 @@ def main():
                 ( "ShowingUpForScreening", 0.8),
                 ],
             "ClosingBuildings": [
-                ("ClosedBuildingType", ["gym", "library"])
+                ("ClosedBuildingType", ["gym", "library", "dining"]),
+                ("ClosedButKeepHubOpened", ["dining"]),
+                ("GoingHomeP", 0.5),
             ]
         },
         "Moderate+LessSocializing": {
@@ -296,7 +298,7 @@ def main():
                 ( "ShowingUpForScreening", 1),
                 ],
             "ClosingBuildings": [
-                ("ClosedBuildingType", ["gym", "library", "office"]),
+                ("ClosedBuildingType", ["gym", "library", "office", "dining", "faculty_dining_room"]),
                 ("ClosedButKeepHubOpened", ["dining"]),
                 ("GoingHomeP", 1),
             ]
