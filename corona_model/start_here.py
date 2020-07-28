@@ -69,19 +69,12 @@ def main():
             # put the name(s) of intervention(s) to be turned on 
             "TurnedOnInterventions":[],# ["HybridClasses", "ClosingBuildings", "Quarantine", "FaceMasks"], 
             "permittedAction": [],#["walkin"],
-            #possible values:
-            #    1: facemask
-            #    3: testing for covid and quarantining
-            #    4: closing large buildings
-            #    5: removing office hours with professors
-            #    6: shut down large gathering 
             "transitName": "transit_space_hub",
             "offCampusInfectionProbability":0.125/880,
             "massInfectionRatio":0.10,
             "complianceRatio": 0,
             "stateCounterInterval": 5,
-            "socialInteraction": 0.2,
-           
+            "socialInteraction": 0.15,
         },
        
         # interventions
@@ -140,9 +133,16 @@ def main():
     """
     ControlledExperiment = {
         "baseModel":{}, # no changes
+        "basemodel+facemask":{
+            
+            "World":[
+                ("TurnedOnInterventions", ["FaceMasks"]),
+                ("ComplianceRatio", 0.5),
+                ]
+        },
         "Minimal": {
             "World": [
-                ("TurnedOnInterventions", ["FaceMask", "Quarantine"]),
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine"]),
                 ("ComplianceRatio", 0.5),
                 ],
             "Quarantine": [
@@ -152,7 +152,7 @@ def main():
         }, 
         "Moderate": {
             "World": [
-                ("TurnedOnInterventions", ["FaceMask", "Quarantine"]),
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine"]),
                 ("ComplianceRatio", 0.5)
             ],
             "Quarantine": [
@@ -165,7 +165,7 @@ def main():
         },    
         "Moderate+Facemask": {
             "World": [
-                ("TurnedOnInterventions", ["FaceMask", "Quarantine"]),
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine"]),
                 ("ComplianceRatio", 1),
             ],
             "Quarantine": [
@@ -191,7 +191,7 @@ def main():
         },
         "Maximal": {
             "World": [
-                ("TurnedOnInterventions", ["FaceMask", "Quarantine", "ClosingBuildings","HybridClasses"]),
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses"]),
                 ("ComplianceRatio", 1),
                 
             ],
@@ -204,7 +204,7 @@ def main():
                 ("BatchSize", 500)
                 ],
             "ClosingBuildings": [
-                ("ClosedBuildingType", ["gym", "library", "office"]),
+                ("ClosedBuildingType", ["gym", "library", "office", "social"]),
                 ("ClosedButKeepHubOpened", ["dining"]),
             ]
         },
@@ -213,7 +213,7 @@ def main():
         "World": []
     }
     R0Dict = dict()
-    simulationNum = "5"
+    simulationNum = "8"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
         configCopy = dict(modelConfig)
         print("*"*20)
@@ -230,9 +230,9 @@ def main():
                 files = "images/"
         else:
             R0Count = 10
-        if index in [5]:
+        if index in [6]:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
-            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+typeName+modelName+"_"+str(simulationNum))
+            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=files+typeName+modelName+"_"+str(simulationNum))
             #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, visual=False)
              
             

@@ -382,6 +382,7 @@ class AgentBasedModel:
         self.quarantine_intervention = inInterventions("Quarantine")
         self.closedBuilding_intervention = inInterventions("ClosingBuildings")
         self.hybridClass_intervention = inInterventions("HybridClasses")
+        
         print("the following interventions are turned on:")
         print(f" (Facemask, {self.faceMask_intervention}), (Quarantine, {self.quarantine_intervention}), (Closed,  {self.closedBuilding_intervention}), (Hybrid, {self.hybridClass_intervention})")
 
@@ -712,7 +713,7 @@ class AgentBasedModel:
         self.nonCompliantLeaf = set(self.config["FaceMasks"]["NonCompliantLeaf"] + self.config["FaceMasks"]["NonCompliantBuilding"])
         self.compliantZone = set(self.config["FaceMasks"]["CompliantHub"])
         self.nonCompliantZone = set(self.config["FaceMasks"]["NonCompliantBuilding"])
-
+        
         maskNumber = int(self.config["World"]["complianceRatio"]*len(self.agents))
         maskVec = np.concatenate((np.zeros(maskNumber),np.ones(len(self.agents)-maskNumber)))
         np.random.shuffle(maskVec)
@@ -721,6 +722,7 @@ class AgentBasedModel:
                 agent.compliance = True
             else:
                 agent.compliance = False 
+        print("mask****************", self.maskP, self.maskB)
 
     def initializeTestingAndQuarantine(self):
         print(self.config["Quarantine"].items())
@@ -851,9 +853,8 @@ class AgentBasedModel:
             fac_schedule = [
                 [[item if item not in closedBuilding else "Off" for item in row] for row in uniqueSchedule] 
                     for uniqueSchedule in fac_schedule]
-        #schedules = [
-        #        [[item if item != "social" else ("sleep" if random.random() < 0.75 else "social") for item in row] for row in uniqueSchedule] 
-        #            for uniqueSchedule in schedules]
+        
+        
         # assign one dining room as faculty only
         facultyDiningRoom = self.findMatchingRooms("building_type", "dining")[0]
         self.rooms[facultyDiningRoom].room_name = "faculty_dining_room"
@@ -920,7 +921,10 @@ class AgentBasedModel:
         for entry in ["sleep", "Off", "dorm"]:
             self.replaceScheduleEntry(entry)
         self.replaceByType(agentParam="Agent_type", agentParamValue="faculty", partitionTypes="faculty_dining_room", perEntry=False)
-        self.replaceByType(partitionTypes=["library", "dining","gym", "office", "social"])
+        self.replaceByType(partitionTypes=["library", "dining","gym", "office"])
+        students = [agentId for agentId, agent in self.agents.items() if agent.archetype == "student"]
+        self.replacewithTwo(students)
+        # self.replaceByType(partitionTypes="social", perEntry=True)
         print("finished schedules")
         
         """
@@ -942,7 +946,21 @@ class AgentBasedModel:
         """
         for agentId, agent in self.agents.items():
             agent.schedule = [[a if a != antecedent else agent.initial_location for a in row] for row in agent.schedule] 
-              
+
+    def replacewithTwo(self, agentIds):
+        print("repolacing two fgewgwgwregwegweg")
+        socialSpace = self.findMatchingRooms("building_type", "social")
+        for index, agentId in enumerate(agentIds):
+            twoFriendGroup = np.random.choice(socialSpace, size=2, replace=False)
+            for i, row in enumerate(self.agents[agentId].schedule):
+                for j, item in enumerate(row):
+                    if item == "social":
+                        if index < 2:
+                            self.agents[agentId].schedule[i][j] = twoFriendGroup[0]
+                        else:
+                            self.agents[agentId].schedule[i][j] = twoFriendGroup[1]
+
+
     def replaceByType(self, agentParam=None, agentParamValue=None, partitionTypes=None, perEntry=False):
         """
             go over the schedules of the agents of a specific type and convert entries in their schedules
@@ -1127,7 +1145,7 @@ class AgentBasedModel:
                         coeff = 1
                         if self.faceMask_intervention and self.agents[agentId].compliance: # check for compliance
                             if self.rooms[roomId].building_type != "social":
-                                coeff = self.maskB
+                                coeff *= self.maskB
                     
                         if randVec[index] < coeff*totalInfection:
                             self.changeStateDict(agentId,"susceptible", "exposed")
@@ -1156,7 +1174,7 @@ class AgentBasedModel:
                             coeff = 1
                             if self.faceMask_intervention and self.agents[agentId].compliance: # check for compliance
                                 if self.rooms[roomId].building_type not in self.nonCompliantLeaf:
-                                    coeff = self.maskB
+                                    coeff *= self.maskB
                             
                             if randVec[index1] < coeff*totalInfection:
                                 self.changeStateDict(agentId,"susceptible", "exposed")
@@ -1215,19 +1233,20 @@ class AgentBasedModel:
             lastUpdate = self.agents[agentId].lastUpdate
             individualContribution =  self.infectionContribution(agentId, lastUpdate)
             if self.faceMask_intervention:
-                if self.rooms[roomId].building_type in self.nonCompliantLeaf: # if dorm, social or dining
+                if roomId == -1: # social or large gathering
+                    if self.agents[agentId].compliance:
+                        individualContribution*=self.maskP
+                elif self.rooms[roomId].building_type in self.nonCompliantLeaf: # if dorm, social or dining
                     if self.rooms[roomId].room_name.endswith("_hub") and self.rooms[roomId].building_type in self.compliantZone:
                         individualContribution*=self.maskP # put mask if dorm or dining hub
-                    elif self.rooms[roomId].building_type == "social":
+                    elif self.rooms[roomId].building_type in self.nonCompliantZone:
                         if self.agents[agentId].compliance:
                             individualContribution*=self.maskP # some compliance with social
                     # otherwise no mask
-                elif roomId == -1: # social or large gathering
-                    if self.agents[agentId].compliance:
-                        individualContribution*=self.maskP
                 else: # any other spaces
                     individualContribution*=self.maskP
-
+                
+                
             contribution+= individualContribution
         return contribution
 
@@ -1340,14 +1359,16 @@ class AgentBasedModel:
             totalSubset = list({agentId for subset in subsets for agentId in subset})
             
             counter = self.countAgentsInGroup(totalSubset, "susceptible")
-            for subset, randVec in zip(subsets, randVecs):
+            totalinfectionVec = [0, 0, 0]
+            for index, (subset, randVec) in enumerate(zip(subsets, randVecs)):
                 totalInfection = self.gathering_infection(subset)
+                totalinfectionVec[index] = totalInfection
                 for index, agentId in enumerate(subset):
                     if self.agents[agentId].state == "susceptible" and randVec[index] < totalInfection: 
                         self.changeStateDict(agentId,"susceptible" ,"exposed")
                         newly_infected+=1
             self.gathering_count+=newly_infected
-            print(f"big gathering at day {self.time/24}, at the gathering there were {counter} healthy out of {len(totalSubset)} and {newly_infected} additionally infected agents,", totalInfection)
+            print(f"big gathering at day {self.time/24}, at the gathering there were {counter} healthy out of {len(totalSubset)} and {newly_infected} additionally infected agents,", totalinfectionVec)
 
     def gathering_infection(self, subset):
         if self.faceMask_intervention:
@@ -1406,7 +1427,7 @@ class AgentBasedModel:
         Building2Rooms = {buildingId:building.roomsInside for buildingId, building in self.buildings.items()}
         Rooms2Building = {roomId:buildingId for buildingId, value in Building2Rooms.items() for roomId in value}
         clusterName = {buildingId:building.building_type for buildingId, building in self.buildings.items()}
-        RoomCapacity = {roomId:room.capacity for roomId, room.capacity in self.rooms.items()}
+        roomCapacity = {roomId:room.capacity for roomId, room in self.rooms.items()}
         vs.makeGraph(self.rooms.keys(), pairs,Rooms2Building, Building2Rooms,clusterName, roomCapacity)
     
     def final_check(self):
