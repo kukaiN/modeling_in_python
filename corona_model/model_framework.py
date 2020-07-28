@@ -555,9 +555,12 @@ class AgentBasedModel:
         self.initializeTestingAndQuarantine()
 
     def initializeHybridClasses(self):
-        onCampusCount = self.countAgents("onCampus","Agent_type")
-        offCampusCount = self.countAgents("offCampus","Agent_type")
-        facultyCount = self.countAgents("faculty", "Agent_type")
+        onCampusIds = self.getAgents("onCampus", "Agent_type")
+        offCampusIds = self.getAgents("offCampus", "Agent_type")
+        facultyIds = self.getAgents("faculty", "Agent_type")
+        onCampusCount = len(onCampusIds)
+        offCampusCount = len(offCampusIds)
+        facultyCount =  len(facultyIds)
         offCampusLeaf = self.findMatchingRooms("building_type","offCampus")[0]
         if self.hybridClass_intervention:
             hybridDict = self.config["HybridClass"]
@@ -565,18 +568,26 @@ class AgentBasedModel:
             # these are the number of agents we need to convert
             remoteStudentCount = min(onCampusCount, hybridDict["RemoteStudentCount"]-offCampusCount)
             remoteFacultyCount = min(facultyCount, hybridDict["RemoteFacultyCount"])
-            remoteOffCampusCount = min(offCampusCount, hybridDict["offCampusCount"])
+            remoteOffCampusCount = min(offCampusCount, hybridDict["OffCampusCount"])
             self.remoteCount = remoteStudentCount + remoteFacultyCount
             if self._debug:
                 print(f"HybridClass in effect, {remoteStudentCount} many agents are re-configured (onCampus --> OffCampus), and {remoteFacultyCount} faculty are remote")
-            self.remoteStudentIndices = set(np.random.choice(range(onCampusCount), size=remoteStudentCount, replace=False))            
-            self.remoteFacultyIndices = set(np.random.choice(range(facultyCount), size=remoteFacultyCount, replace=False))
-            self.remoteOffCampusIndices = set(np.random.choice(range(offCampusCount), size=offCampusCount), replace=False)
-            self.rooms[offCampusLeaf].limit+= self.remoteCount
+            self.remoteStudentIds = set(np.random.choice(onCampusIds, size=remoteStudentCount, replace=False))            
+            self.remoteFacultyIds = set(np.random.choice(facultyIds, size=remoteFacultyCount, replace=False))
+            self.remoteOffCampusIds = set(np.random.choice(offCampusIds, size=remoteOffCampusCount, replace=False))
+            self.rooms[offCampusLeaf].limit+=self.remoteCount
             self.rooms[offCampusLeaf].capacity+= self.remoteCount
+          
+            for agentId, agent in self.agents.items():
+                if agentId in self.remoteStudentIds:
+                    agent.initial_location = "offCampus"
+                elif agentId in self.remoteFacultyIds:
+                    agent.initial_location = "offCampus"
+
+
         else:
-            self.remoteStudentIndices, self.remoteFacultyIndices = {}, {}
-            self.remoteOffCampusIndices = {}
+            self.remoteStudentIds, self.remoteFacultyIds = {}, {}
+            self.remoteOffCampusIds = {}
 
     def initializeAgentsLocation(self):
         """
@@ -588,16 +599,15 @@ class AgentBasedModel:
         possibleBType = {building.building_type for building in self.buildings.values()}
         counter = [0, 0, 0]
         if self.hybridClass_intervention:
-            for roomId in self.findMatchingRooms("building_type", "dorm"):
+            dorms = self.findMatchingRooms("building_type", "dorm")
+            doubleRooms = [roomId for roomId in dorms if self.rooms[roomId].capacity == 2]
+            convertCount = min(len(doubleRooms), self.config["HybridClass"]["RemovedDoubleCount"])
+            for roomId in np.random.choice(doubleRooms, size=convertCount, replace=False):
                 self.rooms[roomId].capacity = 1
+            print("NewCap", sum(self.rooms[roomId].capacity for roomId in dorms))
         dormRoom = self.findMatchingRooms("building_type", "dorm")
-        print("we have dorm:", len(dormRoom))
-        print(self.countAgents("onCampus", "Agent_type"))
+
         for agentId, agent in self.agents.items():
-            if agentId in self.remoteStudentIndices:
-                agent.initial_location = "offCampus"
-            elif agentId in self.remoteFacultyIndices:
-                agent.initial_location = "offCampus"
             initialLoc = getattr(agent, "initial_location")
             if initialLoc in self.roomNameId.keys(): # if the room is specified
                 # convert the location name to the corresponding id
@@ -610,7 +620,10 @@ class AgentBasedModel:
                 location = np.random.choice(possibleRooms)
                 counter[1]+=1
             elif initialLoc in possibleBType: # if location is under building type
-                location = np.random.choice([roomId for roomId in self.findMatchingRooms("building_type", initialLoc) if self.rooms[roomId].checkCapacity()])
+                possibleRooms = [roomId for roomId in self.findMatchingRooms("building_type", initialLoc) if self.rooms[roomId].checkCapacity()]
+                if len(possibleRooms) == 0:
+                    print(initialLoc, possibleRooms)
+                location = np.random.choice(possibleRooms)
                 counter[2]+=1
             else:
                 print("something wrong, possibly there are agents that dont have a valid spawn point, maybe increase capacity for some nodes?")
@@ -621,7 +634,17 @@ class AgentBasedModel:
             self.rooms[location].agentsInside.add(agentId)
         if self._debug:
             print(f"the agents we initialized using values (specific, buildingName, buildingType) --> {counter}")
+        spCounter = [0,0,0]
+        for room in self.findMatchingRooms("building_type", "dorm"):
+            if len(self.rooms[room].agentsInside) > 1:
+                spCounter[0]+=1
+            elif len(self.rooms[room].agentsInside) == 1:
+                spCounter[1]+=1
+            else:
+                spCounter[2]+=1
+        print("# of rooms filled with [2 people, 1 , 0]", spCounter)    
 
+        
     #@functools.lru_cache(maxsize=128)
     def findMatchingRooms(self, partitionAttr, attrVal=None, strType=False):
         """
@@ -823,24 +846,9 @@ class AgentBasedModel:
         offCampusCount = self.countAgents("offCampus","Agent_type")
         facultyCount = self.countAgents("faculty", "Agent_type")
         offCampusLeaf = self.findMatchingRooms("building_type","offCampus")[0]
-        """
-        if self.hybridClass_intervention:
-            hybridDict = self.config["HybridClass"]
-            self.largeGathering = not hybridDict["TurnOffLargeGathering"]
-            # these are the number of agents we need to convert
-            remoteStudentCount = min(onCampusCount, hybridDict["RemoteStudentCount"]-offCampusCount)
-            remoteFacultyCount = min(facultyCount, hybridDict["RemoteFacultyCount"])
-            self.remoteCount = remoteStudentCount + remoteFacultyCount
-            if self._debug:
-                print(f"HybridClass in effect, {remoteStudentCount} many agents are re-configured (onCampus --> OffCampus), and {remoteFacultyCount} faculty are remote")
-            self.remoteStudentIndices = set(np.random.choice(range(onCampusCount), size=remoteStudentCount, replace=False))            
-            self.remoteFacultyIndices = set(np.random.choice(range(facultyCount), size=remoteFacultyCount, replace=False))
-            self.rooms[offCampusLeaf].limit+= self.remoteCount
-            self.rooms[offCampusLeaf].capacity+= self.remoteCount
-        else:
-            self.remoteStudentIndices, self.remoteFacultyIndices = [], []
+       
             
-        """
+       
         socialP = self.config["World"]["socialInteraction"]
         if self.lessSocial_intervention:
             socialP *= self.config["LessSocializing"]["SocializingProbability"]
@@ -874,25 +882,23 @@ class AgentBasedModel:
         offCampusScheduleTemplate = [[offCampusLeaf for _ in range(24)] for _ in range(3)]
         for index, (facSche, randFac) in enumerate(zip(fac_schedule, randomizedFac)):
             replacement = stem if randFac == "S" else (art if randFac == "A" else hum)
-            if index in self.remoteFacultyIndices:
-                fac_schedule[index] = offCampusScheduleTemplate 
-            else:
-                favoriteOffice = np.random.choice(replacement)
-               
-                for i, row in enumerate(facSche):
-                    for j, item in enumerate(row):
-                        if item == "office": # choose a random office within their department
-                            if self.closedBuilding_intervention and "office" in closedBuilding:
-                                print("replacing")
-                                fac_schedule[index][i][j] = "Off"
-                            else:    
-                                fac_schedule[index][i][j] = favoriteOffice
-                        elif item == "dining": # convert to faculty dining to restict area to faculty only space
-                            fac_schedule[index][i][j] = "faculty_dining_room"
-                        elif isinstance(item, int): # maps the nth class to the right classroom Id
-                            fac_schedule[index][i][j] = classrooms[item]
-                        elif isinstance(item[0], int):
-                            fac_schedule[index][i][j] = classrooms[item[0]]
+            
+            favoriteOffice = np.random.choice(replacement)
+            
+            for i, row in enumerate(facSche):
+                for j, item in enumerate(row):
+                    if item == "office": # choose a random office within their department
+                        if self.closedBuilding_intervention and "office" in closedBuilding:
+                            print("replacing")
+                            fac_schedule[index][i][j] = "Off"
+                        else:    
+                            fac_schedule[index][i][j] = favoriteOffice
+                    elif item == "dining": # convert to faculty dining to restict area to faculty only space
+                        fac_schedule[index][i][j] = "faculty_dining_room"
+                    elif isinstance(item, int): # maps the nth class to the right classroom Id
+                        fac_schedule[index][i][j] = classrooms[item]
+                    elif isinstance(item[0], int):
+                        fac_schedule[index][i][j] = classrooms[item[0]]
 
         # replace entries like (48, 1) --> 48, tuple extractor
         schedules = [[[classrooms[a[0]] if isinstance(a[0], int) else a for a in row] for row in student_schedule] for student_schedule in schedules]
@@ -909,19 +915,19 @@ class AgentBasedModel:
         # assign the schedule to the correct agent
         for agentId, agent in self.agents.items():
             if agent.Agent_type == "onCampus": # oncampus
-                if onCampusIndex in self.remoteStudentIndices: # this student is learning remote
+                if agentId in self.remoteStudentIds: # this student is learning remote
                     self.setOffCampus(agentId, offCampusLeaf,offCampusScheduleTemplate)
                 else:
                     agent.schedule = onCampusSchedule[onCampusIndex]
                 onCampusIndex+=1
             elif agent.Agent_type == "offCampus": # offcampus
-                if offCampusIndex in self.remoteOffCampusIndices:
+                if agentId in self.remoteOffCampusIds:
                     self.setOffCampus(agentId, offCampusLeaf, offCampusScheduleTemplate)
                 else:
                     agent.schedule = offCampusSchedule[offCampusIndex]
                 offCampusIndex+=1
             else:# faculty
-                if facultyIndex in self.remoteFacultyIndices: # this faculty is teaching remote
+                if agentId in self.remoteFacultyIds: # this faculty is teaching remote
                     self.setToRemote(agentId,offCampusLeaf, offCampusScheduleTemplate)
                 else:
                     agent.schedule = fac_schedule[facultyIndex] 
@@ -1044,6 +1050,7 @@ class AgentBasedModel:
                             agentLoc = self.rooms[agent.currLocation].located_building
                             locDic[agentLoc] = locDic.get(agentLoc, 0)+1
                         print("agents are in the location(s):", locDic.items())
+
                 else:
                     for _ in range(4):
                         self.updateAgent()
@@ -1152,7 +1159,9 @@ class AgentBasedModel:
                     if agent.state == "susceptible" and randomVec[index] < transitionP:
                         print("*"*5, "changed state from susceptible to exposed through transit")
                         self.changeStateDict(agentId,agent.state, "exposed")
+                        self.rooms[loc[0]].infectedNumber+=1
                     index+=1
+                    
                 self.rooms[loc[0]].leave(agentId)
                 self.rooms[loc[1]].enter(agentId)
   
@@ -1172,6 +1181,7 @@ class AgentBasedModel:
                         if randVec[index] < coeff*totalInfection:
                             self.changeStateDict(agentId,"susceptible", "exposed")
                             room.infectedNumber+=1
+                            room.hubCount+=1
                             index+=1
                             if self._debug:
                                 print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
@@ -1654,9 +1664,9 @@ def main():
         },
 
     }
-    model = createModel(modelConfig)
-    model.visualizeBuildings()
-    #start_here.main()
+    #model = createModel(modelConfig)
+    #model.visualizeBuildings()
+    start_here.main()
 
 if __name__ == "__main__":
     main()

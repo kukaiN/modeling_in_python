@@ -23,7 +23,7 @@ def main():
             
         },
         "Rooms" : {
-            "ExtraParameters": ["roomId","agentsInside","oddCap", "evenCap", "classname", "infectedNumber"],
+            "ExtraParameters": ["roomId","agentsInside","oddCap", "evenCap", "classname", "infectedNumber", "hubCount"],
         },
         "Buildings" : {
             "ExtraParameters": ["buildingId","roomsInside"],
@@ -113,6 +113,7 @@ def main():
         "HybridClass":{
             "RemoteStudentCount": 1000,
             "RemoteFacultyCount": 180,
+            "RemovedDoubleCount": 0,
             "OffCampusCount": 500,
             "TurnOffLargeGathering": True,
         },
@@ -186,7 +187,7 @@ def main():
         },
         "Moderate+DiningHallClosure": { # skip #####################
             "World": [
-                ("TurnedOnInterventions", ["FaceMask", "Quarantine"]),
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine",  "ClosingBuildings"]),
                 ("ComplianceRatio", 0.5)
             ],
             "Quarantine": [
@@ -196,8 +197,8 @@ def main():
                 ( "ShowingUpForScreening", 0.8),
                 ],
             "ClosingBuildings": [
-                ("ClosedBuildingType", ["gym", "library", "dining"]),
-                ("ClosedButKeepHubOpened", ["dining"]),
+                ("ClosedBuildingType", ["gym", "library", "dining", "faculty_dining_room"]),
+                ("ClosedButKeepHubOpened", []),
                 ("GoingHomeP", 0.5),
             ]
         },
@@ -237,6 +238,7 @@ def main():
                 ("RemoteStudentCount", 750),
                 ("RemoteFacultyCount", 100),
                 ("OffCampusCount", 250),
+                ("RemovedDoubleCount", 250),
                 ("TurnOffLargeGathering", True),
             ],
         }, 
@@ -259,6 +261,7 @@ def main():
                 ("RemoteStudentCount", 750),
                 ("RemoteFacultyCount", 100),
                 ("OffCampusCount", 250),
+                ("RemovedDoubleCount", 250),
                 ("TurnOffLargeGathering", True),
             ]
       
@@ -301,7 +304,14 @@ def main():
                 ("ClosedBuildingType", ["gym", "library", "office", "dining", "faculty_dining_room"]),
                 ("ClosedButKeepHubOpened", ["dining"]),
                 ("GoingHomeP", 1),
-            ]
+            ],
+            "HybridClass":[
+                ("RemoteStudentCount", 1000),
+                ("RemovedDoubleCount", 525),
+                ("RemoteFacultyCount", 180),
+                ("OffCampusCount", 500),
+                ("TurnOffLargeGathering", True),
+            ],
         },
     }
     R0_controls = {
@@ -325,9 +335,11 @@ def main():
                 files = "images/"
         else:
             R0Count = 10
-        if index in [1, 2, 3,5]:
+            # [1, 2, 3,5]:
+        if index in [0, 1,2, 3, 4, 5, 6, 7, 8, 9]:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+typeName+modelName+"_"+str(simulationNum))
+            input()
             #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, visual=False)
              
             
