@@ -518,8 +518,10 @@ def scheduleCreator(social):
               mySchedA[x] = 'dorm'
            elif Task < libp:
               mySchedA[x] = 'library'
-           else:
+           elif Task < libp + sp:
               mySchedA[x] = 'social'
+           else:
+              mySchedA[x] = 'Off'
         AvailableSlots = [m for m in range(len(mySchedB)) if mySchedB[m] == None]
         for x in AvailableSlots:
            Task = random.random()
@@ -531,8 +533,10 @@ def scheduleCreator(social):
               mySchedB[x] = 'dorm'
            elif Task < libp:
               mySchedB[x] = 'library'
-           else:
+           elif Task < libp + sp:
               mySchedB[x] = 'social'
+           else:
+              mySchedB[x] = 'Off'
         AvailableSlots = [m for m in range(len(mySchedW)) if mySchedW[m] == None]
         for x in AvailableSlots:
            Task = random.random()
@@ -544,8 +548,10 @@ def scheduleCreator(social):
               mySchedW[x] = 'dorm'
            elif Task < libp:
               mySchedW[x] = 'lirary'
-           else:
+           elif Task < libp + sp:
               mySchedW[x] = 'social'
+           else:
+              mySchedW[x] = 'Off'
         
 
         #All done!
