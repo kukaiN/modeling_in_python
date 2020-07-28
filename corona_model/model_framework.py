@@ -564,16 +564,18 @@ class AgentBasedModel:
             # these are the number of agents we need to convert
             remoteStudentCount = min(onCampusCount, hybridDict["RemoteStudentCount"]-offCampusCount)
             remoteFacultyCount = min(facultyCount, hybridDict["RemoteFacultyCount"])
+            remoteOffCampusCount = min(offCampusCount, hybridDict["offCampusCount"])
             self.remoteCount = remoteStudentCount + remoteFacultyCount
             if self._debug:
                 print(f"HybridClass in effect, {remoteStudentCount} many agents are re-configured (onCampus --> OffCampus), and {remoteFacultyCount} faculty are remote")
             self.remoteStudentIndices = set(np.random.choice(range(onCampusCount), size=remoteStudentCount, replace=False))            
             self.remoteFacultyIndices = set(np.random.choice(range(facultyCount), size=remoteFacultyCount, replace=False))
+            self.remoteOffCampusIndices = set(np.random.choice(range(offCampusCount), size=offCampusCount), replace=False)
             self.rooms[offCampusLeaf].limit+= self.remoteCount
             self.rooms[offCampusLeaf].capacity+= self.remoteCount
         else:
-            self.remoteStudentIndices, self.remoteFacultyIndices = [], []
-
+            self.remoteStudentIndices, self.remoteFacultyIndices = {}, {}
+            self.remoteOffCampusIndices = {}
     def initializeAgentsLocation(self):
         """
             change the agent's current location to match the initial condition
@@ -907,8 +909,8 @@ class AgentBasedModel:
                     agent.schedule = onCampusSchedule[onCampusIndex]
                 onCampusIndex+=1
             elif agent.Agent_type == "offCampus": # offcampus
-                if self.hybridClass_intervention:
-                    agent.schedule = offCampusScheduleTemplate
+                if offCampusIndex in self.remoteOffCampusIndices:
+                    self.setOffCampus(agentId, offCampusLeaf, offCampusScheduleTemplate)
                 else:
                     agent.schedule = offCampusSchedule[offCampusIndex]
                 offCampusIndex+=1
@@ -1290,6 +1292,7 @@ class AgentBasedModel:
             listOfId = self.groupIds[self.quarantineGroupIndex]
             self.quarantineGroupIndex = (self.quarantineGroupIndex+1)% self.quarantineGroupNumber
         size = len(listOfId)
+        
         fpDelayedList, delayedList = [], []
         falsePositiveMask = np.random.random(len(listOfId))
         falsePositiveResult = [agentId for agentId, prob in zip(listOfId, falsePositiveMask) if prob < self.config["Quarantine"]["falsePositive"] and agentId in self.state2IdDict["susceptible"]]

@@ -29,7 +29,7 @@ def main():
             "ExtraParameters": ["buildingId","roomsInside"],
         },
         "Infection" : {
-            "baseP" : 1.15,
+            "baseP" : 1.1,
             "SeedNumber" : 10,
             "SeedState" : "exposed",
             "Contribution" : {
@@ -214,7 +214,7 @@ def main():
         "World": []
     }
     R0Dict = dict()
-    simulationNum = "12"
+    simulationNum = "1"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
         configCopy = dict(modelConfig)
         print("*"*20)
@@ -223,7 +223,7 @@ def main():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
         if index < 1:
-            R0Count = 20
+            R0Count = 10
             osName = platform.system()
             if osName.lower() == "windows":
                 files = "images\\"
@@ -233,8 +233,8 @@ def main():
             R0Count = 10
         if index in [0]:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
-            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+typeName+modelName+"_"+str(simulationNum))
-            #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, visual=False)
+            #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+typeName+modelName+"_"+str(simulationNum))
+            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, visual=False)
              
             
     print(R0Dict.items())
