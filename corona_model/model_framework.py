@@ -359,7 +359,7 @@ class AgentBasedModel:
       
         # rename in the future, used to cache informstion to reduce the number of filtering thats happening in the future run
         self.state2IdDict=dict()
-        self.largeGathering=True
+      
         self.gathering_count = 0
 
     def addKeys(self, tempDict):
@@ -382,9 +382,10 @@ class AgentBasedModel:
         self.quarantine_intervention = inInterventions("Quarantine")
         self.closedBuilding_intervention = inInterventions("ClosingBuildings")
         self.hybridClass_intervention = inInterventions("HybridClasses")
-        
+        self.lessSocial_intervention = inInterventions("LessSocial")
+        self.largeGathering = self.config["World"]["LargeGathering"]
         print("the following interventions are turned on:")
-        print(f" (Facemask, {self.faceMask_intervention}), (Quarantine, {self.quarantine_intervention}), (Closed,  {self.closedBuilding_intervention}), (Hybrid, {self.hybridClass_intervention})")
+        print(f" (Facemask, {self.faceMask_intervention}), (Quarantine, {self.quarantine_intervention}), (Closed,  {self.closedBuilding_intervention}), (Hybrid, {self.hybridClass_intervention}), (Less Social, {self.lessSocial_intervention})")
 
     def configureDebug(self, debugBool):
         """
@@ -576,6 +577,7 @@ class AgentBasedModel:
         else:
             self.remoteStudentIndices, self.remoteFacultyIndices = {}, {}
             self.remoteOffCampusIndices = {}
+
     def initializeAgentsLocation(self):
         """
             change the agent's current location to match the initial condition
@@ -759,7 +761,7 @@ class AgentBasedModel:
         closedLeafOpenHub = [roomId for bType in self.config["ClosingBuildings"]["ClosedButKeepHubOpened"] for roomId in self.findMatchingRooms("building_type", bType)]
         for roomId in closedLeafOpenHub:
             self.rooms[roomId].Kv = 0
-        
+        self.homeP = self.config["ClosingBuildings"]["GoingHomeP"]
         return closedBuilding
 
     def getAgentsInGroup(self, agentIds, attrVal, attrName="state"):
@@ -839,8 +841,11 @@ class AgentBasedModel:
             self.remoteStudentIndices, self.remoteFacultyIndices = [], []
             
         """
-            
-        schedules, onVsOffCampus = schedule_students.scheduleCreator(self.config["World"]["socialInteraction"])
+        socialP = self.config["World"]["socialInteraction"]
+        if self.lessSocial_intervention:
+            socialP *= self.config["LessSocializing"]["SocializingProbability"]
+
+        schedules, onVsOffCampus = schedule_students.scheduleCreator(socialP)
         fac_schedule, randomizedFac = schedule_faculty.scheduleCreator()
         #for i in np.random.choice(range(360), size=10, replace=False):
         #    print(fac_schedule[i])
@@ -851,8 +856,9 @@ class AgentBasedModel:
         print(stem, art, hum)
         if self.closedBuilding_intervention:
             closedBuilding = set(self.initializeClosingBuilding())
+            
             schedules = [
-                [[item if item not in closedBuilding else "sleep" for item in row] for row in uniqueSchedule] 
+                [[item if item not in closedBuilding else ("sleep" if random.random() < self.homeP else "social") for item in row] for row in uniqueSchedule] 
                     for uniqueSchedule in schedules]# ("sleep" if random.random() < 0.5 else "social")
             fac_schedule = [
                 [[item if item not in closedBuilding else "Off" for item in row] for row in uniqueSchedule] 
@@ -1291,8 +1297,17 @@ class AgentBasedModel:
         else: # we cycle through groups to check infected
             listOfId = self.groupIds[self.quarantineGroupIndex]
             self.quarantineGroupIndex = (self.quarantineGroupIndex+1)% self.quarantineGroupNumber
-        size = len(listOfId)
+    
         
+        if self.config["Quarantine"]["ShowingUpForScreening"] == 1:
+            pass# everyone shows up
+        else:
+            notSymptomatic = {agentId for agentId in listOfId 
+                    if self.agents[agentId].state != "infected Symptomatic Mild" and self.agents[agentId].state != "infected Symptomatic Severe"}
+            randomVec = np.random.random(len(notSymptomatic))
+            complyingP = self.config["Quarantine"]["ShowingUpForScreening"]
+            nonComplyingAgent = [agentId for i, agentId in enumerate(notSymptomatic) if randomVec[i] > complyingP]
+            listOfId = list(set(listOfId) - set(nonComplyingAgent))
         fpDelayedList, delayedList = [], []
         falsePositiveMask = np.random.random(len(listOfId))
         falsePositiveResult = [agentId for agentId, prob in zip(listOfId, falsePositiveMask) if prob < self.config["Quarantine"]["falsePositive"] and agentId in self.state2IdDict["susceptible"]]
