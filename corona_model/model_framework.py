@@ -60,17 +60,18 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
         model.updateSteps(24)
         if debug:
             model.printRelevantInfo()
-    model.final_check()
+    output = model.final_check()
     model.printRoomLog()
     tup = model.findDoubleTime()
-    for description, tupVal in zip(("doublingTime", "doublingInterval", "doublingValue"), tup):
-        print(description, tupVal)
+    #for description, tupVal in zip(("doublingTime", "doublingInterval", "doublingValue"), tup):
+    #    print(description, tupVal)
     if visuals:
         fileformat = ".png"
         model.visualOverTime(False, True, modelName+fileformat)
         modelName+="_total"
         model.visualOverTime(True, True, modelName+fileformat)
     #model.visualizeBuildings()
+    return output
 
 def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, visual=False):
    
@@ -384,7 +385,7 @@ class AgentBasedModel:
         self.hybridClass_intervention = inInterventions("HybridClasses")
         self.lessSocial_intervention = inInterventions("LessSocial")
         self.largeGathering = self.config["World"]["LargeGathering"]
-        print("the following interventions are turned on:")
+        print("the following interventions are turned on/off:")
         print(f" (Facemask, {self.faceMask_intervention}), (Quarantine, {self.quarantine_intervention}), (Closed,  {self.closedBuilding_intervention}), (Hybrid, {self.hybridClass_intervention}), (Less Social, {self.lessSocial_intervention})")
 
     def configureDebug(self, debugBool):
@@ -430,7 +431,7 @@ class AgentBasedModel:
         # these are required values added to the df so that they can be used to store information and relationships 
         self.addAttrToDf()
         self.add_Id_to_Df()
-        print("*"*20)
+      
         
         self.adjacencyDict = self.makeAdjacencyDict()
         self.buildings = self.createObject(self.building_df, superStrucFactory)
@@ -749,7 +750,6 @@ class AgentBasedModel:
                 agent.compliance = True
             else:
                 agent.compliance = False 
-        print("mask****************", self.maskP, self.maskB)
 
     def initializeTestingAndQuarantine(self):
         print(self.config["Quarantine"].items())
@@ -889,7 +889,6 @@ class AgentBasedModel:
                 for j, item in enumerate(row):
                     if item == "office": # choose a random office within their department
                         if self.closedBuilding_intervention and "office" in closedBuilding:
-                            print("replacing")
                             fac_schedule[index][i][j] = "Off"
                         else:    
                             fac_schedule[index][i][j] = favoriteOffice
@@ -940,7 +939,6 @@ class AgentBasedModel:
         self.replaceByType(partitionTypes=["library", "dining","gym", "office"])
         students = [agentId for agentId, agent in self.agents.items() if agent.archetype == "student"]
         self.replacewithTwo(students)
-        # self.replaceByType(partitionTypes="social", perEntry=True)
         print("finished schedules")
         
         """
@@ -964,7 +962,6 @@ class AgentBasedModel:
             agent.schedule = [[a if a != antecedent else agent.initial_location for a in row] for row in agent.schedule] 
 
     def replacewithTwo(self, agentIds):
-        print("repolacing two fgewgwgwregwegweg")
         socialSpace = self.findMatchingRooms("building_type", "social")
         for index, agentId in enumerate(agentIds):
             twoFriendGroup = np.random.choice(socialSpace, size=2, replace=False)
@@ -1301,14 +1298,12 @@ class AgentBasedModel:
             Parameters:
             - None
         """
-        
         if self.config["Quarantine"]["RandomSampling"]: # if random
             listOfId = np.random.choice(self.groupIds, size=self.config["quarantineSampleSize"], replace=False)
         else: # we cycle through groups to check infected
             listOfId = self.groupIds[self.quarantineGroupIndex]
             self.quarantineGroupIndex = (self.quarantineGroupIndex+1)% self.quarantineGroupNumber
     
-        
         if self.config["Quarantine"]["ShowingUpForScreening"] == 1:
             pass# everyone shows up
         else:
@@ -1334,7 +1329,7 @@ class AgentBasedModel:
             if self.agents[agentId].state in self.config["Agents"]["PossibleStates"]["infected"]:
                 if falseNegVec[i] > coeff*self.config["Quarantine"]["falseNegative"]: # infected and not a false positive result
                     delayedList.append(agentId)
-        if self._debug or True:
+        if self._debug:
             print(f"testing at time {self.time}, dayDes: {self.dateDescriptor}, caught the following (FalsePositive: {len(fpDelayedList)}, infected: {len(delayedList)})")
         self.falsePositiveList.append(fpDelayedList)
         self.quarantineList.append(delayedList)
@@ -1356,7 +1351,7 @@ class AgentBasedModel:
                 quarantined_agent = self.quarantineList.pop(0) # get the test result for the first group in the queue
                 falsePos_agent = self.falsePositiveList.pop(0)
                 if len(quarantined_agent)+len(falsePos_agent) > 0: 
-                    if self._debug or True:
+                    if self._debug:
                         print(f"Isolating at time: {self.time}, {self.dateDescriptor}, {self.config['Quarantine']['ResultLatency']} delay isolation of {len(quarantined_agent) + len(falsePos_agent)} agents, there are {len(self.quarantineList)} group backlog")
                     for agentId in quarantined_agent:
                         self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
@@ -1478,12 +1473,16 @@ class AgentBasedModel:
         """
         # type and count dictionary
         buildingTCdict = dict()
+        
         for buildingId, building in self.buildings.items():
             buildingCount = 0
+            buildingHub = 0
             for roomId in building.roomsInside:
                 buildingCount+=self.rooms[roomId].infectedNumber
+                buildingHub+=self.rooms[roomId].hubCount
             buildingTCdict[building.building_type] = buildingTCdict.get(building.building_type, 0)+buildingCount 
-            print(building.building_name, building.building_type, buildingCount)
+            if self._debug:
+                print(building.building_name, building.building_type, buildingCount)
         
         print("*"*20, "abstactly represented location:")
         print("large gathering", self.gathering_count)
@@ -1519,7 +1518,7 @@ class AgentBasedModel:
         maxInfected = max(data["TotalInfected"])
         highestGrowth = "not yet"
         print(f"p: {self.baseP}, R0: {self.R0Calculation}, total ever in exposed {totalExposed}, max infected {maxInfected}")
-    
+        return (totalExposed, maxInfected)
     def findDoubleTime(self):
         """
             returns a tuple of (doublingTime, doublingInterval, doublingValue)

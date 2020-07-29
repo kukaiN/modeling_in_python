@@ -336,10 +336,9 @@ def main():
         else:
             R0Count = 10
             # [1, 2, 3,5]:
-        if index in [0, 1,2, 3, 4, 5, 6, 7, 8, 9]:
+        if index in [8]:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
-            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+typeName+modelName+"_"+str(simulationNum))
-            input()
+            output = model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=files+typeName+modelName+"_"+str(simulationNum))
             #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, visual=False)
              
             
