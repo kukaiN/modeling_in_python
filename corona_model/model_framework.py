@@ -34,6 +34,15 @@ def clock(func): # from version 2, page 203 - 205 of Fluent Python by Luciano Ra
         return result
     return clocked
 
+def multiSimulation(simulationCount, config, days, debug, modelName):
+    multiResults = {}
+    for i in simulationCount:
+        result = simpleCheck(modelConfig, days=days, visuals=False, debug=debug, modeName=ModelName+"_"+str(i))
+        for individualResult in result:
+            for k, v in individualResult.items():
+                multiResults[k] = multiResults.get(k, []) + [v]
+        
+
 def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="default"):
     """
         runs one simulatons with the given config and showcase the number of infection and the graph
@@ -55,14 +64,14 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
         "infected Asymptomatic Fixed" ,"infected Symptomatic Mild", 
         "infected Symptomatic Severe", "recovered", "quarantined"])
     model.printRelevantInfo()
-   
     for _ in range(days):
         model.updateSteps(24)
         if debug:
             model.printRelevantInfo()
-    output = model.final_check()
+    model.final_check()
+    output = model.outputs()
     model.printRoomLog()
-    tup = model.findDoubleTime()
+    #tup = model.findDoubleTime()
     #for description, tupVal in zip(("doublingTime", "doublingInterval", "doublingValue"), tup):
     #    print(description, tupVal)
     if visuals:
@@ -74,9 +83,7 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
     return output
 
 def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, visual=False):
-   
     R0Values = []
-    
     configCopy = dict(modelConfig)
     for variableTup in R0Control:
         configCopy[variableTup[0]] = variableTup[1]
@@ -1373,7 +1380,6 @@ class AgentBasedModel:
                             self.changeStateDict(agentId,self.agents[agentId].state, "quarantined")
          
     def big_gathering(self):
-        print(self.largeGathering)
         if self.largeGathering: # big gathering at sunday midnight
             agentIds = [agentId for agentId, agent in self.agents.items() if agent.gathering]
             if len(agentIds) < 50:

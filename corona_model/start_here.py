@@ -336,7 +336,7 @@ def main():
         else:
             R0Count = 10
             # [1, 2, 3,5]:
-        if index in [7]:
+        if index in [6]:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             runs = dict()
             for _ in range(5):
