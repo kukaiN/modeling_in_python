@@ -1041,28 +1041,21 @@ class AgentBasedModel:
                 if self.lazySunday and self.dateDescriptor == "LS":
                     if self._debug:
                         print(f"at time {self.time} lazy sunday, no one is moving")
-                    if modTime == 12 and False:
-                        locDic = dict()
-                        for agent in self.agents.values():
-                            agentLoc = self.rooms[agent.currLocation].located_building
-                            locDic[agentLoc] = locDic.get(agentLoc, 0)+1
-                        print("agents are in the location(s):", locDic.items())
-
                 else:
                     for _ in range(4):
                         self.updateAgent()
                         self.hub_infection()
                 self.infection()
            
-                # if weekdays
-                if self.dateDescriptor != "W" and self.dateDescriptor!="LS":
-                    if modTime == 8:
-                        self.checkForWalkIn()
-                    if self.quarantine_intervention and self.time%self.quarantineInterval == self.config["Quarantine"]["offset"]: 
-                        self.testForDisease()
-                    self.delayed_quarantine()
+            # if weekdays
+            if self.dateDescriptor != "W" and self.dateDescriptor!="LS":
+                if modTime == 8:
+                    self.checkForWalkIn()
+                if self.quarantine_intervention and self.time%self.quarantineInterval == self.config["Quarantine"]["offset"]: 
+                    self.testForDisease()
+                self.delayed_quarantine()
             # its a weekend and sunday midnight
-            if self.dateDescriptor == "W" and self.time%(24*7) == 0:
+            if (self.dateDescriptor == "LS" or self.dateDescriptor=="W") and self.time%(24*7) == 0:
                 self.big_gathering()
             if self.storeVal and self.time%self.timeIncrement == 0:
                 self.storeInformation()
@@ -1380,6 +1373,7 @@ class AgentBasedModel:
                             self.changeStateDict(agentId,self.agents[agentId].state, "quarantined")
          
     def big_gathering(self):
+        print(self.largeGathering)
         if self.largeGathering: # big gathering at sunday midnight
             agentIds = [agentId for agentId, agent in self.agents.items() if agent.gathering]
             if len(agentIds) < 50:
