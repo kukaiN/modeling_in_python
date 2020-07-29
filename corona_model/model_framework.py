@@ -357,7 +357,7 @@ class AgentBasedModel:
         self.directedGraph = False
         self.R0Calculation = False
         self.R0_agentIds = []
-      
+        self.largeGathering = True
         # rename in the future, used to cache informstion to reduce the number of filtering thats happening in the future run
         self.state2IdDict=dict()
       
