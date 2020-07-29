@@ -315,10 +315,12 @@ def main():
         },
     }
     R0_controls = {
-        "World": []
+        "World": [()]
     }
     R0Dict = dict()
-    simulationNum = "1"
+    simulationGeneration = "1"
+    osName = platform.system()
+    files = "images\\" if osName.lower() == "windows" else "images/"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
         configCopy = dict(modelConfig)
         print("*"*20)
@@ -326,37 +328,15 @@ def main():
         for categoryKey, listOfControls in modelControl.items():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
-        if index < 1:
-            R0Count = 10
-            osName = platform.system()
-            if osName.lower() == "windows":
-                files = "images\\"
-            else:
-                files = "images/"
-        else:
-            R0Count = 10
-            # [1, 2, 3,5]:
-        if index in [6]:
+        R0Count = 1 if index < 1 else 1
+        multiCounts = 1
+        if index in [0, 1]:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
-            runs = dict()
-            for _ in range(5):
-                output = model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+typeName+modelName+"_"+str(simulationNum))
-                print(output)
-                for k, v in output[0].items():
-                    runs[k] = runs.get(k, [])+[v]
-                print(output[1], output[2])
-                a, b = output[1]
-                c, d = output[2]
-                runs[a] = runs.get(a, [])+[b]
-                runs[c] = runs.get(c, [])+[d]
-            #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, visual=False)
-            print("*"*20)
-            import pandas as pd
-            dfobj = pd.DataFrame.from_dict(runs, orient="index")
-            def save_df_to_csv(filepath, content):
-                content.to_csv(filepath)
-            
-            save_df_to_csv("hello.csv", dfobj)
+            modelName=files+typeName+modelName+"_"+str(simulationGeneration)
+            #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
+            model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
+            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, visual=False)
+           
             
     print(R0Dict.items())
 if __name__ == "__main__":

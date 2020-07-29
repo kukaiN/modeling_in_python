@@ -141,6 +141,8 @@ def make_df(folder, fileName, debug=True):
         print(a.head(3))
     return a
 
+def save_df_to_csv(filepath, content):
+    content.to_csv(filepath)
 
 def get_cd():
     """

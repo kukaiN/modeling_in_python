@@ -34,14 +34,18 @@ def clock(func): # from version 2, page 203 - 205 of Fluent Python by Luciano Ra
         return result
     return clocked
 
-def multiSimulation(simulationCount, config, days, debug, modelName):
-    multiResults = {}
-    for i in simulationCount:
-        result = simpleCheck(modelConfig, days=days, visuals=False, debug=debug, modeName=ModelName+"_"+str(i))
+def multiSimulation(simulationCount, modelConfig, days, debug, modelName):
+    """
+        run multiple simulations and return the location where the infection occured, the total number infected, and the max infected 
+    """
+    multiResults = {} # dictionary that will be converted to a dataframe
+    for i in range(simulationCount):
+        result = simpleCheck(modelConfig, days=days, visuals=False, debug=debug, modelName=modelName+"_"+str(i))
         for individualResult in result:
-            for k, v in individualResult.items():
+            for (k, v) in individualResult.items():
                 multiResults[k] = multiResults.get(k, []) + [v]
-        
+            dfobj = pd.DataFrame.from_dict(multiResults, orient="index")
+            flr.save_df_to_csv(modelName+".csv", dfobj)
 
 def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="default"):
     """
@@ -69,7 +73,6 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
         if debug:
             model.printRelevantInfo()
     model.final_check()
-    output = model.outputs()
     model.printRoomLog()
     #tup = model.findDoubleTime()
     #for description, tupVal in zip(("doublingTime", "doublingInterval", "doublingValue"), tup):
@@ -80,7 +83,7 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
         modelName+="_total"
         model.visualOverTime(True, True, modelName+fileformat)
     #model.visualizeBuildings()
-    return output
+    return model.outputs()
 
 def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, visual=False):
     R0Values = []
@@ -106,7 +109,6 @@ def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, visual=F
                 new_model.printRelevantInfo()
             new_model.updateSteps(24)
         if debug:
-            #print("R0 schedule:", new_model.convertToRoomName( new_model.agents[new_model.R0_agentId].schedule))
             logDataDict = new_model.printRoomLog()
             for key, value in logDataDict.items():
                 max_limits[key] = max_limits.get(key, []) + [value]
@@ -367,7 +369,6 @@ class AgentBasedModel:
         self.largeGathering = True
         # rename in the future, used to cache informstion to reduce the number of filtering thats happening in the future run
         self.state2IdDict=dict()
-      
         self.gathering_count = 0
 
     def addKeys(self, tempDict):
@@ -489,9 +490,6 @@ class AgentBasedModel:
         for dfRef, dfEntry in zip([self.agent_df, self.room_df, self.building_df], ["agentId", "roomId", "buildingId"]):
             if dfEntry in dfRef.columns.values.tolist():
                 dfRef[dfEntry] = dfRef.index # gets the first column (the Id column)
-            if self._debug:
-                print("finished adding Id into DF")
-                print(dfRef.head(3))
 
     def createObject(self, dfRef, func):
         """
@@ -629,8 +627,6 @@ class AgentBasedModel:
                 counter[1]+=1
             elif initialLoc in possibleBType: # if location is under building type
                 possibleRooms = [roomId for roomId in self.findMatchingRooms("building_type", initialLoc) if self.rooms[roomId].checkCapacity()]
-                if len(possibleRooms) == 0:
-                    print(initialLoc, possibleRooms)
                 location = np.random.choice(possibleRooms)
                 counter[2]+=1
             else:
@@ -699,8 +695,6 @@ class AgentBasedModel:
                 value+=[0 for _ in range(timeInterval - remainder)]
             
             a = np.array(value).reshape((-1,timeInterval))
-            #print(f"here is the usage for {buildingType}:")
-            #print(a)
             maxDict[buildingType] = max(maxDict.get(buildingType, 0), max(value))
             scheduleDict[self.rooms[key].room_name] = a
         nodes = ["gym", "library", "offCampus", "social"]
@@ -759,12 +753,10 @@ class AgentBasedModel:
                 agent.compliance = False 
 
     def initializeTestingAndQuarantine(self):
-        print(self.config["Quarantine"].items())
         self.quarantineInterval = self.config["Quarantine"]["checkupFrequency"] 
         self.quarantineOffset =  self.config["Quarantine"]["offset"]
         self.falsePositiveList = []
         self.quarantineList = []
-        print("start quarantine Groups")
         if self.config["Quarantine"]["RandomSampling"]: # do nothing if quarantine screening is with random samples from the population
             self.groupIds = [agentId for agentId, agent in self.agents.items() if agent.Agent_type != "faculty"]
         else: # the population is split in smaller groups and after every interval we cycle through the groups in order and screen each member in the group
@@ -847,14 +839,11 @@ class AgentBasedModel:
             calls the schedule creator and replace general notion of locations with specific location Id,
             for example if the string "dorm" is in the schedule, it will be replaced by a room located in a building with "building_type" equal to "dorm"
         """
-        print(self.config["World"].items())
         self.lazySunday = self.config["World"]["LazySunday"]
         onCampusCount = self.countAgents("onCampus","Agent_type")
         offCampusCount = self.countAgents("offCampus","Agent_type")
         facultyCount = self.countAgents("faculty", "Agent_type")
         offCampusLeaf = self.findMatchingRooms("building_type","offCampus")[0]
-       
-            
        
         socialP = self.config["World"]["socialInteraction"]
         if self.lessSocial_intervention:
@@ -862,13 +851,10 @@ class AgentBasedModel:
 
         schedules, onVsOffCampus = schedule_students.scheduleCreator(socialP)
         fac_schedule, randomizedFac = schedule_faculty.scheduleCreator()
-        #for i in np.random.choice(range(360), size=10, replace=False):
-        #    print(fac_schedule[i])
         classrooms = self.findMatchingRooms("building_type", "classroom")
         stem = self.findMatchingRooms("located_building", "STEM_office")
         art = self.findMatchingRooms("located_building", "HUM_office")
         hum = self.findMatchingRooms("located_building", "ART_office") 
-        print(stem, art, hum)
         if self.closedBuilding_intervention:
             closedBuilding = set(self.initializeClosingBuilding())
             
@@ -946,7 +932,7 @@ class AgentBasedModel:
         self.replaceByType(partitionTypes=["library", "dining","gym", "office"])
         students = [agentId for agentId, agent in self.agents.items() if agent.archetype == "student"]
         self.replacewithTwo(students)
-        print("finished schedules")
+        print("finished assigning schedules")
         
         """
         # print sample faculty schedules
@@ -1154,7 +1140,8 @@ class AgentBasedModel:
                 # if the agent is coming back to the network from the offcampus node
                 if not self.R0Calculation and loc[0] == self.roomNameId["offCampus_hub"] and loc[1] == self.roomNameId[self.config["World"]["transitName"]] and self.time%24<12: 
                     if agent.state == "susceptible" and randomVec[index] < transitionP:
-                        print("*"*5, "changed state from susceptible to exposed through transit")
+                        if self._debug:
+                            print("*"*5, "changed state from susceptible to exposed through transit")
                         self.changeStateDict(agentId,agent.state, "exposed")
                         self.rooms[loc[0]].infectedNumber+=1
                     index+=1
@@ -1405,7 +1392,8 @@ class AgentBasedModel:
                         self.changeStateDict(agentId,"susceptible" ,"exposed")
                         newly_infected+=1
             self.gathering_count+=newly_infected
-            print(f"big gathering at day {self.time/24}, at the gathering there were {counter} healthy out of {len(totalSubset)} and {newly_infected} additionally infected agents,", totalinfectionVec)
+            if self._debug:
+                print(f"big gathering at day {self.time/24}, at the gathering there were {counter} healthy out of {len(totalSubset)} and {newly_infected} additionally infected agents,", totalinfectionVec)
 
     def gathering_infection(self, subset):
         if self.faceMask_intervention:
@@ -1472,18 +1460,6 @@ class AgentBasedModel:
             used to print relevant inormation
         """
         # type and count dictionary
-        buildingTCdict = dict()
-        
-        for buildingId, building in self.buildings.items():
-            buildingCount = 0
-            buildingHub = 0
-            for roomId in building.roomsInside:
-                buildingCount+=self.rooms[roomId].infectedNumber
-                buildingHub+=self.rooms[roomId].hubCount
-            buildingTCdict[building.building_type] = buildingTCdict.get(building.building_type, 0)+buildingCount 
-            if self._debug:
-                print(building.building_name, building.building_type, buildingCount)
-        
         print("*"*20, "abstactly represented location:")
         print("large gathering", self.gathering_count)
         print("*"*20, "breakdown for specific rooms:")
@@ -1494,17 +1470,26 @@ class AgentBasedModel:
                         print(f"in {self.rooms[roomId].room_name}, there were {self.rooms[roomId].infectedNumber} infection")
         print("*"*20, "filtering by building type:")
         
-        for buildingType, count in buildingTCdict.items():
+        for buildingType, count in self.infectedPerBuilding().items():
             print(buildingType, count)
-       
-        agentTypeDict = dict()
-        for agentId, agent in self.agents.items():
-            if agent.state != "susceptible":
-                agentTypeDict[agent.Agent_type] = agentTypeDict.get(agent.Agent_type, 0) + 1
-        print("*"*20, "# infected based on type")
-        print(agentTypeDict.items())
+           
+
+    def infectedPerBuilding(self):
+        counterDict, hubCounterDict = dict(), dict()
+        for buildingId, building in self.buildings.items():
+            buildingCount, buildingHub = 0, 0
+            for roomId in building.roomsInside:
+                buildingCount+=self.rooms[roomId].infectedNumber
+                buildingHub+=self.rooms[roomId].hubCount
+            counterDict[building.building_type] = counterDict.get(building.building_type, 0)+buildingCount 
+            hubCounterDict[building.building_type] = hubCounterDict.get(building.building_type, 0)+buildingHub
+            if self._debug:
+                print(building.building_name, building.building_type, "whole building", buildingCount, "hubs", buildingHub)
+        return counterDict
+    
+    def outputs(self):
         totalExposed = len(self.agents) - self.parameters["susceptible"][-1] - self.parameters["falsePositive"][-1]
-        
+    
         data = dict()
         data["TotalInfected"] = np.zeros(len(self.parameters[list(self.parameters.keys())[0]]))
         for key in self.parameters.keys():
@@ -1515,13 +1500,14 @@ class AgentBasedModel:
         
         newdata = dict()
         newdata["largeGathering"] = self.gathering_count
-        for buildingType, count in buildingTCdict.items():
+        for buildingType, count in self.infectedPerBuilding().items():
             newdata[buildingType] = count
         
         maxInfected = max(data["TotalInfected"])
-        highestGrowth = "not yet"
-        print(f"p: {self.baseP}, R0: {self.R0Calculation}, total ever in exposed {totalExposed}, max infected {maxInfected}")
-        return (newdata, ("total", totalExposed), ("max", maxInfected))
+        if self._debug:
+            print(f"p: {self.baseP}, R0: {self.R0Calculation}, total ever in exposed {totalExposed}, max infected {maxInfected}")
+        otherData = {"total":totalExposed, "max":maxInfected}
+        return (newdata, otherData)
 
     def findDoubleTime(self):
         """
