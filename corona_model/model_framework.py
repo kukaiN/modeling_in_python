@@ -848,7 +848,7 @@ class AgentBasedModel:
         socialP = self.config["World"]["socialInteraction"]
         if self.lessSocial_intervention:
             socialP *= self.config["LessSocializing"]["SocializingProbability"]
-
+            print("social p", socialP)
         schedules, onVsOffCampus = schedule_students.scheduleCreator(socialP)
         fac_schedule, randomizedFac = schedule_faculty.scheduleCreator()
         classrooms = self.findMatchingRooms("building_type", "classroom")
@@ -1496,6 +1496,7 @@ class AgentBasedModel:
             if key in ["susceptible", "quarantined", "recovered"]:
                 data[key] = self.parameters[key]
             elif key not in self.config["Agents"]["PossibleStates"]["debugAndGraphingPurpose"]: #ignore keys with debug purpose add the rest to infection count
+                print(key, "added to total infected")
                 data["TotalInfected"]+=np.array(self.parameters[key])
         
         newdata = dict()
@@ -1629,7 +1630,7 @@ def main():
             "RandomSampling": False,
             # for random sampling from the agent population
             "SamplingProbability" : 0,
-            "SampleSizeForTesting":50,
+   
             "ResultLatency":24,
             "walkinProbability" : {
                 "infected Symptomatic Mild": 0.7, 

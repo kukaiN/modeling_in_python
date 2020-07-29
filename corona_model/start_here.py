@@ -92,13 +92,13 @@ def main():
             "RandomSampling": False,
             # for random sampling from the agent population
             "SamplingProbability" : 0,
-            "SampleSizeForTesting":50,
+          
             "ResultLatency":24,
             "walkinProbability" : {
                 "infected Symptomatic Mild": 0.7, 
                 "infected Symptomatic Severe": 0.95,
                 },
-            "BatchSize" : 400,
+            "BatchSize" : 100,
             "ShowingUpForScreening": 1,
             "offset": 9, # start at 9AM
             "checkupFrequency": 24*1,
@@ -155,6 +155,7 @@ def main():
             "Quarantine": [
                 ("ResultLatency", 3*24), 
                 ("SampleSizeForTesting", 100),
+                ("BatchSize", 100),
                 ( "ShowingUpForScreening", 0.8),
                 ],
         }, 
@@ -165,8 +166,8 @@ def main():
             ],
             "Quarantine": [
                 ("ResultLatency", 3*24), 
-                ("SampleSizeForTesting", 250),
-               
+                
+
                 ("BatchSize", 250),
                 ( "ShowingUpForScreening", 0.8),
                 ],
@@ -174,7 +175,24 @@ def main():
                 ("ClosedBuildingType", ["gym", "library"]),
                 ("GoingHomeP", 0.5),
             ]
-        },    
+        }, 
+        "Moderate+strongerClosing":{
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings"]),
+                ("ComplianceRatio", 0.5)
+            ],
+            "Quarantine": [
+                ("ResultLatency", 3*24), 
+              
+               
+                ("BatchSize", 250),
+                ( "ShowingUpForScreening", 0.8),
+                ],
+            "ClosingBuildings": [
+                ("ClosedBuildingType", ["gym", "library"]),
+                ("GoingHomeP", 1),
+            ]
+        },   
         "Moderate+StrongerFacemask": {
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings"]),
@@ -182,7 +200,7 @@ def main():
             ],
             "Quarantine": [
                 ("ResultLatency", 3*24), 
-                ("SampleSizeForTesting", 250),
+              
                 ("BatchSize", 250),
                 ( "ShowingUpForScreening", 0.8),
                 ],
@@ -198,7 +216,7 @@ def main():
             ],
             "Quarantine": [
                 ("ResultLatency", 3*24), 
-                ("SampleSizeForTesting", 250),
+             
                 ("BatchSize", 250),
                 ( "ShowingUpForScreening", 0.8),
                 ],
@@ -216,7 +234,7 @@ def main():
             ],
             "Quarantine": [
                 ("ResultLatency", 3*24), 
-                ("SampleSizeForTesting", 250),
+           
                 ("BatchSize", 250),
                 ( "ShowingUpForScreening", 0.8),
                 ],
@@ -230,9 +248,12 @@ def main():
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses"]),
                 ("ComplianceRatio", 0.5)
             ],
+            "Infection":[
+                ("SeedNumber",7)
+            ],
             "Quarantine": [
                 ("ResultLatency", 3*24), 
-                ("SampleSizeForTesting", 250),
+              
                 ("BatchSize", 250),
                 ( "ShowingUpForScreening", 0.8),
                 ],
@@ -253,9 +274,12 @@ def main():
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses", "LessSocial"]),
                 ("ComplianceRatio", 0.5)
             ],
+            "Infection":[
+                ("SeedNumber", 7),
+            ],
             "Quarantine": [
                 ("ResultLatency", 3*24), 
-                ("SampleSizeForTesting", 250),
+          
                 ("BatchSize", 250),
                 ( "ShowingUpForScreening", 0.8),
                 ],
@@ -277,9 +301,13 @@ def main():
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses"]),
                 ("ComplianceRatio", 0.5)
             ],
+            "Infection":[
+                ("SeedNumber", 5),
+            ],
+
             "Quarantine": [
                 ("ResultLatency", 3*24), 
-                ("SampleSizeForTesting", 250),
+        
                 ("BatchSize", 250),
                 ( "ShowingUpForScreening", 0.8),
                 ],
@@ -289,8 +317,6 @@ def main():
             ],
             # no chnage to "HybridClass"
         },
-         
-
         "Maximal": {
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses", "LessSocial"]),
@@ -302,13 +328,14 @@ def main():
             ],
             "Quarantine": [
                 ("ResultLatency", 1*24), 
-                ("SampleSizeForTesting", 500),
+            
                 ("BatchSize", 500),
                 ( "ShowingUpForScreening", 1),
                 ],
             "ClosingBuildings": [
                 ("ClosedBuildingType", ["gym", "library", "office", "dining", "faculty_dining_room"]),
                 ("ClosedButKeepHubOpened", ["dining"]),
+             
                 ("GoingHomeP", 1),
             ],
             "HybridClass":[
@@ -319,12 +346,66 @@ def main():
                 ("TurnOffLargeGathering", True),
             ],
         },
+        "Maximal_2day": {
+            "World": [
+                ("TurnedOnInterventions", [ "Quarantine"]),  
+            ],
+            "Infection":[
+                ("SeedNumber", 10),
+            ],
+            "Quarantine": [
+                ("ResultLatency", 2*24), 
+                ("BatchSize", 500),
+                ("ShowingUpForScreening", 1),
+                ],
+        },
+        "Maximal_1day": {
+            "World": [
+                ("TurnedOnInterventions", [ "Quarantine"]),  
+            ],
+            "Infection":[
+                ("SeedNumber", 10),
+            ],
+            "Quarantine": [
+                ("ResultLatency", 1*24), 
+                ("BatchSize", 500),
+                ("ShowingUpForScreening", 1),
+                ],
+        },
     }
     R0_controls = {
-        "World": [()]
+        "justFacemask": {
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks"]),
+                ("ComplianceRatio", 1),  
+            ],
+            },
+        "justquarantine":{
+            "World": [
+                ("TurnedOnInterventions", ["Quarantine"]),
+           
+            ],
+        },
+        "closingbuilding":{
+            "World": [
+                ("TurnedOnInterventions", [ "ClosingBuildings"]),
+     
+            ],
+        },
+        "hybrid":{"World": [
+                ("TurnedOnInterventions", ["HybridClasses"]),
+            
+            ],
+            },
+        "lessSocial":{
+            "World": [
+                ("TurnedOnInterventions", [ "LessSocial"]),
+        
+            ],
+        },
     }
     R0Dict = dict()
-    simulationGeneration = "1"
+    simulationGeneration = "3"
     osName = platform.system()
     files = "images\\" if osName.lower() == "windows" else "images/"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
@@ -334,14 +415,14 @@ def main():
         for categoryKey, listOfControls in modelControl.items():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
-        R0Count = 10 if index < 1 else 1
-        multiCounts = 1
-        if index in [0, 1]:
+        R0Count = 10 if index < 1 else 5
+        multiCounts = 20
+        if index in [11, 12]:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             modelName=files+typeName+modelName+"_"+str(simulationGeneration)
-            #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
-            #model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
-            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, visual=False)
+            #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
+            model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
+            #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, visual=False)
            
             
     print(R0Dict.items())
