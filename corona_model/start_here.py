@@ -336,11 +336,17 @@ def main():
         else:
             R0Count = 10
             # [1, 2, 3,5]:
-        if index in [0]:
+        if index in [2]:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
-            output = model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=files+typeName+modelName+"_"+str(simulationNum))
+            runs = []
+            for _ in range(2):
+                output = model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+typeName+modelName+"_"+str(simulationNum))
+                runs.append(output)
             #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, visual=False)
-             
+            for odata in runs:
+                print(odata[0].items())
+                print("total", odata[1], "max", odata[2])
+                print("*"*20)
             
     print(R0Dict.items())
 if __name__ == "__main__":

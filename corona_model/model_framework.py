@@ -1507,12 +1507,16 @@ class AgentBasedModel:
             elif key not in self.config["Agents"]["PossibleStates"]["debugAndGraphingPurpose"]: #ignore keys with debug purpose add the rest to infection count
                 data["TotalInfected"]+=np.array(self.parameters[key])
         
-        
+        newdata = dict()
+        newdata["largeGathering"] = self.gathering_count
+        for buildingType, count in buildingTCdict.items():
+            newdata[buildingType] = count
         
         maxInfected = max(data["TotalInfected"])
         highestGrowth = "not yet"
         print(f"p: {self.baseP}, R0: {self.R0Calculation}, total ever in exposed {totalExposed}, max infected {maxInfected}")
-        return (totalExposed, maxInfected)
+        return (newdata, totalExposed, maxInfected)
+
     def findDoubleTime(self):
         """
             returns a tuple of (doublingTime, doublingInterval, doublingValue)
