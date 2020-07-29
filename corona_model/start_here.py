@@ -29,7 +29,7 @@ def main():
             "ExtraParameters": ["buildingId","roomsInside"],
         },
         "Infection" : {
-            "baseP" : 1.1,
+            "baseP" : 1.15,
             "SeedNumber" : 10,
             "SeedState" : "exposed",
             "Contribution" : {
@@ -122,7 +122,13 @@ def main():
         }
 
     }
-
+    """
+    notes:
+    in the table dining hall core is 600*10
+    in section 3.1, under faculty: there are 380 faculty and it sums to 2380
+    in the base model table, there is T{sub}Ie0 and T{sub}Ie1 which is the # of days infected and bed-ridden.  In the base model, I have it so all symptomatic Severe are bed-ridden after 5 days.
+    is there a case where the severe agents are not bed-ridden?
+    """
     # you can control for multiple interventions by adding a case:
     #  [(modified attr1, newVal), (modified attr2, newVal), ...]
 
@@ -328,14 +334,14 @@ def main():
         for categoryKey, listOfControls in modelControl.items():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
-        R0Count = 1 if index < 1 else 1
+        R0Count = 10 if index < 1 else 1
         multiCounts = 1
         if index in [0, 1]:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             modelName=files+typeName+modelName+"_"+str(simulationGeneration)
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
-            model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
-            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, visual=False)
+            #model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
+            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, visual=False)
            
             
     print(R0Dict.items())

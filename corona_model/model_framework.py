@@ -1400,7 +1400,7 @@ class AgentBasedModel:
             contribution = self.infectionWithinPopulation(subset, -1)
         else:
             contribution = self.infectionWithinPopulation(subset)
-        cummulativeFunc = (self.baseP*3*contribution)/(50*(int(len(subset)/50)+1))
+        cummulativeFunc = (self.baseP*3*contribution)/(40*(int(len(subset)/40)+1))
         return cummulativeFunc
 
     def returnStoredInfo(self):
