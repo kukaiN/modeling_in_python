@@ -1515,7 +1515,7 @@ class AgentBasedModel:
         maxInfected = max(data["TotalInfected"])
         highestGrowth = "not yet"
         print(f"p: {self.baseP}, R0: {self.R0Calculation}, total ever in exposed {totalExposed}, max infected {maxInfected}")
-        return (newdata, totalExposed, maxInfected)
+        return (newdata, ("total", totalExposed), ("max", maxInfected))
 
     def findDoubleTime(self):
         """

@@ -336,19 +336,27 @@ def main():
         else:
             R0Count = 10
             # [1, 2, 3,5]:
-        if index in [3]:
+        if index in [7]:
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
-            runs = []
+            runs = dict()
             for _ in range(5):
                 output = model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+typeName+modelName+"_"+str(simulationNum))
-                runs.append(output)
+                print(output)
+                for k, v in output[0].items():
+                    runs[k] = runs.get(k, [])+[v]
+                print(output[1], output[2])
+                a, b = output[1]
+                c, d = output[2]
+                runs[a] = runs.get(a, [])+[b]
+                runs[c] = runs.get(c, [])+[d]
             #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, visual=False)
             print("*"*20)
-            for odata in runs:
-                for k, v in odata[0].items():
-                    print(k, v)
-                print("total", odata[1], "max", odata[2])
-                print("*"*20)
+            import pandas as pd
+            dfobj = pd.DataFrame.from_dict(runs, orient="index")
+            def save_df_to_csv(filepath, content):
+                content.to_csv(filepath)
+            
+            save_df_to_csv("hello.csv", dfobj)
             
     print(R0Dict.items())
 if __name__ == "__main__":
