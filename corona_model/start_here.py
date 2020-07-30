@@ -400,13 +400,13 @@ def main():
         for categoryKey, listOfControls in modelControl.items():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
-        R0Count = 3 if index < 1 else 3
-        multiCounts = 3
-        if index in [1, 6]: 
+        R0Count = 100 if index < 1 else 40
+        multiCounts = 20
+        if True or index in []: 
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             modelName=typeName+modelName+"_"+str(simulationGeneration)
-            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+modelName)
-            InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=files+modelName) 
+            #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+modelName)
+            #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=files+modelName) 
             R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
     print(InfectedCountDict.items())
