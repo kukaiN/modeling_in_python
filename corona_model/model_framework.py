@@ -39,13 +39,18 @@ def multiSimulation(simulationCount, modelConfig, days, debug, modelName):
         run multiple simulations and return the location where the infection occured, the total number infected, and the max infected 
     """
     multiResults = {} # dictionary that will be converted to a dataframe
+    infectionData = [] # list that will contain multiple time series dictionary 
+    totalInfected = []
     for i in range(simulationCount):
         result = simpleCheck(modelConfig, days=days, visuals=False, debug=debug, modelName=modelName+"_"+str(i))
-        for individualResult in result:
+        for individualResult in result[:2]:
             for (k, v) in individualResult.items():
                 multiResults[k] = multiResults.get(k, []) + [v]
             dfobj = pd.DataFrame.from_dict(multiResults, orient="index")
             flr.save_df_to_csv(modelName+".csv", dfobj)
+        infectionData.append(result[3])
+    print(infectionData)   
+    return infectionData
 
 def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="default"):
     """
@@ -83,9 +88,10 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
         modelName+="_total"
         model.visualOverTime(True, True, modelName+fileformat)
     #model.visualizeBuildings()
+    # return (newdata, otherData, data, totalExposed)
     return model.outputs()
 
-def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, visual=False):
+def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeriesVisual=False, R0Visuals=False, modelName="default"):
     R0Values = []
     configCopy = dict(modelConfig)
     for variableTup in R0Control:
@@ -118,18 +124,21 @@ def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, visual=F
         for key, value in max_limits.items():
             print(key, "max is the following:", value)
     print("R0 is", R0Values)
-    if visual:
+    if timeSeriesVisual:
         new_model.visualOverTime()
     print("time:", time.time()-t1)
     data = statfile.analyzeData(R0Values)
-    #pickleName = flr.fullPath("R0Data.pkl", "picklefile")
+    pickleName = flr.fullPath(modelName+"R0Data.pkl", "picklefile")
     # save the data just in case
-    #flr.saveUsingDill(pickleName, R0Values)
+    flr.saveUsingDill(pickleName, R0Values)
     print(data)
     print("(npMean, stdev, rangeVal, median)")
-    if visual:
-        statfile.boxplot(R0Values,True, "R0 simulation", "cases", "infected people (R0)", ["base model"])
-    return ("(npMean, stdev, rangeVal, median)", data)
+    if R0Visuals:
+        statfile.boxplot(R0Values,oneD=True, pltTitle="R0 Simulation (box)", xlabel="Model Name",
+             ylabel="Infected people (R0)", labels=[modelName], savePlt=True, saveName=modelName)
+        statfile.boxplot(R0Values, oneD=True, pltTitle="R0 Simulation (bar)", xlabel="Model Name", 
+            ylabel="Infected Agents (R0", labels=[modelName], savePlt=True, saveName=modelName)
+    return (R0Values, ("(npMean, stdev, rangeVal, median)", data))
 
 def createModel(modelConfig, debug=False, R0=False):
     """
@@ -351,7 +360,6 @@ def superStrucFactory(struc_df, slotVal):
         temp_dict[index] = Superstructure(row.values.tolist())
     return temp_dict
  
-
 class AgentBasedModel:
     def __init__(self):
         """
@@ -715,8 +723,12 @@ class AgentBasedModel:
         for agentId in self.agents.keys():
             # negative value for durration means the state will persist on to infinity
             self.changeStateDict(agentId, "susceptible", "susceptible")
-        seedNumber, seedState = self.config["Infection"]["SeedNumber"], self.config["Infection"]["SeedState"]
-      
+        
+        if self.hybridClass_intervention:
+            seedNumber = self.config["HybridClass"]["ChangedSeedNumber"]
+        else:
+            seedNumber = self.config["Infection"]["SeedNumber"]
+        seedState = self.config["Infection"]["SeedState"]
         onCampusIds = [agentId for agentId, agent in self.agents.items() if agent.Agent_type == "onCampus"]
         
 
@@ -757,6 +769,7 @@ class AgentBasedModel:
         self.quarantineOffset =  self.config["Quarantine"]["offset"]
         self.falsePositiveList = []
         self.quarantineList = []
+        self.screeningTime = []
         if self.config["Quarantine"]["RandomSampling"]: # do nothing if quarantine screening is with random samples from the population
             self.groupIds = [agentId for agentId, agent in self.agents.items() if agent.Agent_type != "faculty"]
         else: # the population is split in smaller groups and after every interval we cycle through the groups in order and screen each member in the group
@@ -774,17 +787,24 @@ class AgentBasedModel:
 
     def initializeClosingBuilding(self):
         """
-        "ClosingBuildings": {
-            "ClosedBuildingType" : ["gym", "library"],
-            "ClosedButKeepHubOpened" : [],
+        "ClosedBuilding_LeafKv=0" : [],
+            # close buildings in the list(remove them from the schedule), and go home or go to social spaces 
+            "ClosedBuilding_ByType" : ["gym", "library"],
+            "GoingHomeP": 0.5,
+            # the building in the list will be removed with probability and replaced with going home, otherwise it stays
+            "Exception_SemiClosedBuilding": [],
+            "Exception_GoingHomeP":0.5,
+            
         },"""
-        closedBuilding =  self.config["ClosingBuildings"]["ClosedBuildingType"]
+        closedBuilding =  self.config["ClosingBuildings"]["ClosedBuilding_ByType"]
         closedBuildingId = [roomId for bType in closedBuilding for roomId in self.findMatchingRooms("building_type", bType)]
-        closedLeafOpenHub = [roomId for bType in self.config["ClosingBuildings"]["ClosedButKeepHubOpened"] for roomId in self.findMatchingRooms("building_type", bType)]
+        closedLeafOpenHub = [roomId for bType in self.config["ClosingBuildings"]["ClosedBuildingOpenHub"] for roomId in self.findMatchingRooms("building_type", bType)]
+        semiClosedBuilding = [roomId for bType in self.config["ClosingBuildings"]["Exception_SemiClosedBuilding"] for roomId in self.findMatchingRooms("building_type", bType)]
         for roomId in closedLeafOpenHub:
             self.rooms[roomId].Kv = 0
         self.homeP = self.config["ClosingBuildings"]["GoingHomeP"]
-        return closedBuilding
+        self.e_homeP = self.config["ClosingBuildings"]["Exception_GoingHomeP"]
+        return closedBuilding, semiClosedBuilding
 
     def getAgentsInGroup(self, agentIds, attrVal, attrName="state"):
         return [agentId for agentId in agentIds if getattr(self.agents[agentId], attrName) == attrVal]
@@ -856,11 +876,24 @@ class AgentBasedModel:
         art = self.findMatchingRooms("located_building", "HUM_office")
         hum = self.findMatchingRooms("located_building", "ART_office") 
         if self.closedBuilding_intervention:
-            closedBuilding = set(self.initializeClosingBuilding())
+            closedBuilding, semiClosed = self.initializeClosingBuilding()
+            closedBuilding, semiClosed = set(closedBuilding), set(semiClosed)
             
-            schedules = [
-                [[item if item not in closedBuilding else ("sleep" if random.random() < self.homeP else "social") for item in row] for row in uniqueSchedule] 
-                    for uniqueSchedule in schedules]# ("sleep" if random.random() < 0.5 else "social")
+
+            for index, schedule in enumerate(schedules):
+                for i, row in enumerate(schedule):
+                    for j, item in enumerate(row):
+                        if item in closedBuilding:
+                            if random.random() < self.homeP:
+                                schedules[index][i][j] = "sleep"
+                            else:
+                                schedules[index][i][j] = "social"
+                        elif item in semiClosed:
+                            if random.random() < self.homeP:
+                                schedules[index][i][j] = "sleep" 
+            #schedules = [
+            #    [[item if item not in closedBuilding else ("sleep" if random.random() < self.homeP else "social") for item in row]
+            #     for row in uniqueSchedule] for uniqueSchedule in schedules]# ("sleep" if random.random() < 0.5 else "social")
             fac_schedule = [
                 [[item if item not in closedBuilding else "Off" for item in row] for row in uniqueSchedule] 
                     for uniqueSchedule in fac_schedule]
@@ -965,7 +998,6 @@ class AgentBasedModel:
                             self.agents[agentId].schedule[i][j] = twoFriendGroup[0]
                         else:
                             self.agents[agentId].schedule[i][j] = twoFriendGroup[1]
-
 
     def replaceByType(self, agentParam=None, agentParamValue=None, partitionTypes=None, perEntry=False):
         """
@@ -1286,7 +1318,7 @@ class AgentBasedModel:
             - None
         """
         if self.config["Quarantine"]["RandomSampling"]: # if random
-            listOfId = np.random.choice(self.groupIds, size=self.config["quarantineSampleSize"], replace=False)
+            listOfId = np.random.choice(self.groupIds, size=self.config["Quarantine"]["RandomSampleSize"], replace=False)
         else: # we cycle through groups to check infected
             listOfId = self.groupIds[self.quarantineGroupIndex]
             self.quarantineGroupIndex = (self.quarantineGroupIndex+1)% self.quarantineGroupNumber
@@ -1320,6 +1352,7 @@ class AgentBasedModel:
             print(f"testing at time {self.time}, dayDes: {self.dateDescriptor}, caught the following (FalsePositive: {len(fpDelayedList)}, infected: {len(delayedList)})")
         self.falsePositiveList.append(fpDelayedList)
         self.quarantineList.append(delayedList)
+        self.screeningTime.append(self.time)
      
     def delayed_quarantine(self): 
         """
@@ -1332,11 +1365,12 @@ class AgentBasedModel:
             - None
         """
         
-        # if its the right time to give the results back to the agents  
-        if self.quarantine_intervention and (self.time-self.config["Quarantine"]["ResultLatency"])%self.quarantineInterval == self.config["Quarantine"]["offset"]:
-            if len(self.quarantineList) > 0:  # if the number of agent to isolate/quarantine is greater than zero
+        # if agents got a screening, they get their results 
+        if self.quarantine_intervention and len(self.quarantineList) > 0:
+            if (self.time-self.config["Quarantine"]["ResultLatency"]) == self.screeningTime[0]:  
                 quarantined_agent = self.quarantineList.pop(0) # get the test result for the first group in the queue
                 falsePos_agent = self.falsePositiveList.pop(0)
+                resultTime = self.screeningTime.pop(0)
                 if len(quarantined_agent)+len(falsePos_agent) > 0: 
                     if self._debug:
                         print(f"Isolating at time: {self.time}, {self.dateDescriptor}, {self.config['Quarantine']['ResultLatency']} delay isolation of {len(quarantined_agent) + len(falsePos_agent)} agents, there are {len(self.quarantineList)} group backlog")
@@ -1488,15 +1522,13 @@ class AgentBasedModel:
         return counterDict
     
     def outputs(self):
-        totalExposed = len(self.agents) - self.parameters["susceptible"][-1] - self.parameters["falsePositive"][-1]
-    
+        totalExposed = self.totalExposed()
         data = dict()
         data["TotalInfected"] = np.zeros(len(self.parameters[list(self.parameters.keys())[0]]))
         for key in self.parameters.keys():
             if key in ["susceptible", "quarantined", "recovered"]:
                 data[key] = self.parameters[key]
             elif key not in self.config["Agents"]["PossibleStates"]["debugAndGraphingPurpose"]: #ignore keys with debug purpose add the rest to infection count
-                print(key, "added to total infected")
                 data["TotalInfected"]+=np.array(self.parameters[key])
         
         newdata = dict()
@@ -1508,7 +1540,10 @@ class AgentBasedModel:
         if self._debug:
             print(f"p: {self.baseP}, R0: {self.R0Calculation}, total ever in exposed {totalExposed}, max infected {maxInfected}")
         otherData = {"total":totalExposed, "max":maxInfected}
-        return (newdata, otherData)
+        return (newdata, otherData, data, totalExposed)
+
+    def totalExposed(self):
+        return len(self.agents) - self.parameters["susceptible"][-1] - self.parameters["falsePositive"][-1]
 
     def findDoubleTime(self):
         """

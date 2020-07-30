@@ -1,6 +1,6 @@
 import model_framework
 import platform
-
+import statfile
 
 def main():
     """intialize and run the model, for indepth detail about the config or how to run the code, go to the github page for this code"""    
@@ -83,17 +83,17 @@ def main():
         "FaceMasks" : {
             "MaskInfectivity" : 0.5,
             "MaskBlock":0.75,
-            "NonCompliantLeaf": ["dorm", "dining", "faculty_dining_hall"],
+            "NonCompliantLeaf": ["dorm", "dining", "faculty_dining_hall", "faculty_dining_room"],
             "CompliantHub" : ["dorm", "dining"],
             "NonCompliantBuilding" : ["social", "largeGathering"],
         },
         "Quarantine" : {
             # this dictates if we randomly sample the population or cycle through Batches
             "RandomSampling": False,
+            "RandomSampleSize": 100,
             # for random sampling from the agent population
             "SamplingProbability" : 0,
-          
-            "ResultLatency":24,
+            "ResultLatency":2*24,
             "walkinProbability" : {
                 "infected Symptomatic Mild": 0.7, 
                 "infected Symptomatic Severe": 0.95,
@@ -106,9 +106,14 @@ def main():
             "falseNegative":0#0.03,
         },
         "ClosingBuildings": {
-            "ClosedBuildingType" : ["gym", "library"],
-            "ClosedButKeepHubOpened" : [],
+            "ClosedBuildingOpenHub" : [],
+            # close buildings in the list(remove them from the schedule), and go home or go to social spaces 
+            "ClosedBuilding_ByType" : ["gym", "library"],
             "GoingHomeP": 0.5,
+            # the building in the list will be removed with probability and replaced with going home, otherwise it stays
+            "Exception_SemiClosedBuilding": [],
+            "Exception_GoingHomeP":0.5,
+            
         },
         "HybridClass":{
             "RemoteStudentCount": 1000,
@@ -116,19 +121,14 @@ def main():
             "RemovedDoubleCount": 0,
             "OffCampusCount": 500,
             "TurnOffLargeGathering": True,
+            "ChangedSeedNumber": 10,
         },
         "LessSocializing":{
             "SocializingProbability":0.5
         }
 
     }
-    """
-    notes:
-    in the table dining hall core is 600*10
-    in section 3.1, under faculty: there are 380 faculty and it sums to 2380
-    in the base model table, there is T{sub}Ie0 and T{sub}Ie1 which is the # of days infected and bed-ridden.  In the base model, I have it so all symptomatic Severe are bed-ridden after 5 days.
-    is there a case where the severe agents are not bed-ridden?
-    """
+  
     # you can control for multiple interventions by adding a case:
     #  [(modified attr1, newVal), (modified attr2, newVal), ...]
 
@@ -145,18 +145,50 @@ def main():
         ? (question mark)
         * (asterisk)
     """
+    """
+    high setting
+    
+    
+    
+    
+    """
+
+
     ControlledExperiment = {
         "baseModel":{}, # no changes
+        "facemasks_f1":{
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks"]),
+                ("ComplianceRatio", 1),
+                ],
+        },
+        "high_dedensification":{
+            "World": [
+                ("TurnedOnInterventions", ["HybridClasses"]),
+                ],
+            "HybridClass":[
+                ("RemoteStudentCount", 1000),
+                ("RemoteFacultyCount", 300),
+                ("RemovedDoubleCount", 525),
+                ("OffCampusCount", 500),
+                ("TurnOffLargeGathering", True),
+                ("ChangedSeedNumber", 5),
+            ], 
+        },
+        "lessSocial":{
+            "World": [
+                ("TurnedOnInterventions", ["LessSocial"]),
+                ],
+        },
         "Minimal": {
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine"]),
                 ("ComplianceRatio", 0.5),
                 ],
             "Quarantine": [
-                ("ResultLatency", 3*24), 
-                ("SampleSizeForTesting", 100),
+                ("ResultLatency", 2*24), 
                 ("BatchSize", 100),
-                ( "ShowingUpForScreening", 0.8),
+                ("ShowingUpForScreening", 0.8),
                 ],
         }, 
         "Moderate": {
@@ -165,9 +197,7 @@ def main():
                 ("ComplianceRatio", 0.5)
             ],
             "Quarantine": [
-                ("ResultLatency", 3*24), 
-                
-
+                ("ResultLatency", 2*24), 
                 ("BatchSize", 250),
                 ( "ShowingUpForScreening", 0.8),
                 ],
@@ -176,201 +206,155 @@ def main():
                 ("GoingHomeP", 0.5),
             ]
         }, 
-        "Moderate+strongerClosing":{
+        "Strong":{
             "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings"]),
-                ("ComplianceRatio", 0.5)
-            ],
-            "Quarantine": [
-                ("ResultLatency", 3*24), 
-              
-               
-                ("BatchSize", 250),
-                ( "ShowingUpForScreening", 0.8),
-                ],
-            "ClosingBuildings": [
-                ("ClosedBuildingType", ["gym", "library"]),
-                ("GoingHomeP", 1),
-            ]
-        },   
-        "Moderate+StrongerFacemask": {
-            "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings"]),
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses", "LessSocial"]),
                 ("ComplianceRatio", 1),
-            ],
-            "Quarantine": [
-                ("ResultLatency", 3*24), 
-              
-                ("BatchSize", 250),
-                ( "ShowingUpForScreening", 0.8),
-                ],
-            "ClosingBuildings": [
-                ("ClosedBuildingType", ["gym", "library"]),
-                ("GoingHomeP", 0.5),
-            ]
-        },
-        "Moderate+DiningHallClosure": { # skip #####################
-            "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine",  "ClosingBuildings"]),
-                ("ComplianceRatio", 0.5)
-            ],
-            "Quarantine": [
-                ("ResultLatency", 3*24), 
-             
-                ("BatchSize", 250),
-                ( "ShowingUpForScreening", 0.8),
-                ],
-            "ClosingBuildings": [
-                ("ClosedBuildingType", ["gym", "library", "dining", "faculty_dining_room"]),
-                ("ClosedButKeepHubOpened", []),
-                ("GoingHomeP", 0.5),
-            ]
-        },
-        "Moderate+LessSocializing": {
-            "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine","ClosingBuildings", "LessSocial"]),
-                ("ComplianceRatio", 0.5),
                 ("LargeGathering", False),
-            ],
-            "Quarantine": [
-                ("ResultLatency", 3*24), 
-           
-                ("BatchSize", 250),
-                ( "ShowingUpForScreening", 0.8),
-                ],
-            "ClosingBuildings": [
-                ("ClosedBuildingType", ["gym", "library"]),
-                ("GoingHomeP", 1),
-            ]
-        },  
-        "Moderate+MediumDeden": {
-            "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses"]),
-                ("ComplianceRatio", 0.5)
-            ],
-            "Infection":[
-                ("SeedNumber",7)
-            ],
-            "Quarantine": [
-                ("ResultLatency", 3*24), 
-              
-                ("BatchSize", 250),
-                ( "ShowingUpForScreening", 0.8),
-                ],
-            "ClosingBuildings": [
-                ("ClosedBuildingType", ["gym", "library"]),
-                ("GoingHomeP", 0.5),
-            ],
-            "HybridClass":[
-                ("RemoteStudentCount", 750),
-                ("RemoteFacultyCount", 100),
-                ("OffCampusCount", 250),
-                ("RemovedDoubleCount", 250),
-                ("TurnOffLargeGathering", True),
-            ],
-        }, 
-        "Moderate+MediumDeden+LessSocial": {
-            "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses", "LessSocial"]),
-                ("ComplianceRatio", 0.5)
-            ],
-            "Infection":[
-                ("SeedNumber", 7),
-            ],
-            "Quarantine": [
-                ("ResultLatency", 3*24), 
-          
-                ("BatchSize", 250),
-                ( "ShowingUpForScreening", 0.8),
-                ],
-            "ClosingBuildings": [
-                ("ClosedBuildingType", ["gym", "library"]),
-                ("GoingHomeP", 0.5),
-            ],
-            "HybridClass":[
-                ("RemoteStudentCount", 750),
-                ("RemoteFacultyCount", 100),
-                ("OffCampusCount", 250),
-                ("RemovedDoubleCount", 250),
-                ("TurnOffLargeGathering", True),
-            ]
-      
-        },
-        "Moderate+HighDeden": {
-            "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses"]),
-                ("ComplianceRatio", 0.5)
-            ],
-            "Infection":[
-                ("SeedNumber", 5),
-            ],
-
-            "Quarantine": [
-                ("ResultLatency", 3*24), 
-        
-                ("BatchSize", 250),
-                ( "ShowingUpForScreening", 0.8),
-                ],
-            "ClosingBuildings": [
-                ("ClosedBuildingType", ["gym", "library"]),
-                ("GoingHomeP", 0.5),
-            ],
-            # no chnage to "HybridClass"
-        },
-        "Maximal": {
-            "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses", "LessSocial"]),
-                ("ComplianceRatio", 1),
-                
-            ],
-            "Infection":[
-                ("SeedNumber", 5),
-            ],
-            "Quarantine": [
-                ("ResultLatency", 1*24), 
-            
-                ("BatchSize", 500),
-                ( "ShowingUpForScreening", 1),
-                ],
-            "ClosingBuildings": [
-                ("ClosedBuildingType", ["gym", "library", "office", "dining", "faculty_dining_room"]),
-                ("ClosedButKeepHubOpened", ["dining"]),
-             
-                ("GoingHomeP", 1),
-            ],
-            "HybridClass":[
-                ("RemoteStudentCount", 1000),
-                ("RemovedDoubleCount", 525),
-                ("RemoteFacultyCount", 180),
-                ("OffCampusCount", 500),
-                ("TurnOffLargeGathering", True),
-            ],
-        },
-        "Maximal_2day": {
-            "World": [
-                ("TurnedOnInterventions", [ "Quarantine"]),  
-            ],
-            "Infection":[
-                ("SeedNumber", 10),
             ],
             "Quarantine": [
                 ("ResultLatency", 2*24), 
                 ("BatchSize", 500),
-                ("ShowingUpForScreening", 1),
-                ],
-        },
-        "Maximal_1day": {
-            "World": [
-                ("TurnedOnInterventions", [ "Quarantine"]),  
+                ( "ShowingUpForScreening", 1),
             ],
-            "Infection":[
-                ("SeedNumber", 10),
+            "ClosingBuildings": [
+                ("ClosedBuildingType", ["gym", "library", "office"]),
+                ("ClosedBuildingOpenHub", ["dining"]),
+                ("GoingHomeP", 1),
+            ],
+            "HybridClass":[
+                ("RemoteStudentCount", 1000),
+                ("RemoteFacultyCount", 300),
+                ("RemovedDoubleCount", 525),
+                ("OffCampusCount", 500),
+                ("TurnOffLargeGathering", True),
+                ("ChangedSeedNumber", 5),
+            ],
+        },    
+        "Strong_lessTesting":{
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses", "LessSocial"]),
+                ("ComplianceRatio", 1),
+                ("LargeGathering", False),
             ],
             "Quarantine": [
-                ("ResultLatency", 1*24), 
+                ("ResultLatency", 2*24), 
+                ("BatchSize", 250),
+                ( "ShowingUpForScreening", 1),
+            ],
+            "ClosingBuildings": [
+                ("ClosedBuildingType", ["gym", "library", "office"]),
+                ("ClosedBuildingOpenHub", ["dining"]),
+                ("GoingHomeP", 1),
+            ],
+            "HybridClass":[
+                ("RemoteStudentCount", 1000),
+                ("RemoteFacultyCount", 300),
+                ("RemovedDoubleCount", 525),
+                ("OffCampusCount", 500),
+                ("TurnOffLargeGathering", True),
+                ("ChangedSeedNumber", 5),
+            ],
+        },
+        "Strong_lessFaceMask":{
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses", "LessSocial"]),
+                ("ComplianceRatio", 0),
+                ("LargeGathering", False),
+            ],
+            "Quarantine": [
+                ("ResultLatency", 2*24), 
                 ("BatchSize", 500),
-                ("ShowingUpForScreening", 1),
-                ],
+                ( "ShowingUpForScreening", 1),
+            ],
+            "ClosingBuildings": [
+                ("ClosedBuildingType", ["gym", "library", "office"]),
+                ("ClosedBuildingOpenHub", ["dining"]),
+                ("GoingHomeP", 1),
+            ],
+            "HybridClass":[
+                ("RemoteStudentCount", 1000),
+                ("RemoteFacultyCount", 300),
+                ("RemovedDoubleCount", 525),
+                ("OffCampusCount", 500),
+                ("TurnOffLargeGathering", True),
+                ("ChangedSeedNumber", 5),
+            ],
+        },
+        "Strong_moreSocial":{
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses"]),
+                ("ComplianceRatio", 1),
+                ("LargeGathering", False),
+            ],
+            "Quarantine": [
+                ("ResultLatency", 2*24), 
+                ("BatchSize", 500),
+                ( "ShowingUpForScreening", 1),
+            ],
+            "ClosingBuildings": [
+                ("ClosedBuildingType", ["gym", "library", "office"]),
+                ("ClosedBuildingOpenHub", ["dining"]),
+                ("GoingHomeP", 0.5),
+            ],
+            "HybridClass":[
+                ("RemoteStudentCount", 1000),
+                ("RemoteFacultyCount", 300),
+                ("RemovedDoubleCount", 525),
+                ("OffCampusCount", 500),
+                ("TurnOffLargeGathering", True),
+                ("ChangedSeedNumber", 5),
+            ],
+        },
+        "Strong_openDiningHall":{
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses"]),
+                ("ComplianceRatio", 1),
+                ("LargeGathering", False),
+            ],
+            "Quarantine": [
+                ("ResultLatency", 2*24), 
+                ("BatchSize", 500),
+                ( "ShowingUpForScreening", 1),
+            ],
+            "ClosingBuildings": [
+                ("ClosedBuildingType", ["gym", "library", "office"]),
+                ("ClosedBuildingOpenHub", []),
+                ("GoingHomeP", 1),
+            ],
+            "HybridClass":[
+                ("RemoteStudentCount", 1000),
+                ("RemoteFacultyCount", 300),
+                ("RemovedDoubleCount", 525),
+                ("OffCampusCount", 500),
+                ("TurnOffLargeGathering", True),
+                ("ChangedSeedNumber", 5),
+            ],
+        },
+        "Strong+LargeGathering":{
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses"]),
+                ("ComplianceRatio", 1),
+                ("LargeGathering", True),
+            ],
+            "Quarantine": [
+                ("ResultLatency", 2*24), 
+                ("BatchSize", 500),
+                ( "ShowingUpForScreening", 1),
+            ],
+            "ClosingBuildings": [
+                ("ClosedBuildingType", ["gym", "library", "office"]),
+                ("ClosedBuildingOpenHub", ["dining"]),
+                ("GoingHomeP", 1),
+            ],
+            "HybridClass":[
+                ("RemoteStudentCount", 1000),
+                ("RemoteFacultyCount", 300),
+                ("RemovedDoubleCount", 525),
+                ("OffCampusCount", 500),
+                ("TurnOffLargeGathering", False),
+                ("ChangedSeedNumber", 5),
+            ],
         },
     }
     R0_controls = {
@@ -405,7 +389,8 @@ def main():
         },
     }
     R0Dict = dict()
-    simulationGeneration = "3"
+    InfectedCountDict = dict()
+    simulationGeneration = "5"
     osName = platform.system()
     files = "images\\" if osName.lower() == "windows" else "images/"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
@@ -415,16 +400,42 @@ def main():
         for categoryKey, listOfControls in modelControl.items():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
-        R0Count = 10 if index < 1 else 5
-        multiCounts = 20
-        if index in [11, 12]:
+        R0Count = 3 if index < 1 else 3
+        multiCounts = 3
+        if index in [1, 6]: 
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
-            modelName=files+typeName+modelName+"_"+str(simulationGeneration)
-            #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
-            model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
-            #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, visual=False)
-           
-            
+            modelName=typeName+modelName+"_"+str(simulationGeneration)
+            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+modelName)
+            InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=files+modelName) 
+            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
+            # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
+    print(InfectedCountDict.items())
     print(R0Dict.items())
+    
+    if True:
+        saveName = "comparingModels_"+simulationGeneration
+        labels = []
+        R0data = []
+        R0AnalyzedData = []
+        for key, value in R0Dict.items():
+            labels.append(key)
+            R0data.append(value[0])
+            R0AnalyzedData.append(value[1]) 
+        statfile.boxplot(R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
+             ylabel="Infected people (R0)", labels=labels, savePlt=True, saveName="R0_box_"+saveName)
+        statfile.barChart(R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
+            ylabel="Infected Agents (R0)", labels=labels, savePlt=True, saveName="R0_bar_"+saveName)
+
+        labels = []
+        infectedCounts = []
+      
+        for key, value in InfectedCountDict.items():
+            labels.append(key)
+            infectedCounts.append(value)
+        statfile.boxplot(infectedCounts,oneD=False, pltTitle="Infection Comparison (box)", xlabel="Model Name",
+             ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName="infe_box_"+saveName)
+        statfile.barChart(infectedCounts, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
+            ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName="infe_bar_"+saveName)
+         
 if __name__ == "__main__":
     main()

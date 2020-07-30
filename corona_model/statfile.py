@@ -69,7 +69,7 @@ def plotBoxAverageAndDx(simulationDatas, pltTitle="some Title", xlabel="models",
     #boxplot(dx, "averageChanges", "models", "d(infected)/dt #", labels=labels)
 
 
-def boxplot(data, oneD=True, pltTitle="Some Title", xlabel="Default X", ylabel="Default Y", labels=[], showPlt=True, savePlt=False, saveName="defaultimage.png"):
+def boxplot(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel="Default Y", labels=[], showPlt=True, savePlt=False, saveName="defaultimage.png"):
     """
     Parameters:
     - data: the data to plot, can be a one or two dimentional list, if a 2D list is passed, each row is going to be a data for a separate box plot
@@ -89,20 +89,57 @@ def boxplot(data, oneD=True, pltTitle="Some Title", xlabel="Default X", ylabel="
     ax1.set_title(pltTitle)
     ax1.boxplot(data, vert=True)
     ax1.yaxis.grid(True)
-    xticks = [a+1 for a in range(len(data))]
+    if oneD:
+        xticks = [1]
+    else:
+        xticks = [a+ 1 for a in range(len(data))]
     ax1.set_xticks(xticks)
     ax1.set_xlabel(xlabel)
     ax1.set_ylabel(ylabel)
-    """
-    if oneD:
-        plt.xlim(-2, 2)
-    else:
-        plt.xlim(-2, len(data)+2+2)
-    """
+    fig1.tight_layout()
+    
+    
+    
     if labels != [] and len(labels) == len(data):
         plt.setp(ax1, xticks=xticks, xticklabels=labels)
     if savePlt:
+        if not saveName.endswith(".png"):
+            saveName+=".png"
         print("image saved as", saveName)
+        plt.savefig(saveName)
+    else:
+        plt.show()
+    plt.close()
+
+def barChart(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel="Default Y", labels=[], showPlt=True, savePlt=False, saveName="defaultimage.png"):
+    fig1, ax1 = plt.subplots()
+    ax1.set_title(pltTitle)
+    if oneD:
+        mean, _, _, standardDev = analyzeData(data) 
+        barLoc = [1]
+        width=0.05
+    else:
+        # each entry looks like (mean, median, mode, stdDev)
+        dataList = [analyzeData(simData) for simData in data]
+        mean = [int(a[0]*10)/10 for a in dataList]
+        standardDev = [a[3] for a in dataList]
+        barLoc = np.arange( len(data))
+        width = 0.4
+    barObject = ax1.bar(barLoc, mean, width, yerr=standardDev)
+    #ax1.yaxis.grid(True)
+    ax1.set_xticks(barLoc)
+    ax1.set_xticklabels(labels)
+    ax1.set_xlabel(xlabel)
+    ax1.set_ylabel(ylabel)
+    for bar in barObject:
+        height = bar.get_height()
+        ax1.annotate('{}'.format(height), xy=(bar.get_x() + bar.get_width() / 2, height), xytext=(0, 3),  # 3 points vertical offset
+                        textcoords="offset points", ha='center', va='bottom')
+    fig1.tight_layout()
+
+    if savePlt:
+        if not saveName.endswith(".png"):
+            saveName+=".png"
         plt.savefig(saveName)
     else:
         plt.show()
@@ -168,7 +205,13 @@ def main():
     print(changeOverUnitTime(data))
     print(filterZeros(data))
     analyzeModel([data])
-    boxplot([data for _ in range(3)])
+    #boxplot([data for _ in range(3)])
 
+    data2 =[[1,1,1,1,1,1,1,14,6,7,7,4,3,12,3,4], [6,4,32,2,43], [1,1,1,1]]
+    data3=data2[0]
+    label = ["a", "bn", "c"]
+    barChart(data2, labels=label)
+    #barChart(data3,oneD=True, labels=["a"])
+    boxplot(data2,  labels=label)
 if __name__ == "__main__":
     main()
