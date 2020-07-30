@@ -215,7 +215,7 @@ def main():
             "Quarantine": [
                 ("ResultLatency", 2*24), 
                 ("BatchSize", 500),
-                ( "ShowingUpForScreening", 1),
+                ("ShowingUpForScreening", 1),
             ],
             "ClosingBuildings": [
                 ("ClosedBuildingType", ["gym", "library", "office"]),
@@ -240,7 +240,7 @@ def main():
             "Quarantine": [
                 ("ResultLatency", 2*24), 
                 ("BatchSize", 250),
-                ( "ShowingUpForScreening", 1),
+                ("ShowingUpForScreening", 1),
             ],
             "ClosingBuildings": [
                 ("ClosedBuildingType", ["gym", "library", "office"]),
@@ -358,39 +358,10 @@ def main():
         },
     }
     R0_controls = {
-        "justFacemask": {
-            "World": [
-                ("TurnedOnInterventions", ["FaceMasks"]),
-                ("ComplianceRatio", 1),  
-            ],
-            },
-        "justquarantine":{
-            "World": [
-                ("TurnedOnInterventions", ["Quarantine"]),
-           
-            ],
-        },
-        "closingbuilding":{
-            "World": [
-                ("TurnedOnInterventions", [ "ClosingBuildings"]),
-     
-            ],
-        },
-        "hybrid":{"World": [
-                ("TurnedOnInterventions", ["HybridClasses"]),
-            
-            ],
-            },
-        "lessSocial":{
-            "World": [
-                ("TurnedOnInterventions", [ "LessSocial"]),
-        
-            ],
-        },
     }
     R0Dict = dict()
     InfectedCountDict = dict()
-    simulationGeneration = "5"
+    simulationGeneration = "6"
     osName = platform.system()
     files = "images\\" if osName.lower() == "windows" else "images/"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
@@ -401,13 +372,13 @@ def main():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100 if index < 1 else 40
-        multiCounts = 20
-        if True or index in []: 
+        multiCounts = 1
+        if index > 5: 
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             modelName=typeName+modelName+"_"+str(simulationGeneration)
-            #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+modelName)
-            #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=files+modelName) 
-            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
+            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+modelName)
+            InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=files+modelName) 
+            #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
     print(InfectedCountDict.items())
     print(R0Dict.items())

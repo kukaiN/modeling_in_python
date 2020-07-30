@@ -1537,8 +1537,8 @@ class AgentBasedModel:
             newdata[buildingType] = count
         
         maxInfected = max(data["TotalInfected"])
-        if self._debug:
-            print(f"p: {self.baseP}, R0: {self.R0Calculation}, total ever in exposed {totalExposed}, max infected {maxInfected}")
+        
+        print(f"p: {self.baseP}, R0: {self.R0Calculation}, total ever in exposed {totalExposed}, max infected {maxInfected}")
         otherData = {"total":totalExposed, "max":maxInfected}
         return (newdata, otherData, data, totalExposed)
 
