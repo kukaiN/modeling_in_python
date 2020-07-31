@@ -185,17 +185,6 @@ def main():
                 ("ShowingUpForScreening", 1),
             ],
         },
-        "Minimal": {
-            "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine"]),
-                ("ComplianceRatio", 0.5),
-                ],
-            "Quarantine": [
-                ("ResultLatency", 2*24), 
-                ("BatchSize", 100),
-                ("ShowingUpForScreening", 0.8),
-                ],
-        }, 
         "NC_WP":{
             # N = 100, L = 4, B = {G, L}, D = 0
             # f = 0, c = 0.80, h = 0.50, s' = 0
@@ -245,7 +234,7 @@ def main():
             "HybridClass":[
                 ("RemoteStudentCount", 500),
                 ("RemoteFacultyCount", 150),
-                ("RemovedDoubleCount", 275), # 525 - 250 = 275
+                ("RemovedDoubleCount", 250), # 525 - 250 = 275
                 ("OffCampusCount", 250),
                 ("TurnOffLargeGathering", True),
                 ("ChangedSeedNumber", 7),
@@ -458,6 +447,17 @@ def main():
         },     
     }
     """ # 
+        "Minimal": {
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine"]),
+                ("ComplianceRatio", 0.5),
+                ],
+            "Quarantine": [
+                ("ResultLatency", 2*24), 
+                ("BatchSize", 100),
+                ("ShowingUpForScreening", 0.8),
+                ],
+        }, 
             "Moderate": {
                 "World": [
                     ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings"]),
@@ -693,6 +693,7 @@ def main():
     print(R0Dict.items())
     
     if True:
+        import fileRelated as flr
         saveName = "comparingModels_"+simulationGeneration
         labels = []
         R0data = []
