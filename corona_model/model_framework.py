@@ -867,7 +867,7 @@ class AgentBasedModel:
        
         socialP = self.config["World"]["socialInteraction"]
         if self.lessSocial_intervention:
-            socialP *= self.config["LessSocializing"]["SocializingProbability"]
+            socialP *= (1-self.config["LessSocializing"]["StayingHome"])
             print("social p", socialP)
         schedules, onVsOffCampus = schedule_students.scheduleCreator(socialP)
         fac_schedule, randomizedFac = schedule_faculty.scheduleCreator()
