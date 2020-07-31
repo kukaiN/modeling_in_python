@@ -682,7 +682,7 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 1 if index < 1 else 1
         multiCounts = 1
-        if index in [0, 9]: 
+        if index > -1: 
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             modelName=typeName+modelName+"_"+str(simulationGeneration)
             model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
