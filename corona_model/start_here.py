@@ -244,7 +244,7 @@ def main():
             #N = 500, L = 2, B = {G, L, DH, LG, O}, D=1300
             # f = 0, c = 0.80, h = 0.50, s' = 0
             "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
                 ("ComplianceRatio", 0), # f
                 ("LargeGathering", False)
             ],
@@ -682,7 +682,7 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 1 if index < 1 else 1
         multiCounts = 1
-        if index in [9]: 
+        if index in [0, 9]: 
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             modelName=typeName+modelName+"_"+str(simulationGeneration)
             model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
