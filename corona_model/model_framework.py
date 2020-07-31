@@ -395,8 +395,9 @@ class AgentBasedModel:
             return True if interventionName.lower() in [intervention.lower() for intervention in self.config["World"]["TurnedOnInterventions"]] else False
     
         self.faceMask_intervention = inInterventions("FaceMasks")
-        self.walkIn = True if "walkin" in self.config["World"]["permittedAction"] else False
+        
         self.quarantine_intervention = inInterventions("Quarantine")
+        self.walkIn = True if self.config["Quantine"]["WalkIn"] else False
         self.closedBuilding_intervention = inInterventions("ClosingBuildings")
         self.hybridClass_intervention = inInterventions("HybridClasses")
         self.lessSocial_intervention = inInterventions("LessSocial")
@@ -734,6 +735,7 @@ class AgentBasedModel:
         
         if self.hybridClass_intervention:
             seedNumber = self.config["HybridClass"]["ChangedSeedNumber"]
+            self.config["Infection"]["SeedNumber"] = self.config["HybridClass"]["ChangedSeedNumber"]
         else:
             seedNumber = self.config["Infection"]["SeedNumber"]
         seedState = self.config["Infection"]["SeedState"]
