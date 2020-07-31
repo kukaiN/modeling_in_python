@@ -397,7 +397,7 @@ class AgentBasedModel:
         self.faceMask_intervention = inInterventions("FaceMasks")
         
         self.quarantine_intervention = inInterventions("Quarantine")
-        self.walkIn = True if self.config["Quantine"]["WalkIn"] else False
+        self.walkIn = True if self.config["Quarantine"]["WalkIn"] and self.quarantine_intervention else False
         self.closedBuilding_intervention = inInterventions("ClosingBuildings")
         self.hybridClass_intervention = inInterventions("HybridClasses")
         self.lessSocial_intervention = inInterventions("LessSocial")
