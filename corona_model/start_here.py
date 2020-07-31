@@ -103,7 +103,7 @@ def main():
             "offset": 9, # start at 9AM
             "checkupFrequency": 24*1,
             "falsePositive":0.001,
-            "falseNegative":0#0.03,
+            "falseNegative":0#0.03,s
         },
         "ClosingBuildings": {
             "ClosedBuildingOpenHub" : [],
@@ -205,7 +205,7 @@ def main():
         "Moderate": {
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings"]),
-                ("ComplianceRatio", 0.5)
+                ("ComplianceRatio", 0.5),
             ],
             "Quarantine": [
                 ("ResultLatency", 2*24), 
@@ -262,8 +262,8 @@ def main():
                 ("ClosedBuildingType", ["gym", "library", "office"]),
                 ("ClosedBuildingOpenHub", ["dining"]),
                 ("GoingHomeP", 1),
-                ("Exception_SemiClosedBuilding",["dining"])
-                ("Exception_GoingHomeP",1)
+                ("Exception_SemiClosedBuilding",["dining"]),
+                ("Exception_GoingHomeP",1),
             ],
             "HybridClass":[
                 ("RemoteStudentCount", 1000),
