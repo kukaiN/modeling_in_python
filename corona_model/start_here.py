@@ -68,7 +68,7 @@ def main():
             "InferedSimulatedDays":100,
             # put the name(s) of intervention(s) to be turned on 
             "TurnedOnInterventions":[],# ["HybridClasses", "ClosingBuildings", "Quarantine", "FaceMasks"], 
-            "permittedAction": [],#["walkin"],
+            "permittedAction": ["walkin"],
             "transitName": "transit_space_hub",
             "offCampusInfectionProbability":0.125/880,
             "massInfectionRatio":0.10,
@@ -661,6 +661,9 @@ def main():
     """
     
     R0_controls = {
+        "World":[
+            ("permittedAction", ["Walkin"])
+        ],
         "Infection" : [
             ("SeedNumber", 10),
         ],
@@ -670,7 +673,7 @@ def main():
     }
     R0Dict = dict()
     InfectedCountDict = dict()
-    simulationGeneration = "1"
+    simulationGeneration = "2"
     osName = platform.system()
     files = "images\\" if osName.lower() == "windows" else "images/"
     osExtension = "win" if osName.lower() == "windows" else "Linux"
@@ -681,45 +684,46 @@ def main():
         for categoryKey, listOfControls in modelControl.items():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
-        R0Count = 100 if index < 1 else 30
-        multiCounts = 40
-        if index > -1: 
+        R0Count = 20 if index < 1 else 10
+        multiCounts = 5
+        if index >-1: 
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             modelName=typeName+modelName+"_"+str(simulationGeneration)
-            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
-            InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
-            #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
+            #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
+            #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
+            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
-    #print(InfectedCountDict.items())
-    #print(R0Dict.items())
+    print(InfectedCountDict.items())
+    print(R0Dict.items())
     
     if True:
         import fileRelated as flr
         saveName = "comparingModels_"+simulationGeneration
-        labels = []
-        R0data = []
-        R0AnalyzedData = []
-        for key, value in R0Dict.items():
-            labels.append(key)
-            R0data.append(value[0])
-            R0AnalyzedData.append(value[1]) 
-        flr.savePickle(flr.fullPath(osExtension+ saveName, "picklefile"), R0Dict)
-        statfile.boxplot(R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
-             ylabel="Infected people (R0)", labels=labels, savePlt=True, saveName=osExtension+"R0_box_"+saveName)
-        statfile.barChart(R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
-            ylabel="Infected Agents (R0)", labels=labels, savePlt=True, saveName=osExtension+"R0_bar_"+saveName)
-
-        labels = []
-        infectedCounts = []
-      
-        for key, value in InfectedCountDict.items():
-            labels.append(key)
-            infectedCounts.append(value)
-        flr.savePickle(flr.fullPath(osExtension+ saveName, "picklefile"), InfectedCountDict)
-        statfile.boxplot(infectedCounts,oneD=False, pltTitle="Infection Comparison (box)", xlabel="Model Name",
-             ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"infe_box_"+saveName)
-        statfile.barChart(infectedCounts, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
-            ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"infe_bar_"+saveName)
+        if len(R0Dict) > 0:
+            labels = []
+            R0data = []
+            R0AnalyzedData = []
+            
+            for key, value in R0Dict.items():
+                labels.append(key)
+                R0data.append(value[0])
+                R0AnalyzedData.append(value[1]) 
+            flr.savePickle(flr.fullPath(osExtension+ saveName, "picklefile"), R0Dict)
+            statfile.boxplot(R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
+                ylabel="Infected people (R0)", labels=labels, savePlt=True, saveName=osExtension+"R0_box_"+saveName)
+            statfile.barChart(R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
+                ylabel="Infected Agents (R0)", labels=labels, savePlt=True, saveName=osExtension+"R0_bar_"+saveName)
+        if len(InfectedCountDict) > 0:
+            labels = []
+            infectedCounts = []
+            for key, value in InfectedCountDict.items():
+                labels.append(key)
+                infectedCounts.append(value)
+            flr.savePickle(flr.fullPath(osExtension+ saveName, "picklefile"), InfectedCountDict)
+            statfile.boxplot(infectedCounts,oneD=False, pltTitle="Infection Comparison (box)", xlabel="Model Name",
+                ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"infe_box_"+saveName)
+            statfile.barChart(infectedCounts, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
+                ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"infe_bar_"+saveName)
          
 if __name__ == "__main__":
     main()

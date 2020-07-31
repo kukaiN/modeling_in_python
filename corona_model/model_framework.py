@@ -100,7 +100,7 @@ def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeri
     model = createModel(configCopy, debug=debug, R0=True)
     if debug:
         max_limits = dict()
-    days=40
+    days=20
     t1 = time.time()
     for i in range(simulationN):
         print("*"*20, "starting model")
@@ -1072,7 +1072,7 @@ class AgentBasedModel:
                 # update 4 times to move the agents to their final destination
                 # 4 is the max number of updates required for moving the agents from room --> building_hub --> transit_hub --> building_hub --> room
                 if self.lazySunday and self.dateDescriptor == "LS":
-                    if self._debug:
+                    if self._debug and False:
                         print(f"at time {self.time} lazy sunday, no one is moving")
                 else:
                     for _ in range(4):
@@ -1081,7 +1081,7 @@ class AgentBasedModel:
                 self.infection()
            
             # if weekdays
-            if self.dateDescriptor != "W" and self.dateDescriptor!="LS":
+            if self.dateDescriptor != "W" or self.dateDescriptor!="LS":
                 if modTime == 8:
                     self.checkForWalkIn()
                 if self.quarantine_intervention and self.time%self.quarantineInterval == self.config["Quarantine"]["offset"]: 
@@ -1236,7 +1236,7 @@ class AgentBasedModel:
                                 self.changeStateDict(agentId,"susceptible", "exposed")
                                 room.infectedNumber+=1
                                 index1+=1
-                                if self._debug:
+                                if self._debug and False:
                                     contribution = self.infectionWithinPopulation(self.rooms[roomId].agentsInside, roomId)
                                     
                                     if room.building_type == "social":
@@ -1375,10 +1375,12 @@ class AgentBasedModel:
         
         # if agents got a screening, they get their results 
         if self.quarantine_intervention and len(self.quarantineList) > 0:
-            if (self.time-self.config["Quarantine"]["ResultLatency"]) == self.screeningTime[0]:  
+            if (self.time-self.config["Quarantine"]["ResultLatency"]) >= self.screeningTime[0]:  
+                print(self.quarantineList, self.falsePositiveList, self.screeningTime)
                 quarantined_agent = self.quarantineList.pop(0) # get the test result for the first group in the queue
                 falsePos_agent = self.falsePositiveList.pop(0)
                 resultTime = self.screeningTime.pop(0)
+                
                 if len(quarantined_agent)+len(falsePos_agent) > 0: 
                     if self._debug:
                         print(f"Isolating at time: {self.time}, {self.dateDescriptor}, {self.config['Quarantine']['ResultLatency']} delay isolation of {len(quarantined_agent) + len(falsePos_agent)} agents, there are {len(self.quarantineList)} group backlog")
