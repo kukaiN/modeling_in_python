@@ -116,7 +116,7 @@ def main():
             
         },
         "HybridClass":{
-            "RemoteStudentCount": 1000,
+            "RemoteStudentCount": 500,
             "RemoteFacultyCount": 180,
             "RemovedDoubleCount": 0,
             "OffCampusCount": 500,
@@ -162,7 +162,7 @@ def main():
                 ("TurnedOnInterventions", ["HybridClasses"]),
                 ],
             "HybridClass":[
-                ("RemoteStudentCount", 1000),
+                ("RemoteStudentCount", 500),
                 ("RemoteFacultyCount", 300),
                 ("RemovedDoubleCount", 525),
                 ("OffCampusCount", 500),
@@ -232,9 +232,9 @@ def main():
                 ("StayingHome",0), # s'
             ],
             "HybridClass":[
-                ("RemoteStudentCount", 500),
+                ("RemoteStudentCount", 250),
                 ("RemoteFacultyCount", 150),
-                ("RemovedDoubleCount", 250), # 525 - 250 = 275
+                ("RemovedDoubleCount", 325), # 525 doubles, extra agents = 200, means need 200 double beds available
                 ("OffCampusCount", 250),
                 ("TurnOffLargeGathering", True),
                 ("ChangedSeedNumber", 7),
@@ -264,7 +264,7 @@ def main():
                 ("StayingHome",0), # s'
             ],
             "HybridClass":[
-                ("RemoteStudentCount", 1000),
+                ("RemoteStudentCount", 500),
                 ("RemoteFacultyCount", 300),
                 ("RemovedDoubleCount", 525), #525 = total number of double
                 ("OffCampusCount", 500),
@@ -318,9 +318,9 @@ def main():
                 ("StayingHome",0.25), # s'
             ],
             "HybridClass":[
-                ("RemoteStudentCount", 500),
+                ("RemoteStudentCount", 250),
                 ("RemoteFacultyCount", 150),
-                ("RemovedDoubleCount", 275), # 525 - 250 = 275
+                ("RemovedDoubleCount", 325), # 525 - 250 = 275
                 ("OffCampusCount", 250),
                 ("TurnOffLargeGathering", True),
                 ("ChangedSeedNumber", 7),
@@ -349,7 +349,7 @@ def main():
                 ("StayingHome",0.25), # s' = 0.25
             ],
             "HybridClass":[
-                ("RemoteStudentCount", 1000),
+                ("RemoteStudentCount", 500),
                 ("RemoteFacultyCount", 300),
                 ("RemovedDoubleCount", 525), #525 = total number of double
                 ("OffCampusCount", 500),
@@ -405,9 +405,9 @@ def main():
                 ("StayingHome",0.75), # s'
             ],
             "HybridClass":[
-                ("RemoteStudentCount", 500),
+                ("RemoteStudentCount", 250),
                 ("RemoteFacultyCount", 150),
-                ("RemovedDoubleCount", 275), # 525 - 250 = 275
+                ("RemovedDoubleCount", 325), # 525 - 250 = 275
                 ("OffCampusCount", 250),
                 ("TurnOffLargeGathering", True),
                 ("ChangedSeedNumber", 7),
@@ -437,7 +437,7 @@ def main():
                 ("StayingHome",0.75), # s' = 0.75
             ],
             "HybridClass":[
-                ("RemoteStudentCount", 1000),
+                ("RemoteStudentCount", 500),
                 ("RemoteFacultyCount", 300),
                 ("RemovedDoubleCount", 525), #525 = total number of double
                 ("OffCampusCount", 500),
@@ -682,7 +682,7 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 1 if index < 1 else 1
         multiCounts = 1
-        if index in [1, 9]: 
+        if index in [9]: 
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             modelName=typeName+modelName+"_"+str(simulationGeneration)
             model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)

@@ -572,17 +572,22 @@ class AgentBasedModel:
         onCampusIds = self.getAgents("onCampus", "Agent_type")
         offCampusIds = self.getAgents("offCampus", "Agent_type")
         facultyIds = self.getAgents("faculty", "Agent_type")
+        
         onCampusCount = len(onCampusIds)
         offCampusCount = len(offCampusIds)
         facultyCount =  len(facultyIds)
         offCampusLeaf = self.findMatchingRooms("building_type","offCampus")[0]
+
         if self.hybridClass_intervention:
+          
+           
             hybridDict = self.config["HybridClass"]
             self.largeGathering = not hybridDict["TurnOffLargeGathering"]
             # these are the number of agents we need to convert
-            remoteStudentCount = min(onCampusCount, hybridDict["RemoteStudentCount"]-offCampusCount)
+            remoteStudentCount = min(onCampusCount, hybridDict["RemoteStudentCount"])
             remoteFacultyCount = min(facultyCount, hybridDict["RemoteFacultyCount"])
             remoteOffCampusCount = min(offCampusCount, hybridDict["OffCampusCount"])
+
             self.remoteCount = remoteStudentCount + remoteFacultyCount
             if self._debug:
                 print(f"HybridClass in effect, {remoteStudentCount} many agents are re-configured (onCampus --> OffCampus), and {remoteFacultyCount} faculty are remote")
@@ -591,9 +596,11 @@ class AgentBasedModel:
             self.remoteOffCampusIds = set(np.random.choice(offCampusIds, size=remoteOffCampusCount, replace=False))
             self.rooms[offCampusLeaf].limit+=self.remoteCount
             self.rooms[offCampusLeaf].capacity+= self.remoteCount
-          
+     
+
             for agentId, agent in self.agents.items():
                 if agentId in self.remoteStudentIds:
+                    
                     agent.initial_location = "offCampus"
                 elif agentId in self.remoteFacultyIds:
                     agent.initial_location = "offCampus"
@@ -616,9 +623,10 @@ class AgentBasedModel:
             dorms = self.findMatchingRooms("building_type", "dorm")
             doubleRooms = [roomId for roomId in dorms if self.rooms[roomId].capacity == 2]
             convertCount = min(len(doubleRooms), self.config["HybridClass"]["RemovedDoubleCount"])
+            print(f"{len(dorms) -len(doubleRooms)} single dorms and {len(doubleRooms)} doubles")
             for roomId in np.random.choice(doubleRooms, size=convertCount, replace=False):
                 self.rooms[roomId].capacity = 1
-            print("NewCap", sum(self.rooms[roomId].capacity for roomId in dorms))
+            print("NewCap", sum(self.rooms[roomId].capacity for roomId in dorms) ,"and we have", self.countAgents("onCampus", "Agent_type"), 'oncampusStudents but', self.countAgents("dorm", "initial_location"), "in dorm")
         dormRoom = self.findMatchingRooms("building_type", "dorm")
 
         for agentId, agent in self.agents.items():
