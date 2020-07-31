@@ -85,7 +85,7 @@ def main():
             "MaskBlock":0.75,
             "NonCompliantLeaf": ["dorm", "dining", "faculty_dining_hall", "faculty_dining_room"],
             "CompliantHub" : ["dorm", "dining"],
-            "NonCompliantBuilding" : ["social", "largeGathering"],
+            "NonCompliantBuilding" : ["largeGathering"],
         },
         "Quarantine" : {
             # this dictates if we randomly sample the population or cycle through Batches
@@ -155,7 +155,8 @@ def main():
 
 
     ControlledExperiment = {
-        "baseModel":{}, # no changes
+        "baseModel":{
+        }, # no changes
         "facemasks_f1":{
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks"]),
@@ -179,6 +180,16 @@ def main():
             "World": [
                 ("TurnedOnInterventions", ["LessSocial"]),
                 ],
+        },
+        "justQuarantine":{
+            "World": [
+                ("TurnedOnInterventions", ["Quarantine"]),
+            ],
+            "Quarantine": [
+                ("ResultLatency", 2*24), 
+                ("BatchSize", 500),
+                ("ShowingUpForScreening", 1),
+            ],
         },
         "Minimal": {
             "World": [
@@ -206,6 +217,36 @@ def main():
                 ("GoingHomeP", 0.5),
             ]
         }, 
+        "Moderate_h1": {
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings"]),
+                ("ComplianceRatio", 0.5)
+            ],
+            "Quarantine": [
+                ("ResultLatency", 2*24), 
+                ("BatchSize", 250),
+                ( "ShowingUpForScreening", 0.8),
+                ],
+            "ClosingBuildings": [
+                ("ClosedBuildingType", ["gym", "library"]),
+                ("GoingHomeP", 1),
+            ]
+        },
+        "Moderate_h1c1": {
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings"]),
+                ("ComplianceRatio", 0.5)
+            ],
+            "Quarantine": [
+                ("ResultLatency", 2*24), 
+                ("BatchSize", 250),
+                ( "ShowingUpForScreening", 1),
+                ],
+            "ClosingBuildings": [
+                ("ClosedBuildingType", ["gym", "library"]),
+                ("GoingHomeP", 1),
+            ]
+        },
         "Strong":{
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses", "LessSocial"]),
@@ -221,6 +262,8 @@ def main():
                 ("ClosedBuildingType", ["gym", "library", "office"]),
                 ("ClosedBuildingOpenHub", ["dining"]),
                 ("GoingHomeP", 1),
+                ("Exception_SemiClosedBuilding",["dining"])
+                ("Exception_GoingHomeP",1)
             ],
             "HybridClass":[
                 ("RemoteStudentCount", 1000),
@@ -356,6 +399,9 @@ def main():
                 ("ChangedSeedNumber", 5),
             ],
         },
+        "Strong+LargeGathering+social":{
+
+        }
     }
     R0_controls = {
     }
@@ -373,11 +419,11 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100 if index < 1 else 40
         multiCounts = 1
-        if index > 5: 
+        if index == 5: 
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             modelName=typeName+modelName+"_"+str(simulationGeneration)
-            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=files+modelName)
-            InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=files+modelName) 
+            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
+            #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
             #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
     print(InfectedCountDict.items())
@@ -392,6 +438,7 @@ def main():
             labels.append(key)
             R0data.append(value[0])
             R0AnalyzedData.append(value[1]) 
+        flr.savePickle(flr.fullPath(saveName, "picklefile"), R0Dict)
         statfile.boxplot(R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
              ylabel="Infected people (R0)", labels=labels, savePlt=True, saveName="R0_box_"+saveName)
         statfile.barChart(R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
@@ -403,6 +450,7 @@ def main():
         for key, value in InfectedCountDict.items():
             labels.append(key)
             infectedCounts.append(value)
+        flr.savePickle(flr.fullPath(saveName, "picklefile"), InfectedCountDict)
         statfile.boxplot(infectedCounts,oneD=False, pltTitle="Infection Comparison (box)", xlabel="Model Name",
              ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName="infe_box_"+saveName)
         statfile.barChart(infectedCounts, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 

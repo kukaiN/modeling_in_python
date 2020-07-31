@@ -47,7 +47,7 @@ def multiSimulation(simulationCount, modelConfig, days, debug, modelName):
             for (k, v) in individualResult.items():
                 multiResults[k] = multiResults.get(k, []) + [v]
             dfobj = pd.DataFrame.from_dict(multiResults, orient="index")
-            flr.save_df_to_csv(modelName+".csv", dfobj)
+            flr.save_df_to_csv(flr.fullPath(modelName+".csv", "outputs"), dfobj)
         infectionData.append(result[3])
     print(infectionData)   
     return infectionData
@@ -84,9 +84,9 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
     #    print(description, tupVal)
     if visuals:
         fileformat = ".png"
-        model.visualOverTime(False, True, modelName+fileformat)
+        model.visualOverTime(False, True, flr.fullPath(modelName+fileformat, "outputs"))
         modelName+="_total"
-        model.visualOverTime(True, True, modelName+fileformat)
+        model.visualOverTime(True, True, flr.fullPath(modelName+fileformat, "outputs"))
     #model.visualizeBuildings()
     # return (newdata, otherData, data, totalExposed)
     return model.outputs()

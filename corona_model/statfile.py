@@ -1,6 +1,7 @@
 import statistics as stat
 import numpy as np
 import matplotlib.pyplot as plt
+import fileRelated as flr
 # this file is used for analyzing the data and providing insights
 
 def analyzeModel(simulationData):
@@ -94,19 +95,24 @@ def boxplot(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel=
     else:
         xticks = [a+ 1 for a in range(len(data))]
     ax1.set_xticks(xticks)
+    ax1.set_xticklabels(labels)
     ax1.set_xlabel(xlabel)
     ax1.set_ylabel(ylabel)
     fig1.tight_layout()
     
-    
-    
-    if labels != [] and len(labels) == len(data):
-        plt.setp(ax1, xticks=xticks, xticklabels=labels)
+    ax1.spines['top'].set_visible(False)
+    ax1.spines['right'].set_visible(False)
+    #ax.spines['bottom'].set_visible(False)
+    #ax.spines['left'].set_visible(False)
+    plt.setp(ax1.get_xticklabels(), rotation=45, ha="right", rotation_mode="anchor")
+    #if labels != [] and len(labels) == len(data):
+    #    #plt.setp(ax1, xticks=xticks, xticklabels=labels)
+    #    #ax1.set_xticklabels(labels, rotation=45, ha="right")
     if savePlt:
         if not saveName.endswith(".png"):
             saveName+=".png"
         print("image saved as", saveName)
-        plt.savefig(saveName)
+        plt.savefig(flr.fullPath(saveName, "outputs"))
     else:
         plt.show()
     plt.close()
@@ -128,9 +134,11 @@ def barChart(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel
     barObject = ax1.bar(barLoc, mean, width, yerr=standardDev)
     #ax1.yaxis.grid(True)
     ax1.set_xticks(barLoc)
-    ax1.set_xticklabels(labels)
+    ax1.set_xticklabels(labels, rotation=45, ha="right")
     ax1.set_xlabel(xlabel)
     ax1.set_ylabel(ylabel)
+    ax1.spines['top'].set_visible(False)
+    ax1.spines['right'].set_visible(False)
     for bar in barObject:
         height = bar.get_height()
         ax1.annotate('{}'.format(height), xy=(bar.get_x() + bar.get_width() / 2, height), xytext=(0, 3),  # 3 points vertical offset
@@ -140,7 +148,7 @@ def barChart(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel
     if savePlt:
         if not saveName.endswith(".png"):
             saveName+=".png"
-        plt.savefig(saveName)
+        plt.savefig(flr.fullPath(saveName, "outputs"))
     else:
         plt.show()
     plt.close()
@@ -209,7 +217,7 @@ def main():
 
     data2 =[[1,1,1,1,1,1,1,14,6,7,7,4,3,12,3,4], [6,4,32,2,43], [1,1,1,1]]
     data3=data2[0]
-    label = ["a", "bn", "c"]
+    label = ["base case", "case 2", "case 3"]
     barChart(data2, labels=label)
     #barChart(data3,oneD=True, labels=["a"])
     boxplot(data2,  labels=label)

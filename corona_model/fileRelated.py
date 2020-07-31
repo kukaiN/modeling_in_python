@@ -21,6 +21,10 @@ def loadPickle(filePath, default=["default"]):
             pickle.dump(content, f)
     return content
 
+def savePickle(filePath, content):
+    with open(filePath, "wb") as f:
+        pickle.dump(content, f)
+
 def savedf2Pickle(filePath, content):
     """
         save a dataframe to a .pkl file
