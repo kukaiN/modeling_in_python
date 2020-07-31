@@ -95,7 +95,10 @@ def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeri
     R0Values = []
     configCopy = dict(modelConfig)
     for variableTup in R0Control:
-        configCopy[variableTup[0]] = variableTup[1]
+        if variableTup[0] in configCopy.keys():
+            configCopy[variableTup[0]] = variableTup[1]
+        else:
+            print("Error"*10)
     # base model
     model = createModel(configCopy, debug=debug, R0=True)
     if debug:

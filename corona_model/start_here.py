@@ -662,15 +662,12 @@ def main():
     """
     
     R0_controls = {
-        "World":[
-            ("permittedAction", ["Walkin"])
-        ],
         "Infection" : [
             ("SeedNumber", 10),
         ],
         "HybridClass":[
             ("ChangedSeedNumber", 10),
-        ]
+        ],
     }
     R0Dict = dict()
     InfectedCountDict = dict()
@@ -702,30 +699,49 @@ def main():
         import fileRelated as flr
         saveName = "comparingModels_"+simulationGeneration
         if len(R0Dict) > 0:
-            labels = []
-            R0data = []
+            und_labels = []
+            und_R0data = []
             R0AnalyzedData = []
-            
+            reg_labels = []
+            reg_R0data = []
             for key, value in R0Dict.items():
-                labels.append(key)
-                R0data.append(value[0])
+                if "_" in key:
+                    und_labels.append(key)
+                    und_R0data.append(value[0])
+                else:
+                    reg_labels.append(key)
+                    reg_R0data.append(value[0])
                 R0AnalyzedData.append(value[1]) 
             flr.savePickle(flr.fullPath(osExtension+ saveName, "picklefile"), R0Dict)
-            statfile.boxplot(R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
-                ylabel="Infected people (R0)", labels=labels, savePlt=True, saveName=osExtension+"R0_box_"+saveName)
-            statfile.barChart(R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
-                ylabel="Infected Agents (R0)", labels=labels, savePlt=True, saveName=osExtension+"R0_bar_"+saveName)
+            statfile.boxplot(und_R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
+                ylabel="Infected people (R0)", labels=und_labels, savePlt=True, saveName=osExtension+"9R0_box_"+saveName)
+            statfile.barChart(und_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
+                ylabel="Infected Agents (R0)", labels=und_labels, savePlt=True, saveName=osExtension+"9R0_bar_"+saveName)
+            statfile.boxplot(reg_R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
+                ylabel="Infected people (R0)", labels=reg_labels, savePlt=True, saveName=osExtension+"restR0_box_"+saveName)
+            statfile.barChart(reg_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
+                ylabel="Infected Agents (R0)", labels=reg_labels, savePlt=True, saveName=osExtension+"restR0_bar_"+saveName)
         if len(InfectedCountDict) > 0:
             labels = []
             infectedCounts = []
+            labels1 = []
+            infectedCounts1 = []
             for key, value in InfectedCountDict.items():
-                labels.append(key)
-                infectedCounts.append(value)
+                if "_" in key:
+                    labels.append(key)
+                    infectedCounts.append(value)
+                else:
+                    labels1.append(key)
+                    infectedCounts1.append(value)
             flr.savePickle(flr.fullPath(osExtension+ saveName, "picklefile"), InfectedCountDict)
             statfile.boxplot(infectedCounts,oneD=False, pltTitle="Infection Comparison (box)", xlabel="Model Name",
-                ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"infe_box_"+saveName)
+                ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_box_"+saveName)
             statfile.barChart(infectedCounts, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
-                ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"infe_bar_"+saveName)
+                ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_bar_"+saveName)
+            statfile.boxplot(infectedCounts1,oneD=False, pltTitle="Infection Comparison (box)", xlabel="Model Name",
+                ylabel="Total Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_box_"+saveName)
+            statfile.barChart(infectedCounts1, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
+                ylabel="Total Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_bar_"+saveName)
          
 if __name__ == "__main__":
     main()
