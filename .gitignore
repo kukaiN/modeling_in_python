@@ -1,3 +1,6 @@
 
 *.pkl
 *.pkl
+*.pyc
+corona_model/outputs/*
+corona_model/picklefile/*
