@@ -342,7 +342,7 @@ def main():
             "ClosingBuildings": [
                 ("ClosedBuildingOpenHub", ["dining"]),
                 ("ClosedBuilding_ByType", ["gym", "library", "office"]),
-                ("GoingHomeP", 0.75), # h = 0.5
+                ("GoingHomeP", 0.75), # h = 0.75
                 ("Exception_SemiClosedBuilding", ["dining", "faculty_dining_room"]),
                 ("Exception_GoingHomeP", 0.75), # h = 0.5
             ],
@@ -430,9 +430,9 @@ def main():
             "ClosingBuildings": [
                 ("ClosedBuildingOpenHub", ["dining"]),
                 ("ClosedBuilding_ByType", ["gym", "library", "office"]),
-                ("GoingHomeP", 0.5), # h = 1
+                ("GoingHomeP", 1), # h = 1
                 ("Exception_SemiClosedBuilding", ["dining", "faculty_dining_room"]),
-                ("Exception_GoingHomeP", 0.5), # h = 1
+                ("Exception_GoingHomeP", 1), # h = 1
             ],
             "LessSocializing":[
                 ("StayingHome",0.75), # s' = 0.75
@@ -669,6 +669,8 @@ def main():
             ("ChangedSeedNumber", 10),
         ],
     }
+    import time
+    t1 = time.time()
     R0Dict = dict()
     InfectedCountDict = dict()
     simulationGeneration = "3"
@@ -676,26 +678,25 @@ def main():
     files = "images\\" if osName.lower() == "windows" else "images/"
     osExtension = "win" if osName.lower() == "windows" else "Linux"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
-        break
+        
         configCopy = dict(modelConfig)
         print("*"*20)
         print(f"started working on initializing the simualtion for {modelName}")
         for categoryKey, listOfControls in modelControl.items():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
-        R0Count = 20 if index < 1 else 10
+        R0Count = 20 if index < 1 else 20
         multiCounts = 4
-        if index >-1: 
+        if index>4: 
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             modelName=typeName+modelName+"_"+str(simulationGeneration)
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
-            InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
-            #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
+            #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
+            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
     print(InfectedCountDict.items())
     print(R0Dict.items())
-    aa = dict([('p_1.15_baseModel_2', [2357, 2369, 2378, 2376]), ('p_1.15_facemasksF1_2', [350, 322, 443, 233]), ('p_1.15_highDeden_2', [1039, 1041, 1047, 1031]), ('p_1.15_lessSocial_2', [2009, 2164, 1943, 1938]), ('p_1.15_Quarantine_2', [327, 426, 390, 479]), ('p_1.15_NC_WP_2', [34, 73, 133, 175]), ('p_1.15_NC_MP_2', [35, 25, 131, 59]), ('p_1.15_NC_SP_2', [11, 7, 7, 8]), ('p_1.15_SC_WP_2', [89, 84, 117, 55]), ('p_1.15_SC_MP_2', [17, 25, 68, 49]), ('p_1.15_SC_SP_2', [11, 9, 8, 5]), ('p_1.15_VC_WP_2', [33, 22, 33, 53]), ('p_1.15_VC_MP_2', [11, 14, 21, 18]), ('p_1.15_VC_SP_2', [7, 9, 9, 11])])
-    print(aa.items())
+ 
     if True:
         import fileRelated as flr
         saveName = "comparingModels_"+simulationGeneration
@@ -727,9 +728,9 @@ def main():
             infectedCounts = []
             labels1 = []
             infectedCounts1 = []
-            for key, value in aa.items():#InfectedCountDict.items():
+            for key, value in InfectedCountDict.items():#InfectedCountDict.items():
                 if "NC_" in key or "VC_" in key or "SC_" in key:
-                    labels.append(key[7:])
+                    labels.append(key)
                     infectedCounts.append(value)
                 else:
                     labels1.append(key)
@@ -744,6 +745,8 @@ def main():
                 ylabel="Total Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_box_"+saveName)
             statfile.barChart(infectedCounts1, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
                 ylabel="Total Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_bar_"+saveName)
-         
+    
+    timetook = time.time()-t1
+    print("took", timetook, "seconds", timetook/(60*60), "hours")  
 if __name__ == "__main__":
     main()

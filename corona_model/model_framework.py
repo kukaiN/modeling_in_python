@@ -1383,7 +1383,6 @@ class AgentBasedModel:
         # if agents got a screening, they get their results 
         if self.quarantine_intervention and len(self.quarantineList) > 0:
             if (self.time-self.config["Quarantine"]["ResultLatency"]) >= self.screeningTime[0]:  
-                print(self.quarantineList, self.falsePositiveList, self.screeningTime)
                 quarantined_agent = self.quarantineList.pop(0) # get the test result for the first group in the queue
                 falsePos_agent = self.falsePositiveList.pop(0)
                 resultTime = self.screeningTime.pop(0)
