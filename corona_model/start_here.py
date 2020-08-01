@@ -685,11 +685,11 @@ def main():
         for categoryKey, listOfControls in modelControl.items():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
-        R0Count = 20 if index < 1 else 20
-        multiCounts = 4
+        R0Count = 100 if index == 0 else (100 if index > 4 else 30)
+        multiCounts =  50 if index == 0 else (50 if index > 4 else 5)
         if index>4: 
-            typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
-            modelName=typeName+modelName+"_"+str(simulationGeneration)
+            
+            modelName=modelName+"_"+str(simulationGeneration)
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
             #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
             R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
