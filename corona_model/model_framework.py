@@ -94,11 +94,13 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
 def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeriesVisual=False, R0Visuals=False, modelName="default"):
     R0Values = []
     configCopy = dict(modelConfig)
-    for variableTup in R0Control:
-        if variableTup[0] in configCopy.keys():
-            configCopy[variableTup[0]] = variableTup[1]
-        else:
-            print("Error"*10)
+    for key, tups in R0Control.items():
+        for variableTup in tups:
+            if variableTup[0] in configCopy[key].keys():
+                configCopy[key][variableTup[0]] = variableTup[1]
+            else:
+                print("Error"*10)
+                print(variableTup[0], configCopy[key].keys())
     # base model
     model = createModel(configCopy, debug=debug, R0=True)
     if debug:
