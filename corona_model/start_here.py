@@ -671,11 +671,12 @@ def main():
     }
     R0Dict = dict()
     InfectedCountDict = dict()
-    simulationGeneration = "2"
+    simulationGeneration = "3"
     osName = platform.system()
     files = "images\\" if osName.lower() == "windows" else "images/"
     osExtension = "win" if osName.lower() == "windows" else "Linux"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
+        break
         configCopy = dict(modelConfig)
         print("*"*20)
         print(f"started working on initializing the simualtion for {modelName}")
@@ -683,18 +684,18 @@ def main():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 20 if index < 1 else 10
-        multiCounts = 3
+        multiCounts = 4
         if index >-1: 
             typeName = "p_" + str(configCopy["Infection"]["baseP"]) + "_"
             modelName=typeName+modelName+"_"+str(simulationGeneration)
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
-            
             InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
             #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
     print(InfectedCountDict.items())
     print(R0Dict.items())
-    
+    aa = dict([('p_1.15_baseModel_2', [2357, 2369, 2378, 2376]), ('p_1.15_facemasksF1_2', [350, 322, 443, 233]), ('p_1.15_highDeden_2', [1039, 1041, 1047, 1031]), ('p_1.15_lessSocial_2', [2009, 2164, 1943, 1938]), ('p_1.15_Quarantine_2', [327, 426, 390, 479]), ('p_1.15_NC_WP_2', [34, 73, 133, 175]), ('p_1.15_NC_MP_2', [35, 25, 131, 59]), ('p_1.15_NC_SP_2', [11, 7, 7, 8]), ('p_1.15_SC_WP_2', [89, 84, 117, 55]), ('p_1.15_SC_MP_2', [17, 25, 68, 49]), ('p_1.15_SC_SP_2', [11, 9, 8, 5]), ('p_1.15_VC_WP_2', [33, 22, 33, 53]), ('p_1.15_VC_MP_2', [11, 14, 21, 18]), ('p_1.15_VC_SP_2', [7, 9, 9, 11])])
+    print(aa.items())
     if True:
         import fileRelated as flr
         saveName = "comparingModels_"+simulationGeneration
@@ -705,7 +706,7 @@ def main():
             reg_labels = []
             reg_R0data = []
             for key, value in R0Dict.items():
-                if "_" in key:
+                if "NC_" in key or "VC_" in key or "SC_" in key:
                     und_labels.append(key)
                     und_R0data.append(value[0])
                 else:
@@ -721,18 +722,19 @@ def main():
                 ylabel="Infected people (R0)", labels=reg_labels, savePlt=True, saveName=osExtension+"restR0_box_"+saveName)
             statfile.barChart(reg_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
                 ylabel="Infected Agents (R0)", labels=reg_labels, savePlt=True, saveName=osExtension+"restR0_bar_"+saveName)
-        if len(InfectedCountDict) > 0:
+        if len(InfectedCountDict) > 0 or True:
             labels = []
             infectedCounts = []
             labels1 = []
             infectedCounts1 = []
-            for key, value in InfectedCountDict.items():
-                if "_" in key:
-                    labels.append(key)
+            for key, value in aa.items():#InfectedCountDict.items():
+                if "NC_" in key or "VC_" in key or "SC_" in key:
+                    labels.append(key[7:])
                     infectedCounts.append(value)
                 else:
                     labels1.append(key)
                     infectedCounts1.append(value)
+            print(labels, labels1)
             flr.savePickle(flr.fullPath(osExtension+ saveName, "picklefile"), InfectedCountDict)
             statfile.boxplot(infectedCounts,oneD=False, pltTitle="Infection Comparison (box)", xlabel="Model Name",
                 ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_box_"+saveName)

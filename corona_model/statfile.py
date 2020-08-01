@@ -98,7 +98,7 @@ def boxplot(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel=
     ax1.set_xticklabels(labels)
     ax1.set_xlabel(xlabel)
     ax1.set_ylabel(ylabel)
-    fig1.tight_layout()
+    
     
     ax1.spines['top'].set_visible(False)
     ax1.spines['right'].set_visible(False)
@@ -108,6 +108,7 @@ def boxplot(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel=
     #if labels != [] and len(labels) == len(data):
     #    #plt.setp(ax1, xticks=xticks, xticklabels=labels)
     #    #ax1.set_xticklabels(labels, rotation=45, ha="right")
+    plt.tight_layout()
     if savePlt:
         if not saveName.endswith(".png"):
             saveName+=".png"
@@ -143,8 +144,8 @@ def barChart(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel
         height = bar.get_height()
         ax1.annotate('{}'.format(height), xy=(bar.get_x() + bar.get_width() / 2, height), xytext=(0, 3),  # 3 points vertical offset
                         textcoords="offset points", ha='center', va='bottom')
-    fig1.tight_layout()
-
+    
+    plt.tight_layout()
     if savePlt:
         if not saveName.endswith(".png"):
             saveName+=".png"
