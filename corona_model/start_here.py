@@ -475,7 +475,7 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100 if index == 0 else (100 if index > 4 else 30)
         multiCounts =  50 if index == 0 else (50 if index > 4 else 5)
-        R0Count = 5#, 80
+        R0Count = 10#, 80
         multiCounts = 30
         if index in [5, 8]: #6, 7, 8, 9, 10, 11, 12, 13]: 
             modelName=modelName+"_"+str(simulationGeneration)
@@ -485,7 +485,7 @@ def main():
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
     print(InfectedCountDict.items())
     print(R0Dict.items())
-    
+    return
     if True:
         import fileRelated as flr
         saveName = "comparingModels_"+simulationGeneration
