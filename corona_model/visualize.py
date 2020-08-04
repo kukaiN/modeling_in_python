@@ -22,11 +22,12 @@ def makeGraph(vertices, edges, vertices2Cluster, cluster2Vertices,clusterName, r
     colors = dict((buildingId, index/len(cluster)) for index ,(buildingId, cluster) in enumerate(cluster2Vertices.items()))
     #typeName = set(bType.building_type for bType in buildings.values())
     #taken care by clusterName
-    typeName = clusterName
-    typeCount = len(typeName)
+
+    clusters = set(clusterName.values())
+    groupColor = dict((key,index/len(clusters)) for index, key in enumerate(sorted(clusters)))
+    groupColor["dorm"], groupColor["transit"], groupColor["library"] = groupColor["library"], groupColor["dorm"], groupColor["transit"] 
     
-   
-    groupColor = dict((key,index/typeCount) for index, key in enumerate(sorted(typeName)))
+    print(groupColor.items())
     basedOnType = True
     cmap = mpl.cm.get_cmap("gist_rainbow")
     for node in nx.nodes(G):
@@ -43,10 +44,10 @@ def makeGraph(vertices, edges, vertices2Cluster, cluster2Vertices,clusterName, r
         else: # no labels
             labelList[node] = ""
         if basedOnType: # here
-            colorList.append(groupColor[clusterName[buildingId]])
+            colorList.append(groupColor[clusterName[buildingId]]-1)
         else:
             colorList.append(colors[building])
-    
+  
     pos = nx.spring_layout(G,k=0.05,  scale = 2)
     print(nx.info(G))
     print("labels for vertices:", [names for names in labelList.values() if names != ""])

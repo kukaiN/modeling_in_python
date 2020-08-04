@@ -120,6 +120,7 @@ def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeri
                 new_model.printRelevantInfo()
             new_model.updateSteps(24)
         if debug:
+            new_model.final_check()
             logDataDict = new_model.printRoomLog()
             for key, value in logDataDict.items():
                 max_limits[key] = max_limits.get(key, []) + [value]
@@ -383,6 +384,7 @@ class AgentBasedModel:
         # rename in the future, used to cache informstion to reduce the number of filtering thats happening in the future run
         self.state2IdDict=dict()
         self.gathering_count = 0
+        self.ghostAgents = set()
 
     def addKeys(self, tempDict):
         """
@@ -564,6 +566,7 @@ class AgentBasedModel:
         # make schedules for each agents, outside of pickle for testing and for randomization
         self.booleanAssignment()
         self.initializeHybridClasses()
+        self.initializeLargeGathering()
         self.initializeAgentsLocation()
         # start these two intervention after initializing agent's location, cause we remove agents from dorms
         # put agents in the right position
@@ -573,7 +576,10 @@ class AgentBasedModel:
         self.initialize_infection()
         self.initializeFaceMask()
         self.initializeTestingAndQuarantine()
-
+    
+    def initializeLargeGathering(self):
+        self.gatherers = set(agentId for agentId, agent in self.agents.items() if agent.gathering)
+        print(len(self.gatherers))
     def initializeHybridClasses(self):
         onCampusIds = self.getAgents("onCampus", "Agent_type")
         offCampusIds = self.getAgents("offCampus", "Agent_type")
@@ -606,11 +612,10 @@ class AgentBasedModel:
 
             for agentId, agent in self.agents.items():
                 if agentId in self.remoteStudentIds:
-                    
                     agent.initial_location = "offCampus"
                 elif agentId in self.remoteFacultyIds:
                     agent.initial_location = "offCampus"
-
+            self.ghostAgents = self.remoteStudentIds | self.remoteFacultyIds | self.remoteOffCampusIds
 
         else:
             self.remoteStudentIds, self.remoteFacultyIds = {}, {}
@@ -815,6 +820,7 @@ class AgentBasedModel:
         closedBuildingId = [roomId for bType in closedBuilding for roomId in self.findMatchingRooms("building_type", bType)]
         closedLeafOpenHub = [roomId for bType in self.config["ClosingBuildings"]["ClosedBuildingOpenHub"] for roomId in self.findMatchingRooms("building_type", bType)]
         semiClosedBuilding = [roomId for bType in self.config["ClosingBuildings"]["Exception_SemiClosedBuilding"] for roomId in self.findMatchingRooms("building_type", bType)]
+        print("closed", closedLeafOpenHub)
         for roomId in closedLeafOpenHub:
             self.rooms[roomId].Kv = 0
         self.homeP = self.config["ClosingBuildings"]["GoingHomeP"]
@@ -980,6 +986,14 @@ class AgentBasedModel:
         self.replaceByType(partitionTypes=["library", "dining","gym", "office"])
         students = [agentId for agentId, agent in self.agents.items() if agent.archetype == "student"]
         self.replacewithTwo(students)
+        typeCount = dict()
+        for agent in self.agents.values():
+            for row in agent.schedule:
+                for item in row:
+                    
+                    bType = self.rooms[item].building_type 
+                    typeCount[bType] = typeCount.get(bType, 0)+1
+        print(typeCount.items())
         print("finished assigning schedules")
         
         """
@@ -1070,6 +1084,7 @@ class AgentBasedModel:
  
     def updateSteps(self, step = 1): 
         if self.time == 0:
+            print("we have removed", len(self.ghostAgents))
             self.storeInformation()
         for _ in range(step):     
             self.time+=1
@@ -1093,6 +1108,7 @@ class AgentBasedModel:
                     self.checkForWalkIn()
                 if self.quarantine_intervention and self.time%self.quarantineInterval == self.config["Quarantine"]["offset"]: 
                     self.testForDisease()
+            if modTime == self.config["Quarantine"]["offset"]:
                 self.delayed_quarantine()
             # its a weekend and sunday midnight
             if (self.dateDescriptor == "LS" or self.dateDescriptor=="W") and self.time%(24*7) == 0:
@@ -1129,11 +1145,15 @@ class AgentBasedModel:
         counter = 0
         timeRem = self.time//self.timeIncrement
         for key, value in self.parameters.items():
-            if key != "susceptible" and key != "falsePositive":
-                counter += value[timeRem]                
+            if key == "falsePositive":
+                counter -= value[timeRem]
+            elif key != "susceptible":
+                counter += value[timeRem]  
+                      
         self.printRelevantInfo()
-        print(f"# infected: {counter}, initial: {self.config['Infection']['SeedNumber']}, Ave R0: {(counter - self.config['Infection']['SeedNumber'])/self.config['Infection']['SeedNumber']}")
-        return (counter - self.config["Infection"]["SeedNumber"])/self.config["Infection"]["SeedNumber"]
+        R0 = (counter - self.config["Infection"]["SeedNumber"])/self.config["Infection"]["SeedNumber"]
+        print(f"# infected: {counter}, initial: {self.config['Infection']['SeedNumber']}, Ave R0: {R0}")
+        return R0
     
     def initializeStoringParameter(self, listOfStatus):
         """
@@ -1243,7 +1263,7 @@ class AgentBasedModel:
                                 self.changeStateDict(agentId,"susceptible", "exposed")
                                 room.infectedNumber+=1
                                 index1+=1
-                                if self._debug and False:
+                                if self._debug:
                                     contribution = self.infectionWithinPopulation(self.rooms[roomId].agentsInside, roomId)
                                     
                                     if room.building_type == "social":
@@ -1367,7 +1387,7 @@ class AgentBasedModel:
             print(f"testing at time {self.time}, dayDes: {self.dateDescriptor}, caught the following (FalsePositive: {len(fpDelayedList)}, infected: {len(delayedList)})")
         self.falsePositiveList.append(fpDelayedList)
         self.quarantineList.append(delayedList)
-        self.screeningTime.append(self.time)
+        self.screeningTime.append(self.time+self.config['Quarantine']['ResultLatency'])
      
     def delayed_quarantine(self): 
         """
@@ -1381,20 +1401,23 @@ class AgentBasedModel:
         """
         
         # if agents got a screening, they get their results 
-        if self.quarantine_intervention and len(self.quarantineList) > 0:
-            if (self.time-self.config["Quarantine"]["ResultLatency"]) >= self.screeningTime[0]:  
+        if self.quarantine_intervention and len(self.screeningTime) > 0:
+            if self.time+1 > self.screeningTime[0]:  # +2 to reduce some inequality checking
                 quarantined_agent = self.quarantineList.pop(0) # get the test result for the first group in the queue
                 falsePos_agent = self.falsePositiveList.pop(0)
                 resultTime = self.screeningTime.pop(0)
                 
                 if len(quarantined_agent)+len(falsePos_agent) > 0: 
                     if self._debug:
-                        print(f"Isolating at time: {self.time}, {self.dateDescriptor}, {self.config['Quarantine']['ResultLatency']} delay isolation of {len(quarantined_agent) + len(falsePos_agent)} agents, there are {len(self.quarantineList)} group backlog")
+                        print(f"Isolating at time: {self.time}, {self.dateDescriptor}, latency: {self.config['Quarantine']['ResultLatency']},  isolation of {len(quarantined_agent) + len(falsePos_agent)} agents, there are {len(self.quarantineList)} group backlog")
                     for agentId in quarantined_agent:
                         self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
                     for agentId in falsePos_agent:
                         self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
                         self.addFalsePositive(agentId)
+                elif self._debug:
+                    print(self.time, resultTime, "Isolation, no one was infected in the batch", self.screeningTime)
+                    
 
     def addFalsePositive(self, agentId):
         self.state2IdDict["falsePositive"].add(agentId)
@@ -1418,8 +1441,8 @@ class AgentBasedModel:
          
     def big_gathering(self):
         if self.largeGathering: # big gathering at sunday midnight
-            agentIds = [agentId for agentId, agent in self.agents.items() if agent.gathering]
-            if len(agentIds) < 50:
+            agentIds = list(self.gatherers)
+            if len(agentIds) < 60:
                 print("not enough for a party")
                 return
             groupNumber = 3
@@ -1534,7 +1557,8 @@ class AgentBasedModel:
             counterDict[building.building_type] = counterDict.get(building.building_type, 0)+buildingCount 
             hubCounterDict[building.building_type] = hubCounterDict.get(building.building_type, 0)+buildingHub
             if self._debug:
-                print(building.building_name, building.building_type, "whole building", buildingCount, "hubs", buildingHub)
+                pass
+                #print(building.building_name, building.building_type, "whole building", buildingCount, "hubs", buildingHub)
         return counterDict
     
     def outputs(self):
@@ -1587,124 +1611,7 @@ class AgentBasedModel:
 
 def main():
     import start_here
-    modelConfig = {
-        "Agents" : {
-            "PossibleStates":{
-                "neutral" : ["susceptible", "exposed"],
-                "infected" : ["infected Asymptomatic", "infected Asymptomatic Fixed", "infected Symptomatic Mild", "infected Symptomatic Severe"],  
-                "recovered" : ["quarantined", "recovered"],
-                "debugAndGraphingPurpose": ["falsePositive"],
-                },
-            "ExtraParameters":[
-                        "agentId","path", "destination", "currLocation",
-                        "statePersistance","lastUpdate", "personality", 
-                        "arrivalTime", "schedule",  "gathering",
-                        # "travelTime", "officeAttendee",
-                ], # travelTime and officeAttendee will be commented out
-            "ExtraZipParameters": [("motion", "stationary"), ("infected", False), ("compliance", False)],
-            "booleanAssignment":[ ("gathering", 0.5)], # ("officeAttendee", 0),
-            
-        },
-        "Rooms" : {
-            "ExtraParameters": ["roomId","agentsInside","oddCap", "evenCap", "classname", "infectedNumber"],
-        },
-        "Buildings" : {
-            "ExtraParameters": ["buildingId","roomsInside"],
-        },
-        "Infection" : {
-            "baseP" : 1,
-            "SeedNumber" : 10,
-            "SeedState" : "exposed",
-            "Contribution" : {
-                "infected Asymptomatic":0.5,
-                "infected Asymptomatic Fixed":0.5,
-                "infected Symptomatic Mild":1,
-                "infected Symptomatic Severe":1,
-            },
-            # INFECTION STATE
-            "TransitionTime" : {
-                "susceptible" : -1, # never, unless acted on
-                "exposed" : 2*24, # 2 days
-                "infected Asymptomatic" : 2*24, # 2 days
-                "infected Asymptomatic Fixed" : 10*24, # 10 days
-                "infected Symptomatic Mild" : 10*24,# 10 Days
-                "infected Symptomatic Severe" : 10*24, # 10 days
-                "recovered" : -1, # never
-                "quarantined" : 24*14, # 2 weeks 
-            },
-            # INFECTION TRANSITION PROBABILITY
-            "TransitionProbability" : {
-                "susceptible" : [("exposed", 1)],
-                "exposed" : [("infected Asymptomatic", 0.85), ("infected Asymptomatic Fixed", 1)],
-                "infected Asymptomatic Fixed": [("recovered", 1)],
-                "infected Asymptomatic": [("infected Symptomatic Mild", 0.5), ("infected Symptomatic Severe", 1)],
-                "infected Symptomatic Mild": [("recovered", 1)],
-                "infected Symptomatic Severe": [("recovered", 1)],
-                "quarantined":[("susceptible", 1)],
-                "recovered":[("susceptible", 0.5), ("recovered", 1)],
-            },
-        },
-        "World" : {
-            "UnitTime" : "Hours",
-            # by having the supposed days to be simulated, 
-            # we can allocate the required space beforehand to speedup data storing
-            "InferedSimulatedDays":100,
-            # put the name(s) of intervention(s) to be turned on 
-            "TurnedOnInterventions":[],# ["HybridClasses", "ClosingBuildings", "Quarantine", "FaceMasks"], 
-            "permittedAction": [],#["walkin"],
-            #possible values:
-            #    1: facemask
-            #    3: testing for covid and quarantining
-            #    4: closing large buildings
-            #    5: removing office hours with professors
-            #    6: shut down large gathering 
-            "transitName": "transit_space_hub",
-            "offCampusInfectionProbability":0.125/880,
-            "massInfectionRatio":0.10,
-            "complianceRatio": 0,
-            "stateCounterInterval": 5,
-            "socialInteraction": 0.2,
-            "LazySunday": True,
-           
-        },
-       
-        # interventions
-        "FaceMasks" : {
-            "MaskInfectivity" : 0.5,
-            "MaskBlock":0.75,
-            "NonCompliantLeaf": ["dorm", "dining", "faculty_dining_hall"],
-            "CompliantHub" : ["dorm", "dining"],
-            "NonCompliantBuilding" : ["social", "largeGathering"],
-        },
-        "Quarantine" : {
-            # this dictates if we randomly sample the population or cycle through Batches
-            "RandomSampling": False,
-            # for random sampling from the agent population
-            "SamplingProbability" : 0,
-   
-            "ResultLatency":24,
-            "walkinProbability" : {
-                "infected Symptomatic Mild": 0.7, 
-                "infected Symptomatic Severe": 0.95,
-                },
-            "BatchSize" : 400,
-            
-            "offset": 9, # start at 9AM
-            "checkupFrequency": 24*1,
-            "falsePositive":0.001,
-            "falseNegative":0#0.03,
-        },
-        "ClosingBuildings": {
-            "ClosedBuildingType" : ["gym", "library"],
-            "ClosedButKeepHubOpened" : [],
-        },
-        "HybridClass":{
-            "RemoteStudentCount": 1000,
-            "RemoteFacultyCount": 180,
-            "TurnOffLargeGathering": True,
-        },
-
-    }
+    
     #model = createModel(modelConfig)
     #model.visualizeBuildings()
     start_here.main()
