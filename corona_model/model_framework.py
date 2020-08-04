@@ -579,7 +579,9 @@ class AgentBasedModel:
     
     def initializeLargeGathering(self):
         self.gatherers = set(agentId for agentId, agent in self.agents.items() if agent.gathering)
-        print(len(self.gatherers))
+        if self._debug:
+            print(len(self.gatherers))
+            
     def initializeHybridClasses(self):
         onCampusIds = self.getAgents("onCampus", "Agent_type")
         offCampusIds = self.getAgents("offCampus", "Agent_type")

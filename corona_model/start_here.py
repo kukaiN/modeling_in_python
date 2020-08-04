@@ -213,7 +213,7 @@ def main():
             #N = 250, L = 3, B = {G, L, DH, LG}, D=650
             # f = 0, c = 0.80, h = 0.50, s' = 0
             "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]), #"HybridClasses"]),
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
                 ("ComplianceRatio", 0), # f
                 ("LargeGathering", False)#################################################################################
             ],
@@ -226,7 +226,7 @@ def main():
                 ("ClosedBuildingOpenHub", ["dining"]), # ding stays open, but leaf Kv = 0####################################
                 ("ClosedBuilding_ByType", ["gym", "library"]),
                 ("GoingHomeP", 0.5), # h = 0.5
-                ("Exception_SemiClosedBuilding",[]),# ["dining", "faculty_dining_room"]), # replace these entrys 50/50###############
+                ("Exception_SemiClosedBuilding",["dining", "faculty_dining_room"]), # replace these entrys 50/50###############
                 ("Exception_GoingHomeP", 0.5),
             ],
             "LessSocializing":[
@@ -673,7 +673,7 @@ def main():
     t1 = time.time()
     R0Dict = dict()
     InfectedCountDict = dict()
-    simulationGeneration = "5"
+    simulationGeneration = "7"
     osName = platform.system()
     files = "images\\" if osName.lower() == "windows" else "images/"
     osExtension = "win" if osName.lower() == "windows" else "Linux"
@@ -687,18 +687,17 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100 if index == 0 else (100 if index > 4 else 30)
         multiCounts =  50 if index == 0 else (50 if index > 4 else 5)
-        R0Count = 5
-        multiCounts = 5
+        R0Count = 80
+        multiCounts = 30
         if index in [5, 6, 7, 8, 9, 10, 11, 12, 13]: 
-            
             modelName=modelName+"_"+str(simulationGeneration)
-            #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
-            #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
-            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
+            #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
+            InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
+            #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
     print(InfectedCountDict.items())
     print(R0Dict.items())
-    return
+    
     if True:
         import fileRelated as flr
         saveName = "comparingModels_"+simulationGeneration
