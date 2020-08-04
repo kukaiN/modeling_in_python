@@ -898,22 +898,40 @@ class AgentBasedModel:
         stem = self.findMatchingRooms("located_building", "STEM_office")
         art = self.findMatchingRooms("located_building", "HUM_office")
         hum = self.findMatchingRooms("located_building", "ART_office") 
+
+        typeCount = dict()
+        for agentSche in schedules:
+            for row in agentSche:
+                for item in row:
+                    if not isinstance(item , int):
+                        if isinstance(item, str):
+                            bType = item#self.rooms[item].building_type 
+                            
+                        else:
+                            bType = item[2]
+                        typeCount[bType] = typeCount.get(bType, 0)+1
+        print(typeCount.items())
+
+
         if self.closedBuilding_intervention:
             closedBuilding, semiClosed = self.initializeClosingBuilding()
             closedBuilding, semiClosed = set(closedBuilding), set(semiClosed)
             
-
+            counter=[0,0]
             for index, schedule in enumerate(schedules):
                 for i, row in enumerate(schedule):
                     for j, item in enumerate(row):
                         if item in closedBuilding:
                             if random.random() < self.homeP:
                                 schedules[index][i][j] = "sleep"
+                                counter[0]+=1
                             else:
+                                counter[1]+=1
                                 schedules[index][i][j] = "social"
                         elif item in semiClosed:
                             if random.random() < self.homeP:
                                 schedules[index][i][j] = "sleep" 
+            print("counter to dorm vs social", counter)
             #schedules = [
             #    [[item if item not in closedBuilding else ("sleep" if random.random() < self.homeP else "social") for item in row]
             #     for row in uniqueSchedule] for uniqueSchedule in schedules]# ("sleep" if random.random() < 0.5 else "social")

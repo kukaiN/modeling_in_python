@@ -29,7 +29,7 @@ def main():
             "ExtraParameters": ["buildingId","roomsInside"],
         },
         "Infection" : {
-            "baseP" : 1.15,
+            "baseP" : 1.15*10,
             "SeedNumber" : 10,
             "SeedState" : "exposed",
             "Contribution" : {
@@ -184,6 +184,29 @@ def main():
                 ("ResultLatency", 2*24), 
                 ("BatchSize", 500),
                 ("ShowingUpForScreening", 1),
+            ],
+        },
+        "Test":{
+            # N = 100, L = 4, B = {G, L}, D = 0
+            # f = 0, c = 0.80, h = 0.50, s' = 0
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
+                ("ComplianceRatio", 0), # f = 0
+            ],
+            "Quarantine": [
+                ("ResultLatency", 4*24), # L = 4
+                ("BatchSize", 100), # N=100
+                ("ShowingUpForScreening", 0.8), # c = 0.8
+            ],
+            "ClosingBuildings": [
+            ("ClosedBuildingOpenHub", []),
+            ("ClosedBuilding_ByType", ["gym", "library"]),
+            ("GoingHomeP", 0.5), # h = 0.5
+            ("Exception_SemiClosedBuilding", []),
+            ("Exception_GoingHomeP", 0.5),
+            ],
+            "LessSocializing":[
+                ("StayingHome",1), # s'
             ],
         },
         "NC_WP":{
@@ -447,219 +470,6 @@ def main():
             ]
         },     
     }
-    """ # 
-        "Minimal": {
-            "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine"]),
-                ("ComplianceRatio", 0.5),
-                ],
-            "Quarantine": [
-                ("ResultLatency", 2*24), 
-                ("BatchSize", 100),
-                ("ShowingUpForScreening", 0.8),
-                ],
-        }, 
-            "Moderate": {
-                "World": [
-                    ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings"]),
-                    ("ComplianceRatio", 0.5),
-                ],
-                "Quarantine": [
-                    ("ResultLatency", 2*24), 
-                    ("BatchSize", 250),
-                    ( "ShowingUpForScreening", 0.8),
-                    ],
-                "ClosingBuildings": [
-                    ("ClosedBuildingType", ["gym", "library"]),
-                    ("GoingHomeP", 0.5),
-                ]
-            }, 
-            "Moderate_h1": {
-                "World": [
-                    ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings"]),
-                    ("ComplianceRatio", 0.5)
-                ],
-                "Quarantine": [
-                    ("ResultLatency", 2*24), 
-                    ("BatchSize", 250),
-                    ( "ShowingUpForScreening", 0.8),
-                    ],
-                "ClosingBuildings": [
-                    ("ClosedBuildingType", ["gym", "library"]),
-                    ("GoingHomeP", 1),
-                ]
-            },
-            "Moderate_h1c1": {
-                "World": [
-                    ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings"]),
-                    ("ComplianceRatio", 0.5)
-                ],
-                "Quarantine": [
-                    ("ResultLatency", 2*24), 
-                    ("BatchSize", 250),
-                    ( "ShowingUpForScreening", 1),
-                    ],
-                "ClosingBuildings": [
-                    ("ClosedBuildingType", ["gym", "library"]),
-                    ("GoingHomeP", 1),
-                ]
-            },
-            "Strong":{
-                "World": [
-                    ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses", "LessSocial"]),
-                    ("ComplianceRatio", 1),
-                    ("LargeGathering", False),
-                ],
-                "Quarantine": [
-                    ("ResultLatency", 2*24), 
-                    ("BatchSize", 500),
-                    ("ShowingUpForScreening", 1),
-                ],
-                "ClosingBuildings": [
-                    ("ClosedBuildingType", ["gym", "library", "office"]),
-                    ("ClosedBuildingOpenHub", ["dining"]),
-                    ("GoingHomeP", 1),
-                    ("Exception_SemiClosedBuilding",["dining"]),
-                    ("Exception_GoingHomeP",1),
-                ],
-                "HybridClass":[
-                    ("RemoteStudentCount", 1000),
-                    ("RemoteFacultyCount", 300),
-                    ("RemovedDoubleCount", 525),
-                    ("OffCampusCount", 500),
-                    ("TurnOffLargeGathering", True),
-                    ("ChangedSeedNumber", 5),
-                ],
-            },    
-            "Strong_lessTesting":{
-                "World": [
-                    ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses", "LessSocial"]),
-                    ("ComplianceRatio", 1),
-                    ("LargeGathering", False),
-                ],
-                "Quarantine": [
-                    ("ResultLatency", 2*24), 
-                    ("BatchSize", 250),
-                    ("ShowingUpForScreening", 1),
-                ],
-                "ClosingBuildings": [
-                    ("ClosedBuildingType", ["gym", "library", "office"]),
-                    ("ClosedBuildingOpenHub", ["dining"]),
-                    ("GoingHomeP", 1),
-                ],
-                "HybridClass":[
-                    ("RemoteStudentCount", 1000),
-                    ("RemoteFacultyCount", 300),
-                    ("RemovedDoubleCount", 525),
-                    ("OffCampusCount", 500),
-                    ("TurnOffLargeGathering", True),
-                    ("ChangedSeedNumber", 5),
-                ],
-            },
-            "Strong_lessFaceMask":{
-                "World": [
-                    ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses", "LessSocial"]),
-                    ("ComplianceRatio", 0),
-                    ("LargeGathering", False),
-                ],
-                "Quarantine": [
-                    ("ResultLatency", 2*24), 
-                    ("BatchSize", 500),
-                    ( "ShowingUpForScreening", 1),
-                ],
-                "ClosingBuildings": [
-                    ("ClosedBuildingType", ["gym", "library", "office"]),
-                    ("ClosedBuildingOpenHub", ["dining"]),
-                    ("GoingHomeP", 1),
-                ],
-                "HybridClass":[
-                    ("RemoteStudentCount", 1000),
-                    ("RemoteFacultyCount", 300),
-                    ("RemovedDoubleCount", 525),
-                    ("OffCampusCount", 500),
-                    ("TurnOffLargeGathering", True),
-                    ("ChangedSeedNumber", 5),
-                ],
-            },
-            "Strong_moreSocial":{
-                "World": [
-                    ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses"]),
-                    ("ComplianceRatio", 1),
-                    ("LargeGathering", False),
-                ],
-                "Quarantine": [
-                    ("ResultLatency", 2*24), 
-                    ("BatchSize", 500),
-                    ( "ShowingUpForScreening", 1),
-                ],
-                "ClosingBuildings": [
-                    ("ClosedBuildingType", ["gym", "library", "office"]),
-                    ("ClosedBuildingOpenHub", ["dining"]),
-                    ("GoingHomeP", 0.5),
-                ],
-                "HybridClass":[
-                    ("RemoteStudentCount", 1000),
-                    ("RemoteFacultyCount", 300),
-                    ("RemovedDoubleCount", 525),
-                    ("OffCampusCount", 500),
-                    ("TurnOffLargeGathering", True),
-                    ("ChangedSeedNumber", 5),
-                ],
-            },
-            "Strong_openDiningHall":{
-                "World": [
-                    ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses"]),
-                    ("ComplianceRatio", 1),
-                    ("LargeGathering", False),
-                ],
-                "Quarantine": [
-                    ("ResultLatency", 2*24), 
-                    ("BatchSize", 500),
-                    ( "ShowingUpForScreening", 1),
-                ],
-                "ClosingBuildings": [
-                    ("ClosedBuildingType", ["gym", "library", "office"]),
-                    ("ClosedBuildingOpenHub", []),
-                    ("GoingHomeP", 1),
-                ],
-                "HybridClass":[
-                    ("RemoteStudentCount", 1000),
-                    ("RemoteFacultyCount", 300),
-                    ("RemovedDoubleCount", 525),
-                    ("OffCampusCount", 500),
-                    ("TurnOffLargeGathering", True),
-                    ("ChangedSeedNumber", 5),
-                ],
-            },
-            "Strong+LargeGathering":{
-                "World": [
-                    ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings","HybridClasses"]),
-                    ("ComplianceRatio", 1),
-                    ("LargeGathering", True),
-                ],
-                "Quarantine": [
-                    ("ResultLatency", 2*24), 
-                    ("BatchSize", 500),
-                    ( "ShowingUpForScreening", 1),
-                ],
-                "ClosingBuildings": [
-                    ("ClosedBuildingType", ["gym", "library", "office"]),
-                    ("ClosedBuildingOpenHub", ["dining"]),
-                    ("GoingHomeP", 1),
-                ],
-                "HybridClass":[
-                    ("RemoteStudentCount", 1000),
-                    ("RemoteFacultyCount", 300),
-                    ("RemovedDoubleCount", 525),
-                    ("OffCampusCount", 500),
-                    ("TurnOffLargeGathering", False),
-                    ("ChangedSeedNumber", 5),
-                ],
-            },
-            "Strong+LargeGathering+social":{
-
-            }
-    """
     
     R0_controls = {
         "Infection" : [
@@ -687,13 +497,13 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100 if index == 0 else (100 if index > 4 else 30)
         multiCounts =  50 if index == 0 else (50 if index > 4 else 5)
-        R0Count = 80
+        R0Count = 1#, 80
         multiCounts = 30
-        if index in [5, 6, 7, 8, 9, 10, 11, 12, 13]: 
+        if index in [5, 9]: #6, 7, 8, 9, 10, 11, 12, 13]: 
             modelName=modelName+"_"+str(simulationGeneration)
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
-            InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
-            #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
+            #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
+            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
     print(InfectedCountDict.items())
     print(R0Dict.items())
