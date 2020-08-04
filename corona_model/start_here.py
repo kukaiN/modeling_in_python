@@ -29,7 +29,7 @@ def main():
             "ExtraParameters": ["buildingId","roomsInside"],
         },
         "Infection" : {
-            "baseP" : 1.15*10,
+            "baseP" : 1.15,
             "SeedNumber" : 10,
             "SeedState" : "exposed",
             "Contribution" : {
@@ -186,29 +186,7 @@ def main():
                 ("ShowingUpForScreening", 1),
             ],
         },
-        "Test":{
-            # N = 100, L = 4, B = {G, L}, D = 0
-            # f = 0, c = 0.80, h = 0.50, s' = 0
-            "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-                ("ComplianceRatio", 0), # f = 0
-            ],
-            "Quarantine": [
-                ("ResultLatency", 4*24), # L = 4
-                ("BatchSize", 100), # N=100
-                ("ShowingUpForScreening", 0.8), # c = 0.8
-            ],
-            "ClosingBuildings": [
-            ("ClosedBuildingOpenHub", []),
-            ("ClosedBuilding_ByType", ["gym", "library"]),
-            ("GoingHomeP", 0.5), # h = 0.5
-            ("Exception_SemiClosedBuilding", []),
-            ("Exception_GoingHomeP", 0.5),
-            ],
-            "LessSocializing":[
-                ("StayingHome",1), # s'
-            ],
-        },
+        
         "NC_WP":{
             # N = 100, L = 4, B = {G, L}, D = 0
             # f = 0, c = 0.80, h = 0.50, s' = 0
@@ -497,9 +475,9 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100 if index == 0 else (100 if index > 4 else 30)
         multiCounts =  50 if index == 0 else (50 if index > 4 else 5)
-        R0Count = 1#, 80
+        R0Count = 5#, 80
         multiCounts = 30
-        if index in [5, 9]: #6, 7, 8, 9, 10, 11, 12, 13]: 
+        if index in [5, 8]: #6, 7, 8, 9, 10, 11, 12, 13]: 
             modelName=modelName+"_"+str(simulationGeneration)
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
             #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
