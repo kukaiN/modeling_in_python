@@ -451,6 +451,9 @@ def main():
     }
     
     R0_controls = {
+        "World" : [
+            ("FluctuatingSocial", False),
+            ],
         "Infection" : [
             ("SeedNumber", 10),
         ],
@@ -476,7 +479,7 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100 if index == 0 else (100 if index > 4 else 30)
         multiCounts =  50 if index == 0 else (50 if index > 4 else 5)
-        R0Count = 15#, 80
+        R0Count = 3#, 80
         multiCounts = 30
         if index ==0:#in [5, 6, 7, 8, 9, 10, 11, 12, 13]: 
             modelName=modelName+"_"+str(simulationGeneration)
