@@ -77,6 +77,7 @@ def main():
             "socialInteraction": 0.15,
             "LazySunday": True,
             "LargeGathering": True,
+            "FluctuatingSocial": True,
         },
        
         # interventions
@@ -477,7 +478,7 @@ def main():
         multiCounts =  50 if index == 0 else (50 if index > 4 else 5)
         R0Count = 10#, 80
         multiCounts = 30
-        if index in [5, 6, 7, 8, 9, 10, 11, 12, 13]: 
+        if index ==0:#in [5, 6, 7, 8, 9, 10, 11, 12, 13]: 
             modelName=modelName+"_"+str(simulationGeneration)
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
             #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 

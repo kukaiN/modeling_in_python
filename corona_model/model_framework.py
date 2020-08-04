@@ -402,7 +402,7 @@ class AgentBasedModel:
             return True if interventionName.lower() in [intervention.lower() for intervention in self.config["World"]["TurnedOnInterventions"]] else False
     
         self.faceMask_intervention = inInterventions("FaceMasks")
-        
+        self.fluctuatingSocial = self.config["World"]["FluctuatingSocial"]
         self.quarantine_intervention = inInterventions("Quarantine")
         self.walkIn = True if self.config["Quarantine"]["WalkIn"] and self.quarantine_intervention else False
         self.closedBuilding_intervention = inInterventions("ClosingBuildings")
@@ -1288,7 +1288,7 @@ class AgentBasedModel:
                                 if self._debug:
                                     contribution = self.infectionWithinPopulation(self.rooms[roomId].agentsInside, roomId)
                                     
-                                    if room.building_type == "social":
+                                    if self.fluctuatingSocial and room.building_type == "social":
                                         print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {(5*int(len(self.rooms[roomId].agentsInside)/5+1))},  {len(room.agentsInside)} people in room, contrib: {contribution}")
                                     else:
                                         print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room, contrib: {contribution}")
@@ -1324,7 +1324,7 @@ class AgentBasedModel:
     def infectionInRoom(self, roomId):
         """find the total infectiousness of a room by adding up the contribution of all agents in the room"""
         contribution = self.infectionWithinPopulation(self.rooms[roomId].agentsInside, roomId)
-        if self.rooms[roomId].building_type == "social" and not self.rooms[roomId].room_name.endswith("_hub"): # check for division by zero
+        if self.fluctuatingSocial and self.rooms[roomId].building_type == "social" and not self.rooms[roomId].room_name.endswith("_hub"): # check for division by zero
             if len(self.rooms[roomId].agentsInside) == 0:
                 return 0
             cummulativeFunc = (self.baseP*2*contribution)/(5*int(len(self.rooms[roomId].agentsInside)/5+1))
