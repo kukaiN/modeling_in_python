@@ -542,7 +542,7 @@ def scheduleCreator(social):
            Task = random.random()
            if OnorOff[i] == "On" and Task < lib:
               mySchedW[x] = 'library'
-           elif OnorOff[i] == "On" or Task < lib+s:
+           elif OnorOff[i] == "On" and Task < lib+s:
               mySchedW[x] = 'social'
            elif OnorOff[i] == "On":
               mySchedW[x] = 'dorm'
@@ -567,7 +567,7 @@ def scheduleCreator(social):
     return (schedule, OnorOff)
 
 def main():
-    schedule = scheduleCreator(0.15)
+    schedule = scheduleCreator(0.00)
     print(schedule[0][:5])
 if __name__ == "__main__":
     main()
