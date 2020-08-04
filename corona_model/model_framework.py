@@ -724,6 +724,8 @@ class AgentBasedModel:
                 value+=[0 for _ in range(timeInterval - remainder)]
             
             a = np.array(value).reshape((-1,timeInterval))
+            if buildingType == "social":
+                print(a)
             maxDict[buildingType] = max(maxDict.get(buildingType, 0), max(value))
             scheduleDict[self.rooms[key].room_name] = a
         nodes = ["gym", "library", "offCampus", "social"]
