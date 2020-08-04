@@ -1,0 +1,4 @@
+room name, type, time interval
+kukai's room, global, (8:00|8:50);(10:00|12:30)
+classroom_A, nerd, (10:00AM|1:00PM)
+classroom_B, nerd, (11:00AM|6:00PM); (2:30PM|4:00PM)
