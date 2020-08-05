@@ -192,7 +192,7 @@ def main():
             # N = 100, L = 4, B = {G, L}, D = 0
             # f = 0, c = 0.80, h = 0.50, s' = 0
             "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),#
                 ("ComplianceRatio", 0), # f = 0
             ],
             "Quarantine": [
@@ -280,7 +280,7 @@ def main():
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-                ("ComplianceRatio", 0.5), # f = 0.5
+                ("ComplianceRatio", 0), # f = 0.5
             ],
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
@@ -366,7 +366,7 @@ def main():
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
                 ("ComplianceRatio", 1), # f = 1
-                ("LargeGathering", False)
+                ("LargeGathering", False),
             ],
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
@@ -452,7 +452,7 @@ def main():
     
     R0_controls = {
         "World" : [
-            ("FluctuatingSocial", False),
+            ("FluctuatingSocial", True),
             ],
         "Infection" : [
             ("SeedNumber", 10),
@@ -479,16 +479,21 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100 if index == 0 else (100 if index > 4 else 30)
         multiCounts =  50 if index == 0 else (50 if index > 4 else 5)
-        R0Count = 10#, 80
+        R0Count = 20#, 80
         multiCounts = 30
-        if index in [5, 6, 7, 8, 9, 10, 11, 12, 13]: 
+        friendlyPrint = []
+        if index in [5, 8]:#, #8, 9, 10, 11, 12, 13]: 
             modelName=modelName+"_"+str(simulationGeneration)
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
             #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
-            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
+            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
+            friendlyPrint.append(R0Dict[modelName][1])
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
     print(InfectedCountDict.items())
     print(R0Dict.items())
+    print(friendlyPrint)
+        
+    
     return
     if True:
         import fileRelated as flr

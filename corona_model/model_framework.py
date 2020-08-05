@@ -117,7 +117,8 @@ def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeri
         "infected Symptomatic Severe", "recovered", "quarantined"])
         for _ in range(days):
             if debug:
-                new_model.printRelevantInfo()
+                pass
+                #new_model.printRelevantInfo()
             new_model.updateSteps(24)
         if debug:
             new_model.final_check()
@@ -716,6 +717,7 @@ class AgentBasedModel:
         timeInterval = 24
         maxDict = dict()
         scheduleDict = dict()
+        socialCount = dict()
         for key, value in self.room_cap_log.items():
             buildingType = self.rooms[key].building_type 
 
@@ -725,9 +727,13 @@ class AgentBasedModel:
             
             a = np.array(value).reshape((-1,timeInterval))
             if buildingType == "social":
-                print(a)
+                for row in a:
+                    for item in row:
+                        socialCount[item] = socialCount.get(item, 0)+1
+
             maxDict[buildingType] = max(maxDict.get(buildingType, 0), max(value))
             scheduleDict[self.rooms[key].room_name] = a
+        print("distribution of social", [(k, v) for  k, v, in sorted(socialCount.items())])
         nodes = ["gym", "library", "offCampus", "social"]
         for node in nodes:
             if self._debug:
@@ -810,16 +816,7 @@ class AgentBasedModel:
             self.quarantineGroupNumber, self.quarantineGroupIndex = len(self.groupIds), 0
 
     def initializeClosingBuilding(self):
-        """
-        "ClosedBuilding_LeafKv=0" : [],
-            # close buildings in the list(remove them from the schedule), and go home or go to social spaces 
-            "ClosedBuilding_ByType" : ["gym", "library"],
-            "GoingHomeP": 0.5,
-            # the building in the list will be removed with probability and replaced with going home, otherwise it stays
-            "Exception_SemiClosedBuilding": [],
-            "Exception_GoingHomeP":0.5,
-            
-        },"""
+       
         closedBuilding =  self.config["ClosingBuildings"]["ClosedBuilding_ByType"]
         closedBuildingId = [roomId for bType in closedBuilding for roomId in self.findMatchingRooms("building_type", bType)]
         closedLeafOpenHub = [roomId for bType in self.config["ClosingBuildings"]["ClosedBuildingOpenHub"] for roomId in self.findMatchingRooms("building_type", bType)]
@@ -890,7 +887,7 @@ class AgentBasedModel:
         facultyCount = self.countAgents("faculty", "Agent_type")
         offCampusLeaf = self.findMatchingRooms("building_type","offCampus")[0]
        
-        socialP = self.config["World"]["socialInteraction"]
+        socialP = self.config["World"]["socialInteraction"]  # 0.15
         if self.lessSocial_intervention:
             socialP *= (1-self.config["LessSocializing"]["StayingHome"])
             print("social p", socialP)
@@ -918,8 +915,13 @@ class AgentBasedModel:
         if self.closedBuilding_intervention:
             closedBuilding, semiClosed = self.initializeClosingBuilding()
             closedBuilding, semiClosed = set(closedBuilding), set(semiClosed)
-            
+            print("*"*20)
+            print([roomId for roomId in closedBuilding])
+            print([roomId for roomId in semiClosed])
+            print("*"*20)
+            print(self.homeP)
             counter=[0,0]
+            counterDict = dict()###################################################################################
             for index, schedule in enumerate(schedules):
                 for i, row in enumerate(schedule):
                     for j, item in enumerate(row):
@@ -929,11 +931,14 @@ class AgentBasedModel:
                                 counter[0]+=1
                             else:
                                 counter[1]+=1
+                                counterDict[j]=counterDict.get(j, 0)+1
                                 schedules[index][i][j] = "social"
                         elif item in semiClosed:
                             if random.random() < self.homeP:
                                 schedules[index][i][j] = "sleep" 
-            print("counter to dorm vs social", counter)
+                            else:
+                                print(item)
+            print("counter to dorm vs social", counter, counterDict.items())
             #schedules = [
             #    [[item if item not in closedBuilding else ("sleep" if random.random() < self.homeP else "social") for item in row]
             #     for row in uniqueSchedule] for uniqueSchedule in schedules]# ("sleep" if random.random() < 0.5 else "social")
@@ -967,6 +972,8 @@ class AgentBasedModel:
                         fac_schedule[index][i][j] = classrooms[item]
                     elif isinstance(item[0], int):
                         fac_schedule[index][i][j] = classrooms[item[0]]
+        
+      
 
         # replace entries like (48, 1) --> 48, tuple extractor
         schedules = [[[classrooms[a[0]] if isinstance(a[0], int) else a for a in row] for row in student_schedule] for student_schedule in schedules]
@@ -1006,6 +1013,17 @@ class AgentBasedModel:
             self.replaceScheduleEntry(entry)
         self.replaceByType(agentParam="Agent_type", agentParamValue="faculty", partitionTypes="faculty_dining_room", perEntry=False)
         self.replaceByType(partitionTypes=["library", "dining","gym", "office"])
+
+
+        bigCounter = dict()#############################################################################################
+        for agentId, agent in self.agents.items():
+            if agent.archetype == "student":
+                for i, row in enumerate(agent.schedule):
+                    for j, item in enumerate(row):
+                        if isinstance(item, str):
+                            bigCounter[item] = bigCounter.get(item,0)+1
+        print(bigCounter.items())
+        print("*"*20)
         students = [agentId for agentId, agent in self.agents.items() if agent.archetype == "student"]
         self.replacewithTwo(students)
         typeCount = dict()
@@ -1040,15 +1058,17 @@ class AgentBasedModel:
 
     def replacewithTwo(self, agentIds):
         socialSpace = self.findMatchingRooms("building_type", "social")
+        
         for index, agentId in enumerate(agentIds):
             twoFriendGroup = np.random.choice(socialSpace, size=2, replace=False)
             for i, row in enumerate(self.agents[agentId].schedule):
                 for j, item in enumerate(row):
                     if item == "social":
-                        if index < 2:
+                        if i < 2:
                             self.agents[agentId].schedule[i][j] = twoFriendGroup[0]
                         else:
                             self.agents[agentId].schedule[i][j] = twoFriendGroup[1]
+   
 
     def replaceByType(self, agentParam=None, agentParamValue=None, partitionTypes=None, perEntry=False):
         """
@@ -1388,7 +1408,9 @@ class AgentBasedModel:
             randomVec = np.random.random(len(notSymptomatic))
             complyingP = self.config["Quarantine"]["ShowingUpForScreening"]
             nonComplyingAgent = [agentId for i, agentId in enumerate(notSymptomatic) if randomVec[i] > complyingP]
+            print("we have ", len(listOfId), "in testing and ", len(nonComplyingAgent), "didnt show up")
             listOfId = list(set(listOfId) - set(nonComplyingAgent))
+            print("new size:", len(listOfId))
         fpDelayedList, delayedList = [], []
         falsePositiveMask = np.random.random(len(listOfId))
         falsePositiveResult = [agentId for agentId, prob in zip(listOfId, falsePositiveMask) if prob < self.config["Quarantine"]["falsePositive"] and agentId in self.state2IdDict["susceptible"]]
