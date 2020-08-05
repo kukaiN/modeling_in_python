@@ -403,7 +403,7 @@ class AgentBasedModel:
             return True if interventionName.lower() in [intervention.lower() for intervention in self.config["World"]["TurnedOnInterventions"]] else False
     
         self.faceMask_intervention = inInterventions("FaceMasks")
-        self.fluctuatingSocial = self.config["World"]["FluctuatingSocial"]
+        self.dynamicCapacity = self.config["World"]["DynamicCapacity"]
         self.quarantine_intervention = inInterventions("Quarantine")
         self.walkIn = True if self.config["Quarantine"]["WalkIn"] and self.quarantine_intervention else False
         self.closedBuilding_intervention = inInterventions("ClosingBuildings")
@@ -887,7 +887,7 @@ class AgentBasedModel:
         facultyCount = self.countAgents("faculty", "Agent_type")
         offCampusLeaf = self.findMatchingRooms("building_type","offCampus")[0]
        
-        socialP = self.config["World"]["socialInteraction"]  # 0.15
+        socialP = self.config["World"]["socialInteraction"] 
         if self.lessSocial_intervention:
             socialP *= (1-self.config["LessSocializing"]["StayingHome"])
             print("social p", socialP)
@@ -919,7 +919,7 @@ class AgentBasedModel:
             print([roomId for roomId in closedBuilding])
             print([roomId for roomId in semiClosed])
             print("*"*20)
-            print(self.homeP)
+            print("going back to home with p =", self.homeP)
             counter=[0,0]
             counterDict = dict()###################################################################################
             for index, schedule in enumerate(schedules):
@@ -934,14 +934,15 @@ class AgentBasedModel:
                                 counterDict[j]=counterDict.get(j, 0)+1
                                 schedules[index][i][j] = "social"
                         elif item in semiClosed:
-                            if random.random() < self.homeP:
+                            if self._debug:
+                                print("exception")
+                            if random.random() < self.e_homeP:
                                 schedules[index][i][j] = "sleep" 
                             else:
-                                print(item)
+                                if self._debug:
+                                    print(item)
             print("counter to dorm vs social", counter, counterDict.items())
-            #schedules = [
-            #    [[item if item not in closedBuilding else ("sleep" if random.random() < self.homeP else "social") for item in row]
-            #     for row in uniqueSchedule] for uniqueSchedule in schedules]# ("sleep" if random.random() < 0.5 else "social")
+           
             fac_schedule = [
                 [[item if item not in closedBuilding else "Off" for item in row] for row in uniqueSchedule] 
                     for uniqueSchedule in fac_schedule]
@@ -1059,7 +1060,7 @@ class AgentBasedModel:
     def replacewithTwo(self, agentIds):
         socialSpace = self.findMatchingRooms("building_type", "social")
         
-        for index, agentId in enumerate(agentIds):
+        for _, agentId in enumerate(agentIds):
             twoFriendGroup = np.random.choice(socialSpace, size=2, replace=False)
             for i, row in enumerate(self.agents[agentId].schedule):
                 for j, item in enumerate(row):
@@ -1308,7 +1309,7 @@ class AgentBasedModel:
                                 if self._debug:
                                     contribution = self.infectionWithinPopulation(self.rooms[roomId].agentsInside, roomId)
                                     
-                                    if self.fluctuatingSocial and room.building_type == "social":
+                                    if self.dynamicCapacity and room.building_type == "social":
                                         print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {(5*int(len(self.rooms[roomId].agentsInside)/5+1))},  {len(room.agentsInside)} people in room, contrib: {contribution}")
                                     else:
                                         print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room, contrib: {contribution}")
@@ -1344,7 +1345,7 @@ class AgentBasedModel:
     def infectionInRoom(self, roomId):
         """find the total infectiousness of a room by adding up the contribution of all agents in the room"""
         contribution = self.infectionWithinPopulation(self.rooms[roomId].agentsInside, roomId)
-        if self.fluctuatingSocial and self.rooms[roomId].building_type == "social" and not self.rooms[roomId].room_name.endswith("_hub"): # check for division by zero
+        if self.dynamicCapacity and self.rooms[roomId].building_type == "social" and not self.rooms[roomId].room_name.endswith("_hub"): # check for division by zero
             if len(self.rooms[roomId].agentsInside) == 0:
                 return 0
             cummulativeFunc = (self.baseP*2*contribution)/(5*int(len(self.rooms[roomId].agentsInside)/5+1))

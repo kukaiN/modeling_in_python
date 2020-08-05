@@ -77,7 +77,7 @@ def main():
             "socialInteraction": 0.15,
             "LazySunday": True,
             "LargeGathering": True,
-            "FluctuatingSocial": True,
+            "DynamicCapacity": True,
         },
        
         # interventions
@@ -216,13 +216,13 @@ def main():
             # f = 0, c = 0.80, h = 0.50, s' = 0
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-                ("ComplianceRatio", 0), # f
-                ("LargeGathering", False)#################################################################################
+                ("ComplianceRatio", 0), # f = 0
+                ("LargeGathering", False)
             ],
             "Quarantine": [
                 ("ResultLatency", 3*24), # L = 3
-                ("BatchSize", 250), # N=250###############################################################################
-                ("ShowingUpForScreening", 0.8), # c
+                ("BatchSize", 250), # N=250
+                ("ShowingUpForScreening", 0.8), # c = 0.8
             ],
             "ClosingBuildings": [
                 ("ClosedBuildingOpenHub", ["dining"]), # ding stays open, but leaf Kv = 0####################################
@@ -275,6 +275,30 @@ def main():
                 ("ChangedSeedNumber", 5),
             ],
         },
+        "SC_WP_copy":{
+            # N = 100, L = 4, B = {G, L}, D = 0
+            # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
+                ("ComplianceRatio", 0.5), # f = 0.5
+            ],
+            "Quarantine": [
+                ("ResultLatency", 4*24), # L = 4
+                ("BatchSize", 100), # N=100
+                ("ShowingUpForScreening", 0.9), # c = 0.9 doesnt affect R0
+            ],
+            "ClosingBuildings": [
+            ("ClosedBuildingOpenHub", []),
+            ("ClosedBuilding_ByType", ["gym", "library"]),
+            ("GoingHomeP", 0.75), # h = 0.75 ##################
+            ("Exception_SemiClosedBuilding", []),
+            ("Exception_GoingHomeP", 0.75),
+            ],
+            "LessSocializing":[
+                ("StayingHome",0.25), # s' = 0.25 ######################
+            ],
+        },
+        
         "SC_WP":{
             # N = 100, L = 4, B = {G, L}, D = 0
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
@@ -285,17 +309,17 @@ def main():
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
                 ("BatchSize", 100), # N=100
-                ("ShowingUpForScreening", 0.9), # c = 0.9
+                ("ShowingUpForScreening", 0.9), # c = 0.9#############
             ],
             "ClosingBuildings": [
             ("ClosedBuildingOpenHub", []),
             ("ClosedBuilding_ByType", ["gym", "library"]),
-            ("GoingHomeP", 0.75), # h = 0.75
+            ("GoingHomeP", 0.75), # h = 0.75 ##################
             ("Exception_SemiClosedBuilding", []),
             ("Exception_GoingHomeP", 0.75),
             ],
             "LessSocializing":[
-                ("StayingHome",0.25), # s' = 0.25
+                ("StayingHome",0.25), # s' = 0.25 ######################
             ],
         },
         "SC_MP":{
@@ -452,7 +476,7 @@ def main():
     
     R0_controls = {
         "World" : [
-            ("FluctuatingSocial", True),
+            ("DynamicCapacity", True),
             ],
         "Infection" : [
             ("SeedNumber", 10),
