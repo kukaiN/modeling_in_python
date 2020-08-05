@@ -275,36 +275,13 @@ def main():
                 ("ChangedSeedNumber", 5),
             ],
         },
-        "SC_WP_copy":{
-            # N = 100, L = 4, B = {G, L}, D = 0
-            # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
-            "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-                ("ComplianceRatio", 0.5), # f = 0.5
-            ],
-            "Quarantine": [
-                ("ResultLatency", 4*24), # L = 4
-                ("BatchSize", 100), # N=100
-                ("ShowingUpForScreening", 0.9), # c = 0.9 doesnt affect R0
-            ],
-            "ClosingBuildings": [
-            ("ClosedBuildingOpenHub", []),
-            ("ClosedBuilding_ByType", ["gym", "library"]),
-            ("GoingHomeP", 0.75), # h = 0.75 ##################
-            ("Exception_SemiClosedBuilding", []),
-            ("Exception_GoingHomeP", 0.75),
-            ],
-            "LessSocializing":[
-                ("StayingHome",0.25), # s' = 0.25 ######################
-            ],
-        },
-        
+       
         "SC_WP":{
             # N = 100, L = 4, B = {G, L}, D = 0
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-                ("ComplianceRatio", 0), # f = 0.5
+                ("ComplianceRatio", 0.5), # f = 0.5
             ],
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
