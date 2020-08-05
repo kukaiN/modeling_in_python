@@ -788,7 +788,7 @@ class AgentBasedModel:
         maskNumber = int(self.config["World"]["complianceRatio"]*len(self.agents))
         maskVec = np.concatenate((np.ones(maskNumber),np.zeros(len(self.agents)-maskNumber)))
         np.random.shuffle(maskVec)
-       
+        print(maskVec[:100], sum(maskVec), maskNumber)
         for i, agent in enumerate(self.agents.values()):
             if maskVec[i] > 0.5:
                 agent.compliance = True
