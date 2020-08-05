@@ -203,12 +203,12 @@ def main():
             "ClosingBuildings": [
             ("ClosedBuildingOpenHub", []),
             ("ClosedBuilding_ByType", ["gym", "library"]),
-            ("GoingHomeP", 0.5), # h = 0.5
+            ("GoingHomeP", 0.75), # h = 0.5
             ("Exception_SemiClosedBuilding", []),
-            ("Exception_GoingHomeP", 0.5),
+            ("Exception_GoingHomeP", 0.75),
             ],
             "LessSocializing":[
-                ("StayingHome",0), # s'
+                ("StayingHome",1), # s'
             ],
         },
         "NC_MP":{
@@ -291,12 +291,12 @@ def main():
             "ClosingBuildings": [
             ("ClosedBuildingOpenHub", []),
             ("ClosedBuilding_ByType", ["gym", "library"]),
-            ("GoingHomeP", 0.75), # h = 0.75 ##################
+            ("GoingHomeP", 1), # h = 0.75 ##################
             ("Exception_SemiClosedBuilding", []),
-            ("Exception_GoingHomeP", 0.75),
+            ("Exception_GoingHomeP", 1),
             ],
             "LessSocializing":[
-                ("StayingHome",0.25), # s' = 0.25 ######################
+                ("StayingHome",1), # s' = 0.25 ######################
             ],
         },
         "SC_MP":{
@@ -453,7 +453,7 @@ def main():
     
     R0_controls = {
         "World" : [
-            ("DynamicCapacity", True),
+            ("DynamicCapacity", False),
             ],
         "Infection" : [
             ("SeedNumber", 10),
@@ -480,10 +480,10 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100 if index == 0 else (100 if index > 4 else 30)
         multiCounts =  50 if index == 0 else (50 if index > 4 else 5)
-        R0Count = 100#, 80
+        R0Count = 10#, 80
         multiCounts = 30
    
-        if index == 0 or index > 4:
+        if index in [5,8]:#0 or index > 4:
             modelName=modelName+"_"+str(simulationGeneration)
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
             #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
@@ -492,7 +492,7 @@ def main():
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
     print(InfectedCountDict.items())
     print(R0Dict.items())
- 
+    return
     if True:
         import fileRelated as flr
         saveName = "comparingModels_"+simulationGeneration
