@@ -409,6 +409,7 @@ def scheduleCreator(social):
 
         #print(foundClasses)
         #Now pick dining hall
+        
         if OnorOff[i] == "Off": #off campus student
            mySchedW = ["Off"]*24
            #Day A has one visit to the dining Hall
@@ -567,7 +568,8 @@ def scheduleCreator(social):
     return (schedule, OnorOff)
 
 def main():
-    schedule = scheduleCreator(0.00)
-    print(schedule[0][:10])
+    schedule = scheduleCreator(0.1)
+    for a in schedule[0][:10]:
+        print(a)
 if __name__ == "__main__":
     main()

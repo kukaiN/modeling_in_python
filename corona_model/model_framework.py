@@ -781,7 +781,7 @@ class AgentBasedModel:
         
         self.maskP = self.config["FaceMasks"]["MaskInfectivity"]
         self.maskB = self.config["FaceMasks"]["MaskBlock"]
-        self.nonCompliantLeaf = set(self.config["FaceMasks"]["NonCompliantLeaf"] + self.config["FaceMasks"]["NonCompliantBuilding"])
+        self.nonCompliantLeaf = set(self.config["FaceMasks"]["NonCompliantLeaf"])
         self.compliantZone = set(self.config["FaceMasks"]["CompliantHub"])
         self.nonCompliantZone = set(self.config["FaceMasks"]["NonCompliantBuilding"])
         
@@ -789,11 +789,14 @@ class AgentBasedModel:
         maskVec = np.concatenate((np.ones(maskNumber),np.zeros(len(self.agents)-maskNumber)))
         np.random.shuffle(maskVec)
        
+        counter=0
         for i, agent in enumerate(self.agents.values()):
             if maskVec[i] > 0.5:
+                counter+=1
                 agent.compliance = True
             else:
                 agent.compliance = False 
+        print("this many with facemask", counter)
 
     def initializeTestingAndQuarantine(self):
         self.quarantineInterval = self.config["Quarantine"]["checkupFrequency"] 
