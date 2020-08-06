@@ -153,7 +153,7 @@ def main():
     ControlledExperiment = {
         "baseModel":{
         }, # no changes
-        "facemasksF1":{
+        "facemasks":{
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks"]),
                 ("ComplianceRatio", 1),
@@ -187,12 +187,84 @@ def main():
                 ("ShowingUpForScreening", 1),
             ],
         },
+        "Medium+L4":{
+            "World": [
+                ("TurnedOnInterventions", ["Quarantine","HybridClasses"]),
+            ],
+             "Quarantine": [
+                ("ResultLatency", 4*24), # L = 4
+                ("BatchSize", 250), # N=100
+                ("ShowingUpForScreening", 1), # c = 0.8
+            ],
+            "HybridClass":[
+                ("RemoteStudentCount", 250),
+                ("RemoteFacultyCount", 150),
+                ("RemovedDoubleCount", 325), # 525 - 250 = 275
+                ("OffCampusCount", 250),
+                ("TurnOffLargeGathering", False),
+                ("ChangedSeedNumber", 7),
+            ],
+        },
+        "Medium+L3":{
+            "World": [
+                ("TurnedOnInterventions", ["Quarantine","HybridClasses"]),
+            ],
+             "Quarantine": [
+                ("ResultLatency", 3*24), # L = 4
+                ("BatchSize", 250), # N=100
+                ("ShowingUpForScreening", 1), # c = 0.8
+            ],
+            "HybridClass":[
+                ("RemoteStudentCount", 250),
+                ("RemoteFacultyCount", 150),
+                ("RemovedDoubleCount", 325), # 525 - 250 = 275
+                ("OffCampusCount", 250),
+                ("TurnOffLargeGathering", False),
+                ("ChangedSeedNumber", 7),
+            ],
+        },
+        "Medium+L2":{
+            "World": [
+                ("TurnedOnInterventions", ["Quarantine","HybridClasses"]),
+            ],
+             "Quarantine": [
+                ("ResultLatency", 2*24), # L = 4
+                ("BatchSize", 250), # N=100
+                ("ShowingUpForScreening", 1), # c = 0.8
+            ],
+            "HybridClass":[
+                ("RemoteStudentCount", 250),
+                ("RemoteFacultyCount", 150),
+                ("RemovedDoubleCount", 325), # 525 - 250 = 275
+                ("OffCampusCount", 250),
+                ("TurnOffLargeGathering", False),
+                ("ChangedSeedNumber", 7),
+            ],
+        },
+        "Medium+L1":{
+            "World": [
+                ("TurnedOnInterventions", ["Quarantine","HybridClasses"]),
+            ],
+             "Quarantine": [
+                ("ResultLatency", 1*24), # L = 4
+                ("BatchSize", 250), # N=100
+                ("ShowingUpForScreening", 1), # c = 0.8
+            ],
+            "HybridClass":[
+                ("RemoteStudentCount", 250),
+                ("RemoteFacultyCount", 150),
+                ("RemovedDoubleCount", 325), # 525 - 250 = 275
+                ("OffCampusCount", 250),
+                ("TurnOffLargeGathering", False),
+                ("ChangedSeedNumber", 7),
+            ],
+        },
         
         "NC_WP":{
             # N = 100, L = 4, B = {G, L}, D = 0
             # f = 0, c = 0.80, h = 0.50, s' = 0
             "World": [
-                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "LessSocial", "ClosingBuildings"]),#,
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "LessSocial", "ClosingBuildings"]),
                 ("ComplianceRatio", 0), # f = 0
             ],
             "Quarantine": [
@@ -248,13 +320,13 @@ def main():
             # f = 0, c = 0.80, h = 0.50, s' = 0
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-                ("ComplianceRatio", 0), # f
+                ("ComplianceRatio", 0), # f = 0
                 ("LargeGathering", False)
             ],
             "Quarantine": [
-                ("ResultLatency", 2*24), # L = 4
-                ("BatchSize", 500), # N=100
-                ("ShowingUpForScreening", 0.8), # c
+                ("ResultLatency", 2*24), # L = 2
+                ("BatchSize", 500), # N=500
+                ("ShowingUpForScreening", 0.8), # c=0.8
             ],
             "ClosingBuildings": [
                 ("ClosedBuildingOpenHub", ["dining"]),
@@ -309,17 +381,17 @@ def main():
             "Quarantine": [
                 ("ResultLatency", 3*24), # L = 3
                 ("BatchSize", 250), # N=250
-                ("ShowingUpForScreening", 0.9), # c
+                ("ShowingUpForScreening", 0.9), # c = 0.9
             ],
             "ClosingBuildings": [
                 ("ClosedBuildingOpenHub", ["dining"]), # ding stays open, but leaf Kv = 0
                 ("ClosedBuilding_ByType", ["gym", "library"]),
-                ("GoingHomeP", 0.75), # h = 0.5
+                ("GoingHomeP", 0.75), # h = 0.75
                 ("Exception_SemiClosedBuilding", ["dining", "faculty_dining_room"]), # replace these entrys 50/50
                 ("Exception_GoingHomeP", 0.75),
             ],
             "LessSocializing":[
-                ("StayingHome",0.25), # s'
+                ("StayingHome",0.25), # s' = 0.25
             ],
             "HybridClass":[
                 ("RemoteStudentCount", 250),
@@ -462,19 +534,16 @@ def main():
             ("ChangedSeedNumber", 10),
         ],
     }
-    #[(0, 4931), (1, 171), (2, 378), (3, 594), (4, 678), (5, 710), (6, 734), (7, 486), (8, 391), (9, 326), (10, 174), (11, 98), (12, 65), (13, 21), (14, 29), (15, 4), (16, 2)]
-    
-    #  [(0, 5119), (1, 599), (2, 894), (3, 1003), (4, 742), (5, 617), (6, 344), (7, 271), (8, 116), (9, 44), (10, 24), (11, 12), (12, 2), (13, 5)]
+
     import time
     t1 = time.time()
     R0Dict = dict()
     InfectedCountDict = dict()
-    simulationGeneration = "7"
+    simulationGeneration = "2"
     osName = platform.system()
     files = "images\\" if osName.lower() == "windows" else "images/"
     osExtension = "win" if osName.lower() == "windows" else "Linux"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
-           
         configCopy = dict(modelConfig)
         print("*"*20)
         print(f"started working on initializing the simualtion for {modelName}")
@@ -483,19 +552,19 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100 if index == 0 else (100 if index > 4 else 30)
         multiCounts =  50 if index == 0 else (50 if index > 4 else 5)
-        R0Count = 15#, 80
-        multiCounts = 30
+        R0Count = 1#, 80
+        multiCounts = 1
    
-        if index in [0, 5, 8]:#0 or index > 4:
+        if index in [5, 6, 7, 8]:#0 or index > 8:
             modelName=modelName+"_"+str(simulationGeneration)
             model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
-            #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
-            #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
+            InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
+            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
            
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
     print(InfectedCountDict.items())
     print(R0Dict.items())
-    return
+  
     if True:
         import fileRelated as flr
         saveName = "comparingModels_"+simulationGeneration
@@ -516,12 +585,12 @@ def main():
             flr.savePickle(flr.fullPath(osExtension+ saveName, "picklefile"), R0Dict)
             statfile.boxplot(und_R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
                 ylabel="Infected people (R0)", labels=und_labels, savePlt=True, saveName=osExtension+"9R0_box_"+saveName)
-            statfile.barChart(und_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
-                ylabel="Infected Agents (R0)", labels=und_labels, savePlt=True, saveName=osExtension+"9R0_bar_"+saveName)
+            #statfile.barChart(und_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
+            #    ylabel="Infected Agents (R0)", labels=und_labels, savePlt=True, saveName=osExtension+"9R0_bar_"+saveName)
             statfile.boxplot(reg_R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
                 ylabel="Infected people (R0)", labels=reg_labels, savePlt=True, saveName=osExtension+"restR0_box_"+saveName)
-            statfile.barChart(reg_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
-                ylabel="Infected Agents (R0)", labels=reg_labels, savePlt=True, saveName=osExtension+"restR0_bar_"+saveName)
+            #statfile.barChart(reg_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
+            #    ylabel="Infected Agents (R0)", labels=reg_labels, savePlt=True, saveName=osExtension+"restR0_bar_"+saveName)
         if len(InfectedCountDict) > 0 or True:
             labels = []
             infectedCounts = []
@@ -535,15 +604,15 @@ def main():
                     labels1.append(key)
                     infectedCounts1.append(value)
             print(labels, labels1)
-            flr.savePickle(flr.fullPath(osExtension+ saveName, "picklefile"), InfectedCountDict)
+            flr.savePickle(flr.fullPath(osExtension+saveName, "picklefile"), InfectedCountDict)
             statfile.boxplot(infectedCounts,oneD=False, pltTitle="Infection Comparison (box)", xlabel="Model Name",
                 ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_box_"+saveName)
-            statfile.barChart(infectedCounts, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
-                ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_bar_"+saveName)
+            #statfile.barChart(infectedCounts, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
+            #    ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_bar_"+saveName)
             statfile.boxplot(infectedCounts1,oneD=False, pltTitle="Infection Comparison (box)", xlabel="Model Name",
                 ylabel="Total Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_box_"+saveName)
-            statfile.barChart(infectedCounts1, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
-                ylabel="Total Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_bar_"+saveName)
+            #statfile.barChart(infectedCounts1, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
+            #    ylabel="Total Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_bar_"+saveName)
     
     timetook = time.time()-t1
     print("took", timetook, "seconds", timetook/(60*60), "hours")  
