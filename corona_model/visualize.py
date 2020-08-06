@@ -78,9 +78,9 @@ def timeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle = ["r-", "b.", "g
     for index, (name, dataList) in enumerate(data.items()):
         animateData[index] = dataList
         plt.plot(timeIntervals, dataList, label=name)
-    plt.xlabel("Time")
-    plt.ylabel("Agent's conditions")
-    plt.title("Agent's state over time")
+    plt.xlabel("Time (Hours)")
+    plt.ylabel("# of Agents")
+    plt.title("Agent's State over Time")
     leg = ax.legend()
     # show static graph
     if savePlt:

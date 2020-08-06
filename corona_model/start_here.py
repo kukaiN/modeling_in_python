@@ -77,7 +77,7 @@ def main():
             "socialInteraction": 0.15,
             "LazySunday": True,
             "LargeGathering": True,
-            "DynamicCapacity": True,
+            "DynamicCapacity": False,
         },
        
         # interventions
@@ -462,6 +462,9 @@ def main():
             ("ChangedSeedNumber", 10),
         ],
     }
+    #[(0, 4931), (1, 171), (2, 378), (3, 594), (4, 678), (5, 710), (6, 734), (7, 486), (8, 391), (9, 326), (10, 174), (11, 98), (12, 65), (13, 21), (14, 29), (15, 4), (16, 2)]
+    
+    #  [(0, 5119), (1, 599), (2, 894), (3, 1003), (4, 742), (5, 617), (6, 344), (7, 271), (8, 116), (9, 44), (10, 24), (11, 12), (12, 2), (13, 5)]
     import time
     t1 = time.time()
     R0Dict = dict()
@@ -471,7 +474,7 @@ def main():
     files = "images\\" if osName.lower() == "windows" else "images/"
     osExtension = "win" if osName.lower() == "windows" else "Linux"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
-        
+           
         configCopy = dict(modelConfig)
         print("*"*20)
         print(f"started working on initializing the simualtion for {modelName}")
@@ -480,14 +483,14 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100 if index == 0 else (100 if index > 4 else 30)
         multiCounts =  50 if index == 0 else (50 if index > 4 else 5)
-        R0Count = 1#, 80
+        R0Count = 15#, 80
         multiCounts = 30
    
-        if index in [5, 8]:#0 or index > 4:
+        if index in [0, 5, 8]:#0 or index > 4:
             modelName=modelName+"_"+str(simulationGeneration)
-            #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
+            model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=False, modelName=modelName)
             #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
-            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
+            #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=True, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
            
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
     print(InfectedCountDict.items())
