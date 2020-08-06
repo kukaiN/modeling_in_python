@@ -136,19 +136,6 @@ def main():
 
     # simulation name --> simulation controlled variable(s)
     # dont use . or - in the simulation name because the names are used to save images, or any symbols below
-    """
-        < (less than)
-        > (greater than)
-        : (colon - sometimes works, but is actually NTFS Alternate Data Streams)
-        " (double quote)
-        / (forward slash)
-        \ (backslash)
-        | (vertical bar or pipe)
-        ? (question mark)
-        * (asterisk)
-    """
-   
-
 
     ControlledExperiment = {
         "baseModel":{
@@ -193,8 +180,8 @@ def main():
             ],
              "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
-                ("BatchSize", 250), # N=100
-                ("ShowingUpForScreening", 1), # c = 0.8
+                ("BatchSize", 250), # N=250
+                ("ShowingUpForScreening", 1), # c = 1
             ],
             "HybridClass":[
                 ("RemoteStudentCount", 250),
@@ -210,9 +197,9 @@ def main():
                 ("TurnedOnInterventions", ["Quarantine","HybridClasses"]),
             ],
              "Quarantine": [
-                ("ResultLatency", 3*24), # L = 4
-                ("BatchSize", 250), # N=100
-                ("ShowingUpForScreening", 1), # c = 0.8
+                ("ResultLatency", 3*24), # L = 3
+                ("BatchSize", 250), # N=250
+                ("ShowingUpForScreening", 1), # c = 1
             ],
             "HybridClass":[
                 ("RemoteStudentCount", 250),
@@ -228,9 +215,9 @@ def main():
                 ("TurnedOnInterventions", ["Quarantine","HybridClasses"]),
             ],
              "Quarantine": [
-                ("ResultLatency", 2*24), # L = 4
-                ("BatchSize", 250), # N=100
-                ("ShowingUpForScreening", 1), # c = 0.8
+                ("ResultLatency", 2*24), # L = 2
+                ("BatchSize", 250), # N=250
+                ("ShowingUpForScreening", 1), # c = 1
             ],
             "HybridClass":[
                 ("RemoteStudentCount", 250),
@@ -246,9 +233,9 @@ def main():
                 ("TurnedOnInterventions", ["Quarantine","HybridClasses"]),
             ],
              "Quarantine": [
-                ("ResultLatency", 1*24), # L = 4
-                ("BatchSize", 250), # N=100
-                ("ShowingUpForScreening", 1), # c = 0.8
+                ("ResultLatency", 1*24), # L = 1
+                ("BatchSize", 250), # N=250
+                ("ShowingUpForScreening", 1), # c = 1
             ],
             "HybridClass":[
                 ("RemoteStudentCount", 250),
