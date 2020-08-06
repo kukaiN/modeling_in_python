@@ -29,7 +29,7 @@ def main():
             "ExtraParameters": ["buildingId","roomsInside"],
         },
         "Infection" : {
-            "baseP" : 1.15,
+            "baseP" : 1.2,
             "SeedNumber" : 10,
             "SeedState" : "exposed",
             "Contribution" : {
