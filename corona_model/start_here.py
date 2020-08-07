@@ -538,8 +538,8 @@ def main():
         for categoryKey, listOfControls in modelControl.items():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
-        R0Count = 100 if index == 0 else (100 if index > 4 else 30)
-        multiCounts =  50 if index == 0 else (50 if index > 4 else 5)
+        R0Count = 100 #if index == 0 else (100 if index > 4 else 30)
+        multiCounts =  50 #if index == 0 else (50 if index > 4 else 5)
         #R0Count = 5#, 80
         #multiCounts = 5
    
@@ -569,9 +569,9 @@ def main():
                     reg_labels.append(key)
                     reg_R0data.append(value[0])
                 R0AnalyzedData.append(value[1]) 
-            flr.savePickle(flr.fullPath(osExtension+ saveName, "picklefile"), R0Dict)
+            flr.savePickle(flr.fullPath("R0"+osExtension+ saveName, "picklefile")+".pkl", R0Dict)
             statfile.boxplot(und_R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
-                ylabel="Infected people (R0)", labels=und_labels, savePlt=True, saveName=osExtension+"9R0_box_"+saveName)
+                ylabel="Infected Agents (R0)", labels=und_labels, savePlt=True, saveName=osExtension+"9R0_box_"+saveName)
             #statfile.barChart(und_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
             #    ylabel="Infected Agents (R0)", labels=und_labels, savePlt=True, saveName=osExtension+"9R0_bar_"+saveName)
             statfile.boxplot(reg_R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
@@ -591,13 +591,13 @@ def main():
                     labels1.append(key)
                     infectedCounts1.append(value)
             print(labels, labels1)
-            flr.savePickle(flr.fullPath(osExtension+saveName, "picklefile"), InfectedCountDict)
-            statfile.boxplot(infectedCounts,oneD=False, pltTitle="Infection Comparison (box)", xlabel="Model Name",
-                ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_box_"+saveName)
+            flr.savePickle(flr.fullPath("infectedCount"+osExtension+saveName, "picklefile")+".pkl", InfectedCountDict)
+            statfile.boxplot(infectedCounts,oneD=False, pltTitle="Infection Comparison", xlabel="Model Name",
+                ylabel="Total # of Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_box_"+saveName)
             #statfile.barChart(infectedCounts, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
             #    ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_bar_"+saveName)
-            statfile.boxplot(infectedCounts1,oneD=False, pltTitle="Infection Comparison (box)", xlabel="Model Name",
-                ylabel="Total Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_box_"+saveName)
+            statfile.boxplot(infectedCounts1,oneD=False, pltTitle="Infection Comparison", xlabel="Model Name",
+                ylabel="Total # of Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_box_"+saveName)
             #statfile.barChart(infectedCounts1, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
             #    ylabel="Total Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_bar_"+saveName)
     
