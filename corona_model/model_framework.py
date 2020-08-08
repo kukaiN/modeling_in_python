@@ -1145,9 +1145,6 @@ class AgentBasedModel:
                 index+=1
  
     def updateSteps(self, step = 1): 
-        if self.time == 0:
-            print("we have removed", len(self.ghostAgents))
-            self.storeInformation()
         for _ in range(step):     
             self.time+=1
             modTime = self.time%24
@@ -1429,9 +1426,9 @@ class AgentBasedModel:
             randomVec = np.random.random(len(notSymptomatic))
             complyingP = self.config["Quarantine"]["ShowingUpForScreening"]
             nonComplyingAgent = [agentId for i, agentId in enumerate(notSymptomatic) if randomVec[i] > complyingP]
-            print("we have ", len(listOfId), "in testing and ", len(nonComplyingAgent), "didnt show up")
+            #print("we have ", len(listOfId), "in testing and ", len(nonComplyingAgent), "didnt show up")
             listOfId = list(set(listOfId) - set(nonComplyingAgent))
-            print("new size:", len(listOfId))
+            #print("new size:", len(listOfId))
         fpDelayedList, delayedList = [], []
         falsePositiveMask = np.random.random(len(listOfId))
         falsePositiveResult = [agentId for agentId, prob in zip(listOfId, falsePositiveMask) if prob < self.config["Quarantine"]["falsePositive"] and agentId in self.state2IdDict["susceptible"]]
