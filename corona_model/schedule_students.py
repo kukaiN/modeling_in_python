@@ -282,7 +282,7 @@ def scheduleCreator(social):
     print(len(stem_tickets))
     print(len(hum_tickets))
     print(len(arts_tickets))
-
+    print(len(stem_tickets+hum_tickets+arts_tickets))
     print(classroom_counter)
     print(building_counter)
     """
