@@ -540,10 +540,10 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100 #if index == 0 else (100 i f index > 4 else 30)
         multiCounts =  20 #if index == 0 else (50 if index > 4 else 5)
-        R0Count = 1#, 80
-        multiCounts = 1
+        R0Count = 100#, 80
+        multiCounts = 20
    
-        if index in [0, 9, 12, 15]: # [5, 6, 7, 8]:#0 or index > 8:
+        if index > 8: #in [0, 9, 12, 15]:
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
             InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
             #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
