@@ -41,14 +41,27 @@ def multiSimulation(simulationCount, modelConfig, days, debug, modelName):
     multiResults = {} # dictionary that will be converted to a dataframe
     infectionData = [] # list that will contain multiple time series dictionary 
     totalInfected = []
+    newDict = dict()
     for i in range(simulationCount):
         result = simpleCheck(modelConfig, days=days, visuals=False, debug=debug, modelName=modelName+"_"+str(i))
         for individualResult in result[:2]:
             for (k, v) in individualResult.items():
                 multiResults[k] = multiResults.get(k, []) + [v]
-            dfobj = pd.DataFrame.from_dict(multiResults, orient="index")
-            flr.save_df_to_csv(flr.fullPath(modelName+".csv", "outputs"), dfobj)
+
+        infectionDict = result[4]
+        hubinfectionDict = result[5]
+        for k, v in infectionDict.items():
+            newDict[k] = newDict.get(k, [])+ [v]
+        for k, v in hubinfectionDict.items():
+            newDict[k+"_hub"] = newDict.get(k+"_hub" ,[]) + [v]
+        
+        
         infectionData.append(result[3])
+
+    newDfObj = pd.DataFrame.from_dict(newDict, orient="index")
+    dfobj = pd.DataFrame.from_dict(multiResults, orient="index")
+    flr.save_df_to_csv(flr.fullPath(modelName+".csv", "outputs"), dfobj)
+    flr.save_df_to_csv(flr.fullPath(modelName+"_infCount.csv", "outputs"), newDfObj)
     print(infectionData)   
     return infectionData
 
@@ -67,7 +80,8 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
     else:
         model = flr.loadUsingDill(pickleName)
         print("loaded pickled object successfully")
-    
+    # start initialization and configuration
+    model.intializeAndConfigureObjects()
     model.initializeStoringParameter(
         ["susceptible","exposed", "infected Asymptomatic", 
         "infected Asymptomatic Fixed" ,"infected Symptomatic Mild", 
@@ -109,7 +123,9 @@ def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeri
     t1 = time.time()
     for i in range(simulationN):
         print("*"*20, "starting model")
-        new_model = copy.deepcopy(model)    
+        new_model = copy.deepcopy(model) 
+        # start initialization and configuration
+        new_model.intializeAndConfigureObjects()   
         new_model.initializeR0()
         new_model.initializeStoringParameter(
             ["susceptible","exposed", "infected Asymptomatic", 
@@ -167,8 +183,7 @@ def createModel(modelConfig, debug=False, R0=False):
     # object creation
     
     model.createWorld()
-    # start initialization and configuration
-    model.intializeAndConfigureObjects()
+    
     
     model.startRoomLog()
     
@@ -1593,7 +1608,7 @@ class AgentBasedModel:
                         print(f"in {self.rooms[roomId].room_name}, there were {self.rooms[roomId].infectedNumber} infection")
         print("*"*20, "filtering by building type:")
         
-        for buildingType, count in self.infectedPerBuilding().items():
+        for buildingType, count in self.infectedPerBuilding()[0].items():
             print(buildingType, count)
            
 
@@ -1609,7 +1624,7 @@ class AgentBasedModel:
             if self._debug:
                 pass
                 #print(building.building_name, building.building_type, "whole building", buildingCount, "hubs", buildingHub)
-        return counterDict
+        return (counterDict, hubCounterDict)
     
     def outputs(self):
         totalExposed = self.totalExposed()
@@ -1623,14 +1638,15 @@ class AgentBasedModel:
         
         newdata = dict()
         newdata["largeGathering"] = self.gathering_count
-        for buildingType, count in self.infectedPerBuilding().items():
+        infectionInBuilding = self.infectedPerBuilding()
+        for buildingType, count in infectionInBuilding[0].items():
             newdata[buildingType] = count
         
         maxInfected = max(data["TotalInfected"])
         
         print(f"p: {self.baseP}, R0: {self.R0Calculation}, total ever in exposed {totalExposed}, max infected {maxInfected}")
         otherData = {"total":totalExposed, "max":maxInfected}
-        return (newdata, otherData, data, totalExposed)
+        return (newdata, otherData, data, totalExposed, infectionInBuilding[0], infectionInBuilding[1])
 
     def totalExposed(self):
         return len(self.agents) - self.parameters["susceptible"][-1] - self.parameters["falsePositive"][-1]
