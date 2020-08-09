@@ -514,8 +514,10 @@ def main():
     R0_controls = {
         "World" : [
             ("DynamicCapacity", False),
+            ("baseP" , 1.25),
             ],
         "Infection" : [
+
             ("SeedNumber", 10),
         ],
         "HybridClass":[
@@ -543,10 +545,10 @@ def main():
         R0Count = 100#, 80
         multiCounts = 20
    
-        if index > 8: #in [0, 9, 12, 15]:
+        if index > -1: #in [0, 9, 12, 15]:
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
-            InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
-            #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
+            #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
+            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
            
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
     print(InfectedCountDict.items())
