@@ -29,7 +29,7 @@ def main():
             "ExtraParameters": ["buildingId","roomsInside"],
         },
         "Infection" : {
-            "baseP" : 1.2,
+            "baseP" : 1.3,
             "SeedNumber" : 10,
             "SeedState" : "exposed",
             "Contribution" : {
@@ -514,10 +514,10 @@ def main():
     R0_controls = {
         "World" : [
             ("DynamicCapacity", False),
-            ("baseP" , 1.25),
+            
             ],
         "Infection" : [
-
+            ("baseP" , 1.25),
             ("SeedNumber", 10),
         ],
         "HybridClass":[
@@ -543,9 +543,9 @@ def main():
         R0Count = 100 #if index == 0 else (100 i f index > 4 else 30)
         multiCounts =  20 #if index == 0 else (50 if index > 4 else 5)
         R0Count = 100#, 80
-        multiCounts = 20
+        multiCounts = 20#20
    
-        if index > -1: #in [0, 9, 12, 15]:
+        if index == 0: #in [0, 9, 12, 15]:
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
             #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName) 
             R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
@@ -553,7 +553,7 @@ def main():
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev)) 
     print(InfectedCountDict.items())
     print(R0Dict.items())
-  
+    return 
     if True:
         import fileRelated as flr
         saveName = "comparingModels_"+simulationGeneration
