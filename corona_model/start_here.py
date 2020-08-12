@@ -29,7 +29,7 @@ def main():
             "ExtraParameters": ["buildingId","roomsInside"],
         },
         "Infection" : {
-            "baseP" : 1.3,
+            "baseP" : 1.25,
             "SeedNumber" : 10,
             "SeedState" : "exposed",
             "Contribution" : {
@@ -516,7 +516,7 @@ def main():
             ("DynamicCapacity", False),
             ],
         "Infection" : [
-            ("baseP" , 1.3),
+            ("baseP" , 1.25),
             ("SeedNumber", 10),
         ],
         "HybridClass":[
