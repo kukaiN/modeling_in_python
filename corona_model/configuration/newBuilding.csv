@@ -1,7 +1,7 @@
 building_name,room_name,building_type,building_size,count,leaf_S,leaf_M,leaf_L,cap_S,cap_M,cap_L,enroll_S,enroll_M,enroll_L,connected_to,Kv,hubKv,hubCapacity
-dorm_S,dorm_room,dorm,small,25,5,5,0,1,2,0,1,2,0,transit_space_hub,3,0,150
-dorm_M,dorm_room,dorm,medium,10,15,15,0,1,2,0,1,2,0,transit_space_hub,3,0,450
-dorm_L,dorm_room,dorm,large,10,25,25,0,1,2,0,1,2,0,transit_space_hub,3,0,750
+dorm_S,dorm_room,dorm,small,25,5,5,0,1,2,0,1,2,0,transit_space_hub,3,2,150
+dorm_M,dorm_room,dorm,medium,10,15,15,0,1,2,0,1,2,0,transit_space_hub,3,2,450
+dorm_L,dorm_room,dorm,large,10,25,25,0,1,2,0,1,2,0,transit_space_hub,3,2,750
 STEM_S,class,classroom,small,2,3,0,0,20,30,40,15,20,30,transit_space_hub,2,1,450
 STEM_M,class,classroom,medium,2,2,3,0,20,30,40,15,20,30,transit_space_hub,2,1,900
 STEM_L,class,classroom,large,3,5,3,3,20,30,40,15,20,30,transit_space_hub,2,1,2250

@@ -6,7 +6,7 @@ import numpy as np
 import time
 import copy
 import itertools
-# the following are .py files
+# the following are created modules
 import fileRelated as flr
 import statfile
 import visualize as vs
@@ -17,7 +17,9 @@ import schedule_faculty
 import functools
 import cProfile
 
-def clock(func): # from version 2, page 203 - 205 of Fluent Python by Luciano Ramalho
+
+ # from version 2, page 203 - 205 of Fluent Python by Luciano Ramalho
+def clock(func):
     @functools.wraps(func)
     def clocked(*args, **kwargs):
         t0 = time.time()
@@ -36,10 +38,10 @@ def clock(func): # from version 2, page 203 - 205 of Fluent Python by Luciano Ra
 
 def multiSimulation(simulationCount, modelConfig, days, debug, modelName):
     """
-        run multiple simulations and return the location where the infection occured, the total number infected, and the max infected 
+        run multiple simulations and return the location where the infection occured, the total number infected, and the max infected
     """
     multiResults = {} # dictionary that will be converted to a dataframe
-    infectionData = [] # list that will contain multiple time series dictionary 
+    infectionData = [] # list that will contain multiple time series dictionary
     totalInfected = []
     newDict = dict()
     for i in range(simulationCount):
@@ -54,15 +56,15 @@ def multiSimulation(simulationCount, modelConfig, days, debug, modelName):
             newDict[k] = newDict.get(k, [])+ [v]
         for k, v in hubinfectionDict.items():
             newDict[k+"_hub"] = newDict.get(k+"_hub" ,[]) + [v]
-        
-        
+
+
         infectionData.append(result[3])
 
     newDfObj = pd.DataFrame.from_dict(newDict, orient="index")
     dfobj = pd.DataFrame.from_dict(multiResults, orient="index")
     flr.save_df_to_csv(flr.fullPath(modelName+".csv", "outputs"), dfobj)
     flr.save_df_to_csv(flr.fullPath(modelName+"_infCount.csv", "outputs"), newDfObj)
-    print(infectionData)   
+    print(infectionData)
     return infectionData
 
 def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="default"):
@@ -83,8 +85,8 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
     # start initialization and configuration
     model.intializeAndConfigureObjects()
     model.initializeStoringParameter(
-        ["susceptible","exposed", "infected Asymptomatic", 
-        "infected Asymptomatic Fixed" ,"infected Symptomatic Mild", 
+        ["susceptible","exposed", "infected Asymptomatic",
+        "infected Asymptomatic Fixed" ,"infected Symptomatic Mild",
         "infected Symptomatic Severe", "recovered", "quarantined"])
     model.printRelevantInfo()
     for _ in range(days):
@@ -123,13 +125,13 @@ def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeri
     t1 = time.time()
     for i in range(simulationN):
         print("*"*20, "starting model")
-        new_model = copy.deepcopy(model) 
+        new_model = copy.deepcopy(model)
         # start initialization and configuration
-        new_model.intializeAndConfigureObjects()   
+        new_model.intializeAndConfigureObjects()
         new_model.initializeR0()
         new_model.initializeStoringParameter(
-            ["susceptible","exposed", "infected Asymptomatic", 
-        "infected Asymptomatic Fixed" ,"infected Symptomatic Mild", 
+            ["susceptible","exposed", "infected Asymptomatic",
+        "infected Asymptomatic Fixed" ,"infected Symptomatic Mild",
         "infected Symptomatic Severe", "recovered", "quarantined"])
         for _ in range(days):
             if debug:
@@ -159,9 +161,28 @@ def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeri
     if R0Visuals:
         statfile.boxplot(R0Values,oneD=True, pltTitle="R0 Simulation (box)", xlabel="Model Name",
              ylabel="Infected people (R0)", labels=[modelName], savePlt=True, saveName=modelName)
-        statfile.boxplot(R0Values, oneD=True, pltTitle="R0 Simulation (bar)", xlabel="Model Name", 
+        statfile.boxplot(R0Values, oneD=True, pltTitle="R0 Simulation (bar)", xlabel="Model Name",
             ylabel="Infected Agents (R0)", labels=[modelName], savePlt=True, saveName=modelName)
     return (R0Values, ("(npMean, stdev, rangeVal, median)", data))
+
+def createFilledPlot(modelConfig, simulationN=10, days=100,
+                                    modelName="default", debug=False):
+    multiResult = []
+    xlim = [0, 0]
+    ylim = [0, 0]
+    timeSeries = 0
+
+    for i in range(simulationN):
+        result = simpleCheck(modelConfig, days=days, visuals=False,
+                            debug=debug, modelName=modelName+"_"+str(i))
+        print(result[2])
+        multiResult.append(result[2])
+        print(result[7], result[6])
+        xlim[1] = result[7]
+        ylim[1] = result[6]
+        timeSeries = result[8]
+    import visualize
+    visualize.filledTimeSeriesGraph(timeSeries, xlim, ylim, multiResult)
 
 def createModel(modelConfig, debug=False, R0=False):
     """
@@ -181,15 +202,15 @@ def createModel(modelConfig, debug=False, R0=False):
     model.loadAgent("newAgent.csv")
     model.generateAgentDfFromDf()
     # object creation
-    
+
     model.createWorld()
-    
-    
+
+
     model.startRoomLog()
-    
+
     return model
-   
-def agentFactory(agent_df, slotVal):
+
+def AgentFactory(agent_df, slotVal):
     """
         factory function used to dynamically assign __slots__, creates agents from the given df
         the values stored in __slots__ are the column of the df and some additional parameters that deals with relatinships and membership
@@ -197,7 +218,7 @@ def agentFactory(agent_df, slotVal):
         Parameters:
         - agent_df: a panda dataframe with each row corresponding to an agent's initial value
         - slotVal: the column values of the dataframe
-    
+
     """
     class Agents:
         """
@@ -215,20 +236,20 @@ def agentFactory(agent_df, slotVal):
 
                 Parameters:
                 - currTime: the current time
-                - adjDict: the adjacency dictionary, (key: roomId, value: list of roomsId of rooms connected to the key)    
+                - adjDict: the adjacency dictionary, (key: roomId, value: list of roomsId of rooms connected to the key)
             """
             curr_room = self.currLocation
-            
+
             if self.motion == "stationary" and currTime >= self.arrivalTime:
-                if True: #purly deterministic 
+                if True: #purly deterministic
                     self.destination = self.checkschedule(currTime)
-                    nextNode,lastNode  = adjDict[curr_room][0][0], adjDict[self.destination][0][0] 
+                    nextNode,lastNode  = adjDict[curr_room][0][0], adjDict[self.destination][0][0]
                     if curr_room == self.destination:
                         self.path = []
                     elif nextNode == lastNode: # moving between the same superstructure
                         self.path = [nextNode]
                     else: # required to move across the transit hub
-                        self.path = [lastNode, self.transit, nextNode] 
+                        self.path = [lastNode, self.transit, nextNode]
                     self.move(adjDict)
             elif self.motion == "moving" and currTime >= self.arrivalTime:
                 # the agent is still moving across
@@ -244,14 +265,14 @@ def agentFactory(agent_df, slotVal):
 
                 Parameters:
                 - currTime: current time, used to find the schedule item
-            
+
             """
             # there are 24*7 hours in a week
             # currTime%24*7 will give you the time in terms of week, then // 24 give you days
             # if the value is greater than 5, then its a weekday
             # if currTime is odd, then its a odd day and vise versa with even days
 
-        
+
             dayOfWeek = (currTime%(24*7))//24
             hourOfDay = currTime%24
             if self.state == "quarantined":
@@ -272,7 +293,7 @@ def agentFactory(agent_df, slotVal):
             pastLocation = self.currLocation
             if self.destination in [a[0] for a in adjDict[self.currLocation]]:
                 # the agent reached it's destination, takes a rest
-                
+
                 self.currLocation = self.destination
                 self.destination = None
                 self.path = []
@@ -284,18 +305,18 @@ def agentFactory(agent_df, slotVal):
                 self.currLocation = self.path.pop()
                 #self.travelTime = 0
             return (pastLocation, self.currLocation)
-   
+
         def changeState(self, updateTime, stateName, durration):
             """
                 Change the state of the agents, all states have a minimum waiting time,
                 and changing state durring that waiting period is not recommended, because it defeats the purpose
-            
+
                 If the current state can evolve unexpectedly, then set durration to 0 and use a random value to determine if the state should change.
                 Negative value for durration means the state will persist on to infinity
-            
+
                 Parameters:
                 - updateTime: the time when the state was updated
-                - stateName: the name of the start to transition to 
+                - stateName: the name of the start to transition to
                 - infected: bool that tells if the agent was infected or not
                 - durration: the minimum time required to wait until having the choice of chnaging states
             """
@@ -304,7 +325,7 @@ def agentFactory(agent_df, slotVal):
             self.state = stateName
             if stateName in ["exposed", "infected Asymptomatic", "infected Asymptomatic Fixed", "infected Symptomatic Mild", "infected Symptomatic Severe"]:
                 self.infected = True
-        
+
         def transitionTime(self):
             """
                 return the time that that the agent can change state,
@@ -314,11 +335,12 @@ def agentFactory(agent_df, slotVal):
 
         def __repr__(self):
             repr_list = [val for val in self.__slots__]
-            return repr_list.join() 
-        
+            return " | ".join(repr_list)
+
         def __str__(self):
             repr_list = [val for val in self.__slots__]
-            return repr_list.join() 
+
+            return " | ".join(repr_list)
 
     # creates the agents and put them in a dictionary
     tempDict = dict()
@@ -326,7 +348,7 @@ def agentFactory(agent_df, slotVal):
         tempDict[index] = Agents(row.values.tolist())
     return tempDict
 
-def roomFactory(room_df, slotVal):
+def RoomFactory(room_df, slotVal):
     """
         factory function used to dynamically assign __slots__
 
@@ -346,27 +368,27 @@ def roomFactory(room_df, slotVal):
                 self.agentsInside.add(agentId)
 
         def checkCapacity(self):
-            """return a boolean, return True if theres capacity for one more agent, False if the room is at max capacity 
+            """return a boolean, return True if theres capacity for one more agent, False if the room is at max capacity
             """
-            
+
             if len(self.agentsInside) < int(self.capacity):
                 return True
             return False
-    
+
         def leave(self, agentId):
             """ remove the id of the agent that exited the room"""
             if agentId in self.agentsInside:
                 self.agentsInside.discard(agentId)
-        
+
     tempDict = dict()
     for index, row in room_df.iterrows():
         tempDict[index] = Partitions(row.values.tolist())
     return tempDict
-    
-def superStrucFactory(struc_df, slotVal):
+
+def SuperStrucFactory(struc_df, slotVal):
     """
         creates and returns a dictionary that keeps the building class
-    
+
         Parameters:
         - agent_df: a panda dataframe with each row corresponding to an buildings's initial value
         - slotVal: the column values of the dataframe
@@ -381,7 +403,7 @@ def superStrucFactory(struc_df, slotVal):
     for index, row in struc_df.iterrows():
         temp_dict[index] = Superstructure(row.values.tolist())
     return temp_dict
- 
+
 class AgentBasedModel:
     def __init__(self):
         """
@@ -411,12 +433,12 @@ class AgentBasedModel:
 
     def initializeInterventionsAndPermittedActions(self):
         """
-        Assign True or False to the intervention checklist, and turn it on or off.  
+        Assign True or False to the intervention checklist, and turn it on or off.
         the actual ineterventions are not implimented in this function.  this function just tells the rest of the code whether it needs to deviate and run the interventions
         """
         def inInterventions(interventionName):
             return True if interventionName.lower() in [intervention.lower() for intervention in self.config["World"]["TurnedOnInterventions"]] else False
-    
+
         self.faceMask_intervention = inInterventions("FaceMasks")
         self.dynamicCapacity = self.config["World"]["DynamicCapacity"]
         self.quarantine_intervention = inInterventions("Quarantine")
@@ -431,7 +453,7 @@ class AgentBasedModel:
     def configureDebug(self, debugBool):
         """
             set debug equal to True or False,
-            this enables or disables most of the messages in the console.  
+            this enables or disables most of the messages in the console.
             turn this off when you want to run it a bit faster, turn it on if you need to observe the innerplay of the simulation
         """
         self._debug=debugBool
@@ -441,15 +463,15 @@ class AgentBasedModel:
         load the agent dataframe
         """
         self.agent_df = flr.make_df(folderName, fileName, debug=self._debug)
-    
+
     def loadBuilder(self, filename, folderName="configuration"):
         """use a builder to make the dataframe for the buiulding and rooms"""
         self.building_df, self.room_df = mod_df.mod_building(filename, folderName, debug=self._debug)
-    
+
     def generateAgentDfFromDf(self, counterColumn="totalCount"):
         """
         use this to multiple the number of agents, multiplies by looking at the counterColumn
-        Expand the dataframe along the counterColumn 
+        Expand the dataframe along the counterColumn
 
         """
         slotVal = self.agent_df.columns.values.tolist()
@@ -460,23 +482,23 @@ class AgentBasedModel:
             counter = row[counterColumn]
             rowCopy = row.drop(counterColumn).to_dict()
             tempList+=[rowCopy for _ in range(counter)]
-        self.agent_df = pd.DataFrame(tempList) 
+        self.agent_df = pd.DataFrame(tempList)
 
     def createWorld(self):
         """
-            initialize the world with default value, 
-            also unpacks dataframe and make the classes 
+            initialize the world with default value,
+            also unpacks dataframe and make the classes
         """
         # add a column to store the id of agents or rooms inside the strucuture
-        # these are required values added to the df so that they can be used to store information and relationships 
+        # these are required values added to the df so that they can be used to store information and relationships
         self.addAttrToDf()
         self.add_Id_to_Df()
-      
-        
+
+
         self.adjacencyDict = self.makeAdjacencyDict()
-        self.buildings = self.createObject(self.building_df, superStrucFactory)
-        self.rooms = self.createObject(self.room_df, roomFactory)
-        
+        self.buildings = self.createObject(self.building_df, SuperStrucFactory)
+        self.rooms = self.createObject(self.room_df, RoomFactory)
+
         # a dictionary for both rooms and buildings (key: buildingName, value: building ID)
         self.buildingNameId = dict((getattr(building, "building_name"), buildingId) for buildingId, building in self.buildings.items())
         self.roomNameId = dict((getattr(room, "room_name"), roomId) for roomId, room in self.rooms.items())
@@ -485,8 +507,8 @@ class AgentBasedModel:
         # add rooms to buildings, because up to this point the rooms and the buildings are separate Objects and we need buildings to store references(IDs) to rooms
         self.addRoomsToBuildings()
         # create agent object, dict(key: agentId --> value: agent object)
-        self.agents = self.createObject(self.agent_df, agentFactory)
-        
+        self.agents = self.createObject(self.agent_df, AgentFactory)
+
     def addAttrToDf(self):
         """
             add columns to dataframe before object creation, mainly because objects in this code use __slots__,
@@ -501,7 +523,7 @@ class AgentBasedModel:
                 # assign a default value
                 for (attrName, attrVal) in self.config[descriptor]["ExtraZipParameters"]:
                     dfRef[attrName] = attrVal
-    
+
     def makeAdjacencyDict(self):
         """
             creates an adjacency list implimented with a dictionary
@@ -517,7 +539,7 @@ class AgentBasedModel:
             if not self.directedGraph:
                 adjDict[adjRoom] = adjDict.get(adjRoom,[]) + [(roomId, travelTime)]
         return adjDict
-    
+
     def add_Id_to_Df(self):
         for dfRef, dfEntry in zip([self.agent_df, self.room_df, self.building_df], ["agentId", "roomId", "buildingId"]):
             if dfEntry in dfRef.columns.values.tolist():
@@ -526,33 +548,33 @@ class AgentBasedModel:
     def createObject(self, dfRef, func):
         """
         returns a dictionary with ID as Keys and values as the class object
-        
+
         Parameters:
         - dfRef: the dataframe object
-        - func: a referenece to the function used to create the class object 
+        - func: a referenece to the function used to create the class object
         """
         slotVal = dfRef.columns.values.tolist()
         tempDict = func(dfRef, slotVal)
         numObj, objVal = len(tempDict), list(tempDict.values())
-        className = objVal[0].__class__.__name__ if numObj > 0 else "" 
+        className = objVal[0].__class__.__name__ if numObj > 0 else ""
         if self._debug:
             print(f"creating {numObj} {className} class objects, each obj will have {len(slotVal)} attributes, __slots__ = {slotVal}")
         return tempDict
- 
+
     def addRoomsToBuildings(self):
         """add room_id to associated buildings"""
         for buildingId, building in self.buildings.items():
-            building.roomsInside = []   
+            building.roomsInside = []
         for roomId, room in self.rooms.items():
-            self.buildings[self.buildingNameId[room.located_building]].roomsInside = self.buildings[self.buildingNameId[room.located_building]].roomsInside + [roomId] 
-    
+            self.buildings[self.buildingNameId[room.located_building]].roomsInside = self.buildings[self.buildingNameId[room.located_building]].roomsInside + [roomId]
+
     def booleanAssignment(self):
         """
         go through the agent's attributes that are True or False and assign a default value based on randomness
         """
         for (VarName ,p_val) in self.config["Agents"]["booleanAssignment"]:
-            self.agentAssignBool(p_val, VarName, replacement=False)  
-    
+            self.agentAssignBool(p_val, VarName, replacement=False)
+
     def agentAssignBool(self, percent = 0, attrName="officeAttendee", replacement=False):
         """Assign True or false to Agent's office attend boolean value """
         # check if its a decimal or probability
@@ -576,7 +598,7 @@ class AgentBasedModel:
         # initialize agentsInside
         for rooms in self.rooms.values():
             rooms.agentsInside = set()
-      
+
         self.transitionDict = self.config["Infection"]["TransitionTime"]
 
         # make schedules for each agents, outside of pickle for testing and for randomization
@@ -586,31 +608,31 @@ class AgentBasedModel:
         self.initializeAgentsLocation()
         # start these two intervention after initializing agent's location, cause we remove agents from dorms
         # put agents in the right position
-        
+
         self.studentFacultySchedule() # have hybrid,closing
         # agents dont change after this so we can get the offCampus students
         self.initialize_infection()
         self.initializeFaceMask()
         self.initializeTestingAndQuarantine()
-    
+
     def initializeLargeGathering(self):
         self.gatherers = set(agentId for agentId, agent in self.agents.items() if agent.gathering)
         if self._debug:
             print(len(self.gatherers))
-            
+
     def initializeHybridClasses(self):
         onCampusIds = self.getAgents("onCampus", "Agent_type")
         offCampusIds = self.getAgents("offCampus", "Agent_type")
         facultyIds = self.getAgents("faculty", "Agent_type")
-        
+
         onCampusCount = len(onCampusIds)
         offCampusCount = len(offCampusIds)
         facultyCount =  len(facultyIds)
         offCampusLeaf = self.findMatchingRooms("building_type","offCampus")[0]
 
         if self.hybridClass_intervention:
-          
-           
+
+
             hybridDict = self.config["HybridClass"]
             self.largeGathering = not hybridDict["TurnOffLargeGathering"]
             # these are the number of agents we need to convert
@@ -621,12 +643,12 @@ class AgentBasedModel:
             self.remoteCount = remoteStudentCount + remoteFacultyCount
             if self._debug:
                 print(f"HybridClass in effect, {remoteStudentCount} many agents are re-configured (onCampus --> OffCampus), and {remoteFacultyCount} faculty are remote")
-            self.remoteStudentIds = set(np.random.choice(onCampusIds, size=remoteStudentCount, replace=False))            
+            self.remoteStudentIds = set(np.random.choice(onCampusIds, size=remoteStudentCount, replace=False))
             self.remoteFacultyIds = set(np.random.choice(facultyIds, size=remoteFacultyCount, replace=False))
             self.remoteOffCampusIds = set(np.random.choice(offCampusIds, size=remoteOffCampusCount, replace=False))
             self.rooms[offCampusLeaf].limit+=self.remoteCount
             self.rooms[offCampusLeaf].capacity+= self.remoteCount
-     
+
 
             for agentId, agent in self.agents.items():
                 if agentId in self.remoteStudentIds:
@@ -666,7 +688,7 @@ class AgentBasedModel:
                 counter[0]+=1
             elif initialLoc in self.buildingNameId.keys(): # if location is under building name
                 # randomly choose rooms from the a building that doesnt end in "_hub" and is empty
-                possibleRooms = [roomId for roomId in self.buildings[self.buildingNameId[initialLoc]].roomsInside 
+                possibleRooms = [roomId for roomId in self.buildings[self.buildingNameId[initialLoc]].roomsInside
                                 if not self.rooms[roomId].room_name.endswith("_hub") and self.rooms[roomId].checkCapacity()]
                 location = np.random.choice(possibleRooms)
                 counter[1]+=1
@@ -691,20 +713,20 @@ class AgentBasedModel:
                 spCounter[1]+=1
             else:
                 spCounter[2]+=1
-        print("# of rooms filled with [2 people, 1 , 0]", spCounter)    
+        print("# of rooms filled with [2 people, 1 , 0]", spCounter)
 
-        
+
     #@functools.lru_cache(maxsize=128)
     def findMatchingRooms(self, partitionAttr, attrVal=None, strType=False):
         """
             returns a list of room IDs that matches the criterion: if object.attrVal == partitionAttr
-        
+
             Parameters:
             - roomParam: the attribute name
             - roomVal: the attribute value, if None, returns all room
 
             Parameters(might be removed):
-            - strType (= False): if the value is a string or not, 
+            - strType (= False): if the value is a string or not,
         """
         if attrVal==None: # return rooms without filters
             return [roomId for roomId, room in self.rooms.items() if not getattr(room, "room_name").endswith("hub")]
@@ -727,19 +749,19 @@ class AgentBasedModel:
     def printRoomLog(self):
         """
             print the logs, only for debug purpose
-        """ 
+        """
         # convert the log to 24 hour bits and get the daily activity
         timeInterval = 24
         maxDict = dict()
         scheduleDict = dict()
         socialCount = dict()
         for key, value in self.room_cap_log.items():
-            buildingType = self.rooms[key].building_type 
+            buildingType = self.rooms[key].building_type
 
             if len(value)%timeInterval !=0:
                 remainder = len(value)%timeInterval
                 value+=[0 for _ in range(timeInterval - remainder)]
-            
+
             a = np.array(value).reshape((-1,timeInterval))
             if buildingType == "social":
                 for row in a:
@@ -767,7 +789,7 @@ class AgentBasedModel:
         for agentId in self.agents.keys():
             # negative value for durration means the state will persist on to infinity
             self.changeStateDict(agentId, "susceptible", "susceptible")
-        
+
         if self.hybridClass_intervention:
             seedNumber = self.config["HybridClass"]["ChangedSeedNumber"]
             self.config["Infection"]["SeedNumber"] = self.config["HybridClass"]["ChangedSeedNumber"]
@@ -775,7 +797,7 @@ class AgentBasedModel:
             seedNumber = self.config["Infection"]["SeedNumber"]
         seedState = self.config["Infection"]["SeedState"]
         onCampusIds = [agentId for agentId, agent in self.agents.items() if agent.Agent_type == "onCampus"]
-        
+
 
         if len(onCampusIds) < seedNumber:
             print("not enough agents to satisfy initial # of seed, taking the minimum")
@@ -793,28 +815,28 @@ class AgentBasedModel:
         self.baseP = self.config["Infection"]["baseP"]
 
     def initializeFaceMask(self):
-        
+
         self.maskP = self.config["FaceMasks"]["MaskInfectivity"]
         self.maskB = self.config["FaceMasks"]["MaskBlock"]
         self.nonCompliantLeaf = set(self.config["FaceMasks"]["NonCompliantLeaf"])
         self.compliantZone = set(self.config["FaceMasks"]["CompliantHub"])
         self.nonCompliantZone = set(self.config["FaceMasks"]["NonCompliantBuilding"])
-        
+
         maskNumber = int(self.config["World"]["complianceRatio"]*len(self.agents))
         maskVec = np.concatenate((np.ones(maskNumber),np.zeros(len(self.agents)-maskNumber)))
         np.random.shuffle(maskVec)
-       
+
         counter=0
         for i, agent in enumerate(self.agents.values()):
             if maskVec[i] > 0.5:
                 counter+=1
                 agent.compliance = True
             else:
-                agent.compliance = False 
+                agent.compliance = False
         print("this many with facemask", counter)
 
     def initializeTestingAndQuarantine(self):
-        self.quarantineInterval = self.config["Quarantine"]["checkupFrequency"] 
+        self.quarantineInterval = self.config["Quarantine"]["checkupFrequency"]
         self.quarantineOffset =  self.config["Quarantine"]["offset"]
         self.falsePositiveList = []
         self.quarantineList = []
@@ -825,17 +847,17 @@ class AgentBasedModel:
             totalIds = set([agentId for agentId, agent in self.agents.items() if agent.archetype == "student"])
             size = len(self.agents)
             # the size of the group, if there's a remainder, then they all get grouped together
-            
+
             self.groupIds = []
             while len(totalIds) > 0:
                 sampledIds = np.random.choice(list(totalIds), size=min(len(totalIds), self.config["Quarantine"]["BatchSize"]),replace=False)
                 totalIds -= set(sampledIds)
                 self.groupIds.append(list(sampledIds))
-      
+
             self.quarantineGroupNumber, self.quarantineGroupIndex = len(self.groupIds), 0
 
     def initializeClosingBuilding(self):
-       
+
         closedBuilding =  self.config["ClosingBuildings"]["ClosedBuilding_ByType"]
         closedBuildingId = [roomId for bType in closedBuilding for roomId in self.findMatchingRooms("building_type", bType)]
         closedLeafOpenHub = [roomId for bType in self.config["ClosingBuildings"]["ClosedBuildingOpenHub"] for roomId in self.findMatchingRooms("building_type", bType)]
@@ -861,11 +883,11 @@ class AgentBasedModel:
 
     def changeStateDict(self, agentId, previousState, newState):
         """
-            modifies the dictionary, state2IdDict, when an agent change states, 
+            modifies the dictionary, state2IdDict, when an agent change states,
             takes care of removal and addition to the appropriate dictionary value, and modifies the agent's attribute
 
             Parameters:
-            - agentId: the agent's key/Id value 
+            - agentId: the agent's key/Id value
             - previousState: the state of the agent, better to be a parameter because checks occurs before the function is called
             - newState: the state name to transition into
         """
@@ -874,10 +896,10 @@ class AgentBasedModel:
             self.state2IdDict["falsePositive"].discard(agentId)
         self.state2IdDict[newState].add(agentId)# then add them to the new state list
         self.agents[agentId].changeState(self.time, newState, self.transitionDict[newState])
-    
+
 
      # takes 4 seconds
-    
+
     def setOffCampus(self, agentId, offCampusLeaf,  scheduleTemp):
             self.agents[agentId].schedule = scheduleTemp
             self.agents[agentId].Agent_type = "offCampus"
@@ -905,8 +927,8 @@ class AgentBasedModel:
         offCampusCount = self.countAgents("offCampus","Agent_type")
         facultyCount = self.countAgents("faculty", "Agent_type")
         offCampusLeaf = self.findMatchingRooms("building_type","offCampus")[0]
-       
-        socialP = self.config["World"]["socialInteraction"] 
+
+        socialP = self.config["World"]["socialInteraction"]
         if self.lessSocial_intervention:
             socialP *= (1-self.config["LessSocializing"]["StayingHome"])
             print("social p", socialP)
@@ -915,7 +937,7 @@ class AgentBasedModel:
         classrooms = self.findMatchingRooms("building_type", "classroom")
         stem = self.findMatchingRooms("located_building", "STEM_office")
         art = self.findMatchingRooms("located_building", "HUM_office")
-        hum = self.findMatchingRooms("located_building", "ART_office") 
+        hum = self.findMatchingRooms("located_building", "ART_office")
 
         typeCount = dict()
         for agentSche in schedules:
@@ -923,8 +945,8 @@ class AgentBasedModel:
                 for item in row:
                     if not isinstance(item , int):
                         if isinstance(item, str):
-                            bType = item#self.rooms[item].building_type 
-                            
+                            bType = item#self.rooms[item].building_type
+
                         else:
                             bType = item[2]
                         typeCount[bType] = typeCount.get(bType, 0)+1
@@ -956,35 +978,35 @@ class AgentBasedModel:
                             if self._debug:
                                 print("exception")
                             if random.random() < self.e_homeP:
-                                schedules[index][i][j] = "sleep" 
+                                schedules[index][i][j] = "sleep"
                             else:
                                 if self._debug:
                                     print(item)
             print("counter to dorm vs social", counter, counterDict.items())
-           
+
             fac_schedule = [
-                [[item if item not in closedBuilding else "Off" for item in row] for row in uniqueSchedule] 
+                [[item if item not in closedBuilding else "Off" for item in row] for row in uniqueSchedule]
                     for uniqueSchedule in fac_schedule]
-        
-        
+
+
         # assign one dining room as faculty only
         facultyDiningRoom = self.findMatchingRooms("building_type", "dining")[0]
         self.rooms[facultyDiningRoom].room_name = "faculty_dining_room"
         self.rooms[facultyDiningRoom].building_type = "faculty_dining_room"
-        
+
         # sample faculty schedule ["Off", "Off", "dining", 45, "Off", ...]
         offCampusScheduleTemplate = [[offCampusLeaf for _ in range(24)] for _ in range(3)]
         for index, (facSche, randFac) in enumerate(zip(fac_schedule, randomizedFac)):
             replacement = stem if randFac == "S" else (art if randFac == "A" else hum)
-            
+
             favoriteOffice = np.random.choice(replacement)
-            
+
             for i, row in enumerate(facSche):
                 for j, item in enumerate(row):
                     if item == "office": # choose a random office within their department
                         if self.closedBuilding_intervention and "office" in closedBuilding:
                             fac_schedule[index][i][j] = "Off"
-                        else:    
+                        else:
                             fac_schedule[index][i][j] = favoriteOffice
                     elif item == "dining": # convert to faculty dining to restict area to faculty only space
                         fac_schedule[index][i][j] = "faculty_dining_room"
@@ -992,20 +1014,20 @@ class AgentBasedModel:
                         fac_schedule[index][i][j] = classrooms[item]
                     elif isinstance(item[0], int):
                         fac_schedule[index][i][j] = classrooms[item[0]]
-        
-      
+
+
 
         # replace entries like (48, 1) --> 48, tuple extractor
         schedules = [[[classrooms[a[0]] if isinstance(a[0], int) else a for a in row] for row in student_schedule] for student_schedule in schedules]
 
         onCampusIndex, offCampusIndex, facultyIndex = 0, 0, 0
-        offCampusSchedule, onCampusSchedule = [], [] 
-        
+        offCampusSchedule, onCampusSchedule = [], []
+
         # map the schedules to oncampus and offcampus students
         for schedule, onOffDistinction in zip(schedules, onVsOffCampus):
             if onOffDistinction == "Off": offCampusSchedule.append(schedule)
             else: onCampusSchedule.append(schedule)
-        
+
 
         # assign the schedule to the correct agent
         for agentId, agent in self.agents.items():
@@ -1025,9 +1047,9 @@ class AgentBasedModel:
                 if agentId in self.remoteFacultyIds: # this faculty is teaching remote
                     self.setToRemote(agentId,offCampusLeaf, offCampusScheduleTemplate)
                 else:
-                    agent.schedule = fac_schedule[facultyIndex] 
+                    agent.schedule = fac_schedule[facultyIndex]
                 facultyIndex+=1
-        
+
         # this gets rid of "sleep", "Off", "dorm" and replace it with one of the leaf Ids
         for entry in ["sleep", "Off", "dorm"]:
             self.replaceScheduleEntry(entry)
@@ -1050,22 +1072,22 @@ class AgentBasedModel:
         for agent in self.agents.values():
             for row in agent.schedule:
                 for item in row:
-                    
-                    bType = self.rooms[item].building_type 
+
+                    bType = self.rooms[item].building_type
                     typeCount[bType] = typeCount.get(bType, 0)+1
         print(typeCount.items())
         print("finished assigning schedules")
-        
+
         """
         # print sample faculty schedules
         for agentId, agent in self.agents.items():
-            
+
             if agentId%10 == 0 and agentId > 2000:
                 print("below", "*"*20, agent.Agent_type)
                 #print(agent.schedule[:2])
                 print(self.convertScheduleToRoomName(agent.schedule[:2]))
         """
-        
+
     def replaceScheduleEntry(self, antecedent):
         """
             replace locations with each agent's initial location
@@ -1074,11 +1096,11 @@ class AgentBasedModel:
             - antecedent: the string to replace with the agent's initial location
         """
         for agentId, agent in self.agents.items():
-            agent.schedule = [[a if a != antecedent else agent.initial_location for a in row] for row in agent.schedule] 
+            agent.schedule = [[a if a != antecedent else agent.initial_location for a in row] for row in agent.schedule]
 
     def replacewithTwo(self, agentIds):
         socialSpace = self.findMatchingRooms("building_type", "social")
-        
+
         for _, agentId in enumerate(agentIds):
             twoFriendGroup = np.random.choice(socialSpace, size=2, replace=False)
             for i, row in enumerate(self.agents[agentId].schedule):
@@ -1088,7 +1110,7 @@ class AgentBasedModel:
                             self.agents[agentId].schedule[i][j] = twoFriendGroup[0]
                         else:
                             self.agents[agentId].schedule[i][j] = twoFriendGroup[1]
-   
+
 
     def replaceByType(self, agentParam=None, agentParamValue=None, partitionTypes=None, perEntry=False):
         """
@@ -1097,7 +1119,7 @@ class AgentBasedModel:
             Parameters:
             - agentParam: a string of the attribute name
             - agentParamValue: the value of the agentParam attribute, filter agents with this value and apply the replace function
-            - SuperStrucType: a string to replace 
+            - SuperStrucType: a string to replace
             - perEntry: boolean, if True, it randomly chooses an Id from the pool every time it locates the identifier, if False, one Id is taken from the pool per agent
         """
         # filter rooms with specific value for building_type, returned roomIds dont include hub ids
@@ -1107,7 +1129,7 @@ class AgentBasedModel:
                 filteredId = [agentId for agentId, agent in self.agents.items() if getattr(agent, agentParam) == agentParamValue]
             else: filteredId = list(self.agents.keys())
             roomIds = self.findMatchingRooms("building_type", partitionTypes)
-           
+
             if not perEntry:
                 randomVec = np.random.choice(roomIds, size=len(filteredId), replace=True)
             for agentId in filteredId:
@@ -1128,10 +1150,10 @@ class AgentBasedModel:
             if agentParam != None and agentParamValue != None:
                 filteredId = [agentId for agentId, agent in self.agents.items() if getattr(agent, agentParam) == agentParamValue]
             else: filteredId = list(self.agents.keys())
-            
+
             partitionIds = [self.findMatchingRooms("building_type", partitionType)  for partitionType in partitionTypes]
             agentCount = len(self.agents)
-            
+
             randRoomIds = []
             for idList in partitionIds:
                 randRoomIds.append(np.random.choice(idList, size=agentCount, replace=True))
@@ -1139,17 +1161,19 @@ class AgentBasedModel:
             for agentId in filteredId:
                 for i, row in enumerate(self.agents[agentId].schedule):
                     for j, item in enumerate(row):
-                        indx = indexVal(partitionTypes, item) 
+                        indx = indexVal(partitionTypes, item)
                         if  indx != -1:
-                            self.agents[agentId].schedule[i][j] = randRoomIds[indx][index]  
+                            self.agents[agentId].schedule[i][j] = randRoomIds[indx][index]
                 index+=1
- 
-    def updateSteps(self, step = 1): 
-        for _ in range(step):     
+
+    def updateSteps(self, step = 1):
+        if self.time == 0:
+            print(self.agents[1])
+        for _ in range(step):
             self.time+=1
             modTime = self.time%24
-            # between [7AM, 10PM] 
-            if  23 > modTime > 6 and len(self.state2IdDict["recovered"]) != len(self.agents): 
+            # between [7AM, 10PM]
+            if  23 > modTime > 6 and len(self.state2IdDict["recovered"]) != len(self.agents):
                 # update 4 times to move the agents to their final destination
                 # 4 is the max number of updates required for moving the agents from room --> building_hub --> transit_hub --> building_hub --> room
                 if self.lazySunday and self.dateDescriptor == "LS":
@@ -1160,12 +1184,12 @@ class AgentBasedModel:
                         self.updateAgent()
                         self.hub_infection()
                 self.infection()
-           
+
             # if weekdays
             if self.dateDescriptor != "W" or self.dateDescriptor!="LS":
                 if modTime == 8:
                     self.checkForWalkIn()
-                if self.quarantine_intervention and self.time%self.quarantineInterval == self.config["Quarantine"]["offset"]: 
+                if self.quarantine_intervention and self.time%self.quarantineInterval == self.config["Quarantine"]["offset"]:
                     self.testForDisease()
             if modTime == self.config["Quarantine"]["offset"]:
                 self.delayed_quarantine()
@@ -1182,24 +1206,24 @@ class AgentBasedModel:
                 if self.lazySunday and self.date%7 == 6:
                         self.dateDescriptor = "LS"
                 elif self.date%7 > 3: # Friday follows a "weekend" schedule
-                    self.dateDescriptor = "W"  
-                elif self.date&1: # bitwise opperation, if date is an odd number, then its an even day because of 0 based index 
+                    self.dateDescriptor = "W"
+                elif self.date&1: # bitwise opperation, if date is an odd number, then its an even day because of 0 based index
                     self.dateDescriptor = "E"
                 else:
                     self.dateDescriptor ="O"
-                
+
     def convertScheduleToRoomName(self, schedule):
         """
-            for debugging/output purpose, return the agent's schedule but replace all Ids with the name of the room 
+            for debugging/output purpose, return the agent's schedule but replace all Ids with the name of the room
 
             Parameters:
             - agentId:  the Id of the agent that we want to observe the schedule
         """
         return [[self.rooms[roomId].room_name for roomId in row] for row in schedule]
-    
+
     def initializeR0(self):
         self.R0Calculation = True
-            
+
     def returnR0(self):
         counter = 0
         timeRem = self.time//self.timeIncrement
@@ -1207,39 +1231,39 @@ class AgentBasedModel:
             if key == "falsePositive":
                 counter -= value[timeRem]
             elif key != "susceptible":
-                counter += value[timeRem]  
-                      
+                counter += value[timeRem]
+
         self.printRelevantInfo()
         R0 = (counter - self.config["Infection"]["SeedNumber"])/self.config["Infection"]["SeedNumber"]
         print(f"# infected: {counter}, initial: {self.config['Infection']['SeedNumber']}, Ave R0: {R0}")
         return R0
-    
+
     def initializeStoringParameter(self, listOfStatus):
         """
-            tell the code which values to keep track of. 
+            tell the code which values to keep track of.
             t defines the frequency of keeping track of the information
         """
         self.storeVal = True
         self.timeIncrement = self.config["World"]["stateCounterInterval"]
         numEntry = int((self.config["World"]["InferedSimulatedDays"] * 24)/self.timeIncrement)
-        self.parameters = dict((stateName, [0]*numEntry) for stateList in self.config["Agents"]["PossibleStates"].values() for stateName in stateList)    
+        self.parameters = dict((stateName, [0]*numEntry) for stateList in self.config["Agents"]["PossibleStates"].values() for stateName in stateList)
         self.timeSeries = list(range(0, (self.config["World"]["InferedSimulatedDays"]*24)+1, self.timeIncrement))
-    
+
     def storeInformation(self):
-        if not (self.time//self.timeIncrement < len(self.timeSeries)-1): 
+        if not (self.time//self.timeIncrement < len(self.timeSeries)-1):
             for param in self.parameters.keys():
                 self.parameters[param].append((len(self.state2IdDict[param])))
-            
+
             self.timeSeries.append(self.time)
         else:
             for param in self.parameters.keys():
                 self.parameters[param][self.time//self.timeIncrement] = len(self.state2IdDict[param])
-          
+
     def printRelevantInfo(self):
-        """ print relevant information about the model and its current state, 
+        """ print relevant information about the model and its current state,
         this is the same as __str__ or __repr__, but this function is for debug purpose,
         later on this functio n will be converted to the proper format using __repr__"""
-        
+
         stateList = [state for stateGroup in self.config["Agents"]["PossibleStates"].values() for state in stateGroup]
         num = [len(self.state2IdDict[state]) for state in stateList]
         def trunk(words):
@@ -1259,22 +1283,22 @@ class AgentBasedModel:
         transitionP = self.config["World"]["offCampusInfectionProbability"]
         offCampusNumber = len(self.rooms[self.roomNameId["offCampus_hub"]].agentsInside)
         if not self.R0Calculation and offCampusNumber > 0 and self.time%24 < 12:
-            randomVec = np.random.random(offCampusNumber) 
+            randomVec = np.random.random(offCampusNumber)
         for agentId, agent in self.agents.items():
             loc = agent.updateLoc(self.time, self.adjacencyDict)
             if loc[0] != loc[1]:
                 # if the agent is coming back to the network from the offcampus node
-                if not self.R0Calculation and loc[0] == self.roomNameId["offCampus_hub"] and loc[1] == self.roomNameId[self.config["World"]["transitName"]] and self.time%24<12: 
+                if not self.R0Calculation and loc[0] == self.roomNameId["offCampus_hub"] and loc[1] == self.roomNameId[self.config["World"]["transitName"]] and self.time%24<12:
                     if agent.state == "susceptible" and randomVec[index] < transitionP:
                         if self._debug:
                             print("*"*5, "changed state from susceptible to exposed through transit")
                         self.changeStateDict(agentId,agent.state, "exposed")
                         self.rooms[loc[0]].infectedNumber+=1
                     index+=1
-                    
+
                 self.rooms[loc[0]].leave(agentId)
                 self.rooms[loc[1]].enter(agentId)
-  
+
     def hub_infection(self):
         randVec = np.random.random(len(self.state2IdDict["susceptible"]))
         index = 0
@@ -1287,7 +1311,7 @@ class AgentBasedModel:
                         if self.faceMask_intervention and self.agents[agentId].compliance: # check for compliance
                             if self.rooms[roomId].building_type != "social":
                                 coeff *= self.maskB
-                    
+
                         if randVec[index] < coeff*totalInfection:
                             self.changeStateDict(agentId,"susceptible", "exposed")
                             room.infectedNumber+=1
@@ -1295,7 +1319,7 @@ class AgentBasedModel:
                             index+=1
                             if self._debug:
                                 print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {room.limit},  {len(room.agentsInside)} people in room ")
-                            
+
     def infection(self):
         """
             the actual function that takes care of the infection
@@ -1317,14 +1341,14 @@ class AgentBasedModel:
                             if self.faceMask_intervention and self.agents[agentId].compliance: # check for compliance
                                 if self.rooms[roomId].building_type not in self.nonCompliantLeaf:
                                     coeff *= self.maskB
-                            
+
                             if randVec[index1] < coeff*totalInfection:
                                 self.changeStateDict(agentId,"susceptible", "exposed")
                                 room.infectedNumber+=1
                                 index1+=1
                                 if self._debug:
                                     contribution = self.infectionWithinPopulation(self.rooms[roomId].agentsInside, roomId)
-                                    
+
                                     if self.dynamicCapacity and room.building_type == "social":
                                         print(f"at time {self.time}, in {(roomId, room.room_name)}, 1 got infected by the comparison randomValue < {totalInfection}. Kv is {room.Kv}, limit is {(5*int(len(self.rooms[roomId].agentsInside)/5+1))},  {len(room.agentsInside)} people in room, contrib: {contribution}")
                                     else:
@@ -1332,12 +1356,12 @@ class AgentBasedModel:
 
 
             # this loop takes care of agent's state transitions
-            for agentId in room.agentsInside:   
+            for agentId in room.agentsInside:
                 state = self.agents[agentId].state
                 if self.agents[agentId].transitionTime() < self.time and state == "quarantined":
                     # go back to the susceptible state, because the agent was never infected, just self isolated
                     # or recovered from infection during quarantine
-                    exitState = "recovered" if self.agents[agentId].infected else "susceptible" 
+                    exitState = "recovered" if self.agents[agentId].infected else "susceptible"
                     self.changeStateDict(agentId, "quarantined", exitState)
                 elif self.agents[agentId].transitionTime() < self.time and state != "quarantined" and state != "susceptible" and transition[state] > 0:
                     cdf = 0
@@ -1347,7 +1371,7 @@ class AgentBasedModel:
                         self.changeStateDict(agentId, self.agents[agentId].state, tup[0])
                     else:
                         if len(transitionProbability[state]) > 1:
-                            
+
                             for tup in transitionProbability[state]:
                                 if tup[1] > randVec2[index2] > cdf:
                                     cdf+=tup[1]
@@ -1357,14 +1381,14 @@ class AgentBasedModel:
                             nextState = transitionProbability[state][0][0]
 
                         self.changeStateDict(agentId, self.agents[agentId].state, nextState)
-    
+
     def infectionInRoom(self, roomId):
         """find the total infectiousness of a room by adding up the contribution of all agents in the room"""
         contribution = self.infectionWithinPopulation(self.rooms[roomId].agentsInside, roomId)
         if self.dynamicCapacity and self.rooms[roomId].building_type == "social" and not self.rooms[roomId].room_name.endswith("_hub"): # check for division by zero
             if len(self.rooms[roomId].agentsInside) == 0:
                 return 0
-            
+
             cummulativeFunc = (self.baseP*2*contribution)/(5*int(len(self.rooms[roomId].agentsInside)/5+1))
         else:
             cummulativeFunc = (self.baseP*self.rooms[roomId].Kv*contribution)/self.rooms[roomId].limit
@@ -1388,22 +1412,22 @@ class AgentBasedModel:
                     # otherwise no mask
                 else: # any other spaces
                     individualContribution*=self.maskP
-                
-                
+
+
             contribution+= individualContribution
         return contribution
 
     def infectionContribution(self, agentId, lastUpdate):
         """return the contribution to the infection for a specific agent"""
         if self.R0Calculation:
-            if agentId in self.R0_agentIds: 
+            if agentId in self.R0_agentIds:
                 return self.config["Infection"]["Contribution"].get(self.agents[agentId].state, 0)
             return 0
-        else: 
+        else:
             return self.config["Infection"]["Contribution"].get(self.agents[agentId].state, 0)
         return 0
 
-    def testForDisease(self): 
+    def testForDisease(self):
         """
             This function tests people randomly or by batch, and save the result in the log.  The log is read and with a delay, the agents who are listed in the log is qurantined
             the false positive rate adds uninfected agents to the log.  The false negative rate is related to the number of infected agents that can get a false result (not-infected),
@@ -1417,11 +1441,11 @@ class AgentBasedModel:
         else: # we cycle through groups to check infected
             listOfId = self.groupIds[self.quarantineGroupIndex]
             self.quarantineGroupIndex = (self.quarantineGroupIndex+1)% self.quarantineGroupNumber
-    
+
         if self.config["Quarantine"]["ShowingUpForScreening"] == 1:
             pass# everyone shows up
         else:
-            notSymptomatic = {agentId for agentId in listOfId 
+            notSymptomatic = {agentId for agentId in listOfId
                     if self.agents[agentId].state != "infected Symptomatic Mild" and self.agents[agentId].state != "infected Symptomatic Severe"}
             randomVec = np.random.random(len(notSymptomatic))
             complyingP = self.config["Quarantine"]["ShowingUpForScreening"]
@@ -1436,7 +1460,7 @@ class AgentBasedModel:
         # these people had false positive results and are quarantined
         for agentId in falsePositiveResult:
             fpDelayedList.append(agentId)
-        
+
         falseNegVec = np.random.random(len(normalScreeningId))
         # these are people who are normally screened
         for i, agentId in enumerate(normalScreeningId):
@@ -1450,26 +1474,26 @@ class AgentBasedModel:
         self.falsePositiveList.append(fpDelayedList)
         self.quarantineList.append(delayedList)
         self.screeningTime.append(self.time+self.config['Quarantine']['ResultLatency'])
-     
-    def delayed_quarantine(self): 
+
+    def delayed_quarantine(self):
         """
             the people who gets a mandatory testing will get their results in t time (t=0 means the result are given without any delay),
             in the testing phase, the agents are tested and the people who had false positive result and people with the covid is quarantined
-            The agents are put in the quarantine state after a delay, and if the delay > time between successive testing, then there's a backlog with the resultsbeing returned. 
+            The agents are put in the quarantine state after a delay, and if the delay > time between successive testing, then there's a backlog with the resultsbeing returned.
             since the testing and isolating based on the results could have a delay, I use a FIFO queue, meaning you get the results for the 1st group first, then 2nd, then 3rd, ....
 
             Parameters:
             - None
         """
-        
-        # if agents got a screening, they get their results 
+
+        # if agents got a screening, they get their results
         if self.quarantine_intervention and len(self.screeningTime) > 0:
             if self.time+1 > self.screeningTime[0]:  # +2 to reduce some inequality checking
                 quarantined_agent = self.quarantineList.pop(0) # get the test result for the first group in the queue
                 falsePos_agent = self.falsePositiveList.pop(0)
                 resultTime = self.screeningTime.pop(0)
-                
-                if len(quarantined_agent)+len(falsePos_agent) > 0: 
+
+                if len(quarantined_agent)+len(falsePos_agent) > 0:
                     if self._debug:
                         print(f"Isolating at time: {self.time}, {self.dateDescriptor}, latency: {self.config['Quarantine']['ResultLatency']},  isolation of {len(quarantined_agent) + len(falsePos_agent)} agents, there are {len(self.quarantineList)} group backlog")
                     for agentId in quarantined_agent:
@@ -1479,7 +1503,7 @@ class AgentBasedModel:
                         self.addFalsePositive(agentId)
                 elif self._debug:
                     print(self.time, resultTime, "Isolation, no one was infected in the batch", self.screeningTime)
-                    
+
 
     def addFalsePositive(self, agentId):
         self.state2IdDict["falsePositive"].add(agentId)
@@ -1492,7 +1516,7 @@ class AgentBasedModel:
         - None
         """
         if self.walkIn: # if people have a tendency of walkins and if it's 8AM
-            mild, severe = self.state2IdDict["infected Symptomatic Mild"], self.state2IdDict["infected Symptomatic Severe"] 
+            mild, severe = self.state2IdDict["infected Symptomatic Mild"], self.state2IdDict["infected Symptomatic Severe"]
             for agentId in mild|severe: # union of the two sets
                 if self.agents[agentId].lastUpdate+23 > self.time: # people walkin if they seen symptoms for a day
                     # with some probability the agent will walkin
@@ -1500,7 +1524,7 @@ class AgentBasedModel:
                     if tupP[0] < self.config["Quarantine"]["walkinProbability"].get(self.agents[agentId].state, 0): # walkin occurs
                         if tupP[1] > self.config["Quarantine"]["falseNegative"]: # no false negatives
                             self.changeStateDict(agentId,self.agents[agentId].state, "quarantined")
-         
+
     def big_gathering(self):
         if self.largeGathering: # big gathering at sunday midnight
             agentIds = list(self.gatherers)
@@ -1516,14 +1540,14 @@ class AgentBasedModel:
                 subsets.append(np.random.choice(agentIds, size=size, replace=False))
                 randVecs.append(np.random.random(size))
             totalSubset = list({agentId for subset in subsets for agentId in subset})
-            
+
             counter = self.countAgentsInGroup(totalSubset, "susceptible")
             totalinfectionVec = [0, 0, 0]
             for index, (subset, randVec) in enumerate(zip(subsets, randVecs)):
                 totalInfection = self.gathering_infection(subset)
                 totalinfectionVec[index] = totalInfection
                 for index, agentId in enumerate(subset):
-                    if self.agents[agentId].state == "susceptible" and randVec[index] < totalInfection: 
+                    if self.agents[agentId].state == "susceptible" and randVec[index] < totalInfection:
                         self.changeStateDict(agentId,"susceptible" ,"exposed")
                         newly_infected+=1
             self.gathering_count+=newly_infected
@@ -1547,11 +1571,11 @@ class AgentBasedModel:
         for state in ["recovered", "infected Asymptomatic", "infected Asymptomatic Fixed", "infected Symptomatic Mild", "infected Symptomatic Severe"]:
                 for row in self.parameters[state]:
                     counts+=np.array(row)
-        
+
         for index, count in enumerate(counts):
             if count > len(self.agents)*self.config["massInfectionRatio"]:
                 massInfectionTime = index
-                
+
         return massInfectionTime
 
     def visualOverTime(self, boolVal = True, savePlt=False, saveName="defaultpic.png"):
@@ -1563,7 +1587,7 @@ class AgentBasedModel:
         if boolVal:
             data = dict()
             print(list(self.parameters.keys()))
-            
+
             data["Total infected"] = np.zeros(len(self.parameters[list(self.parameters.keys())[0]]))
             for key in self.parameters.keys():
                 if key in ["susceptible", "quarantined", "recovered"]:
@@ -1573,14 +1597,14 @@ class AgentBasedModel:
             data["recovered"] = self.parameters["recovered"]
         else:
             data = {k:v for k,v in self.parameters.items() if k not in self.config["Agents"]["PossibleStates"]["debugAndGraphingPurpose"]}
-        data["susceptible"] = np.array(self.parameters["falsePositive"]) + np.array(data["susceptible"])    
+        data["susceptible"] = np.array(self.parameters["falsePositive"]) + np.array(data["susceptible"])
         print([(key, value[-1], len(value)) for key, value in data.items()])
         x = int(self.time/self.config["World"]["stateCounterInterval"])+1
         data = {k:v[:x] for k, v in data.items()}
         #print("susceptible", data["susceptible"][:x])
-        #print(self.time, x)    
+        #print(self.time, x)
         vs.timeSeriesGraph(self.timeSeries[:x], (0, self.time), (0,len(self.agents)), data, savePlt=savePlt, saveName=saveName, animatePlt=False)
-    
+
     def visualizeBuildings(self):
         pairs = [(room, adjRoom[0]) for room, adjRooms in self.adjacencyDict.items() for adjRoom in adjRooms]
         nameDict = dict((roomId, room.room_name) for roomId, room in self.rooms.items())
@@ -1589,7 +1613,7 @@ class AgentBasedModel:
         clusterName = {buildingId:building.building_type for buildingId, building in self.buildings.items()}
         roomCapacity = {roomId:room.capacity for roomId, room in self.rooms.items()}
         vs.makeGraph(self.rooms.keys(), pairs,Rooms2Building, Building2Rooms,clusterName, roomCapacity)
-    
+
     def final_check(self):
         """
             used to print relevant inormation
@@ -1604,10 +1628,10 @@ class AgentBasedModel:
                     if "faculty" in self.rooms[roomId].room_name:
                         print(f"in {self.rooms[roomId].room_name}, there were {self.rooms[roomId].infectedNumber} infection")
         print("*"*20, "filtering by building type:")
-        
+
         for buildingType, count in self.infectedPerBuilding()[0].items():
             print(buildingType, count)
-           
+
 
     def infectedPerBuilding(self):
         counterDict, hubCounterDict = dict(), dict()
@@ -1616,13 +1640,13 @@ class AgentBasedModel:
             for roomId in building.roomsInside:
                 buildingCount+=self.rooms[roomId].infectedNumber
                 buildingHub+=self.rooms[roomId].hubCount
-            counterDict[building.building_type] = counterDict.get(building.building_type, 0)+buildingCount 
+            counterDict[building.building_type] = counterDict.get(building.building_type, 0)+buildingCount
             hubCounterDict[building.building_type] = hubCounterDict.get(building.building_type, 0)+buildingHub
             if self._debug:
                 pass
                 #print(building.building_name, building.building_type, "whole building", buildingCount, "hubs", buildingHub)
         return (counterDict, hubCounterDict)
-    
+
     def outputs(self):
         totalExposed = self.totalExposed()
         data = dict()
@@ -1632,18 +1656,21 @@ class AgentBasedModel:
                 data[key] = self.parameters[key]
             elif key not in self.config["Agents"]["PossibleStates"]["debugAndGraphingPurpose"]: #ignore keys with debug purpose add the rest to infection count
                 data["TotalInfected"]+=np.array(self.parameters[key])
-        
+
         newdata = dict()
         newdata["largeGathering"] = self.gathering_count
         infectionInBuilding = self.infectedPerBuilding()
         for buildingType, count in infectionInBuilding[0].items():
             newdata[buildingType] = count
-        
+
         maxInfected = max(data["TotalInfected"])
-        
+
         print(f"p: {self.baseP}, R0: {self.R0Calculation}, total ever in exposed {totalExposed}, max infected {maxInfected}")
         otherData = {"total":totalExposed, "max":maxInfected}
-        return (newdata, otherData, data, totalExposed, infectionInBuilding[0], infectionInBuilding[1])
+
+        x = int(self.time/self.config["World"]["stateCounterInterval"])+1
+
+        return (newdata, otherData, data, totalExposed, infectionInBuilding[0], infectionInBuilding[1], len(self.agents), self.time, self.timeSeries[:x])
 
     def totalExposed(self):
         return len(self.agents) - self.parameters["susceptible"][-1] - self.parameters["falsePositive"][-1]
@@ -1658,7 +1685,7 @@ class AgentBasedModel:
             if key in ["susceptible"]:
                 data[key] = self.parameters[key]
             else:
-                data["infected"]+=np.array(self.parameters[key]) 
+                data["infected"]+=np.array(self.parameters[key])
         doublingTime = []
         doublingValue = []
         previousValue = 0
@@ -1678,19 +1705,19 @@ def main():
         "Agents" : {
             "PossibleStates":{
                 "neutral" : ["susceptible", "exposed"],
-                "infected" : ["infected Asymptomatic", "infected Asymptomatic Fixed", "infected Symptomatic Mild", "infected Symptomatic Severe"],  
+                "infected" : ["infected Asymptomatic", "infected Asymptomatic Fixed", "infected Symptomatic Mild", "infected Symptomatic Severe"],
                 "recovered" : ["quarantined", "recovered"],
                 "debugAndGraphingPurpose": ["falsePositive"],
                 },
             "ExtraParameters":[
                         "agentId","path", "destination", "currLocation",
-                        "statePersistance","lastUpdate", "personality", 
+                        "statePersistance","lastUpdate", "personality",
                         "arrivalTime", "schedule",  "gathering",
                         # "travelTime", "officeAttendee",
                 ], # travelTime and officeAttendee will be commented out
             "ExtraZipParameters": [("motion", "stationary"), ("infected", False), ("compliance", False)],
             "booleanAssignment":[ ("gathering", 0.5)], # ("officeAttendee", 0),
-            
+
         },
         "Rooms" : {
             "ExtraParameters": ["roomId","agentsInside","oddCap", "evenCap", "classname", "infectedNumber", "hubCount"],
@@ -1717,7 +1744,7 @@ def main():
                 "infected Symptomatic Mild" : 10*24,# 10 Days
                 "infected Symptomatic Severe" : 10*24, # 10 days
                 "recovered" : -1, # never
-                "quarantined" : 24*14, # 2 weeks 
+                "quarantined" : 24*14, # 2 weeks
             },
             # INFECTION TRANSITION PROBABILITY
             "TransitionProbability" : {
@@ -1733,12 +1760,12 @@ def main():
         },
         "World" : {
             "UnitTime" : "Hours",
-            # by having the supposed days to be simulated, 
+            # by having the supposed days to be simulated,
             # we can allocate the required space beforehand to speedup data storing
             "InferedSimulatedDays":100,
-            # put the name(s) of intervention(s) to be turned on 
-            "TurnedOnInterventions":[],# ["HybridClasses", "ClosingBuildings", "Quarantine", "FaceMasks"], 
-            
+            # put the name(s) of intervention(s) to be turned on
+            "TurnedOnInterventions":[],# ["HybridClasses", "ClosingBuildings", "Quarantine", "FaceMasks"],
+
             "transitName": "transit_space_hub",
             "offCampusInfectionProbability":0.125/880,
             "massInfectionRatio":0.10,
@@ -1749,7 +1776,7 @@ def main():
             "LargeGathering": True,
             "DynamicCapacity": True,
         },
-       
+
         # interventions
         "FaceMasks" : {
             "MaskInfectivity" : 0.5,
@@ -1767,7 +1794,7 @@ def main():
             "ResultLatency":2*24,
             "WalkIn":True,
             "walkinProbability" : {
-                "infected Symptomatic Mild": 0.7, 
+                "infected Symptomatic Mild": 0.7,
                 "infected Symptomatic Severe": 0.95,
                 },
             "BatchSize" : 100,
@@ -1779,13 +1806,13 @@ def main():
         },
         "ClosingBuildings": {
             "ClosedBuildingOpenHub" : [],
-            # close buildings in the list(remove them from the schedule), and go home or go to social spaces 
+            # close buildings in the list(remove them from the schedule), and go home or go to social spaces
             "ClosedBuilding_ByType" : ["gym", "library"],
             "GoingHomeP": 0.5,
             # the building in the list will be removed with probability and replaced with going home, otherwise it stays
             "Exception_SemiClosedBuilding": [],
             "Exception_GoingHomeP":0.5,
-            
+
         },
         "HybridClass":{
             "RemoteStudentCount": 500,

@@ -4,13 +4,14 @@ import pandas as pd
 import pickle
 import dill
 
-def loadPickle(filePath, default=["default"]):
+def loadPickledData(filePath, default=["default"]):
     """
-        load an existing pickle file or make a pickle with default data and return the pickled data
-        
-        Parameters:
-        - filePath: the absolute path or the relative path
-        - default: default value if the file isnt found or if there was a problem with getting the content
+    load an existing pickle file or make a pickle with default data
+    then return the pickled data
+
+    Parameters:
+    - filePath: the absolute path or the relative path
+    - default: default value if the path is invalid for some reason
     """
     try:
         with open(filePath, "rb") as f:
@@ -21,27 +22,39 @@ def loadPickle(filePath, default=["default"]):
             pickle.dump(content, f)
     return content
 
-def savePickle(filePath, content):
+def saveObjUsingPickle(filePath, content):
+    """
+    save the content as a byte file using pickle to a specific location
+    use the alternate dill function for complex objects
+
+    Parameters:
+    - filePath: The absolute or relative path of the pickle file
+        - Ex for win: C:\\Users\\....\\filename.pkl
+        - Ex for linux and mac: /home/username/.../filename.pkl
+    - content: object to be saved"""
+
     with open(filePath, "wb") as f:
         pickle.dump(content, f)
 
 def savedf2Pickle(filePath, content):
     """
-        save a dataframe to a .pkl file
+        save a panda dataframe as a .pkl file
 
         Parameters:
-        - filePath: the location of the file, either the relative path or the absolute path
-        - content: the content to be saved, an error will occur if the content is a complex class, in that case use the equivalent dill function 
+        - filePath: either the relative path or the absolute path
+        - content: the df to be saved
     """
     content.to_pickle(filePath)
 
 def loadUsingDill(filePath):
     """
-        same as pickle version, open and retrieve the contents 
-        but allows opening a pre-saved complex Class object with less problems
-    
-        Parameters:
-        - filePath: the location of the file, either the relative path or the absolute path
+    open and retrieve the contents of a file
+
+    use this when opening a file that contains a complex Class object,
+    if the object is "simple" use the function loadPickledData()
+
+    Parameters:
+    - filePath: either the relative path or the absolute path
     """
     with open(filePath, "rb") as f:
         print("unpickling content in {filePath}")
@@ -49,11 +62,11 @@ def loadUsingDill(filePath):
 
 def saveUsingDill(filePath, content):
     """
-        same as pickle version, save the content in the provided location
+    same as pickle version, save the content in the provided location
 
-        Parameters:
-        - filePath: the location of the file, either the relative path or the absolute path
-        - content: the content to be saved, allows complex class instance   
+    Parameters:
+    - filePath: either the relative path or the absolute path
+    - content: the content to be saved, allows complex class instance
     """
     with open(filePath, "wb") as f:
         dill.dump(content, f)
@@ -61,26 +74,26 @@ def saveUsingDill(filePath, content):
 
 def fullPath(fileName, folder=""):
     """
-        given the folder and the file name, it returns a string object that have the type of slash right for the computer's OS 
+        given the folder and the file name, it returns a string object that have the type of slash right for the computer's OS
 
         Parameters:
         - fileName: the name of the file
         - folder: the folder where the file is located in, if it's in the same directory, then use an empty string
     """
     _, filePath = get_cd()
-    # we need the os name because different OS uses / or \ to navigate the file system 
+    # we need the os name because different OS uses / or \ to navigate the file system
     osName = platform.system()
     # get the full path to the file that we're trying to open, and depending on the OS, the slashes changes
     fullLocName = filePath + folder + "\\" + fileName
     if osName == "Windows": pass
-    else: 
+    else:
         # for OS' like linux and mac(Darwin)
         fullLocName = fullLocName.replace("\\", "/")
     return fullLocName
 
 def loadConfig(folder, fileName):
     """load config information from a txt file
-    
+
         Parameters:
         - folder: the folder where the file is located, empty string if its not in any folder
         - fileName: the file name
@@ -94,7 +107,7 @@ def loadConfig(folder, fileName):
 def openCsv(filePath, default = ["new df here"]):
     """
         returns the content of the csv file if it exists.
-    
+
         Parameters:
         - filePath: the absolute or relative path to the .csv file
         - default: default value to load if the file is not located
@@ -107,7 +120,7 @@ def openCsv(filePath, default = ["new df here"]):
             content = pd.dataframe(default)
             content.toCsv(filePath, index=False, header=False)
     return content
-    
+
 
 def formatData(folder, fileName):
     """
@@ -115,7 +128,7 @@ def formatData(folder, fileName):
 
         Parameters:
         - folder: the folder where the file is located, use empty string, "", if the file isnt nested
-        - fileName: the name of the file    
+        - fileName: the name of the file
     """
     fullName = fullPath(fileName, folder)
     # get the content of the file and convert it to a panda dataframe
@@ -133,10 +146,10 @@ def formatData(folder, fileName):
 def make_df(folder, fileName, debug=True):
     """
         creates a panda dataframe from the contents in a csv file
-    
+
         Parameters:
         - folder: the folder where the file is located, use empty string, "", if the file isnt nested
-        - fileName: the name of the file     
+        - fileName: the name of the file
     """
     a = formatData(folder, fileName)
     a.fillna(0, inplace =True)
@@ -152,13 +165,13 @@ def get_cd():
     """
     uses the os.path function to get the filename and the absolute path to the current directory
     Also does a primative check to see if the path is correct, there has been instances where the CD was different, hence the check.
-    
+
     return Value(s):
     - scriptPath: the full directory path
     - filePath: the full path that includes the current file
     """
     # Get the path to this file
-    scriptPath, filePath = os.path.realpath(__file__), ""  
+    scriptPath, filePath = os.path.realpath(__file__), ""
     # get the os name and the backslash or forward slash depending on the OS
     os_name = platform.system()
     path_slash = "/" if os_name in ["Linux", 'Darwin'] else "\\"
@@ -166,7 +179,7 @@ def get_cd():
     for i in range(1,len(scriptPath)+1):
         if scriptPath[-i] == path_slash:
             scriptPath = scriptPath[0:-i]#current path, relative to root direcotory or C drive
-            break    
+            break
     if os.getcwd() != scriptPath: filePath = scriptPath + path_slash
     return scriptPath, filePath
 
@@ -175,7 +188,7 @@ def main():
     # run this to check if the files can be extracted
     a = formatData("configuration", "agents.csv")
     print(a)
-    
+
 
 
 

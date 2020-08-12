@@ -5,16 +5,17 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-def makeGraph(vertices, edges, vertices2Cluster, cluster2Vertices,clusterName, roomCapacity, directed=False):
+def makeGraph(vertices, edges, vertices2Cluster, cluster2Vertices,
+                clusterName, roomCapacity, directed=False):
     """
         get the partitions and their adjacency list to create a graph
-        The graph will show the label of partitions that have more edges than the threshold 
+        The graph will show the label of partitions that have more edges than the threshold
     """
     theshold = 10 # rooms
     G = nx.DiGraph() if directed else nx.Graph()
     G.add_nodes_from(vertices) #G.nodes()
     G.add_edges_from(edges)
-  
+
     # this part dictates the size and color
     sizeList, colorList, labelList = [], [], dict()
     lables, colorbar = False, False
@@ -25,8 +26,8 @@ def makeGraph(vertices, edges, vertices2Cluster, cluster2Vertices,clusterName, r
 
     clusters = set(clusterName.values())
     groupColor = dict((key,index/len(clusters)) for index, key in enumerate(sorted(clusters)))
-    groupColor["dorm"], groupColor["transit"], groupColor["library"] = groupColor["library"], groupColor["dorm"], groupColor["transit"] 
-    
+    groupColor["dorm"], groupColor["transit"], groupColor["library"] = groupColor["library"], groupColor["dorm"], groupColor["transit"]
+
     print(groupColor.items())
     basedOnType = True
     cmap = mpl.cm.get_cmap("gist_rainbow")
@@ -36,9 +37,9 @@ def makeGraph(vertices, edges, vertices2Cluster, cluster2Vertices,clusterName, r
         if roomCapacity[node] > 5000:
             sizeList.append(300)
         else:
-            coeff = 2 if connection < 20 else 1 
+            coeff = 2 if connection < 20 else 1
             sizeList.append(int((coeff*connection*6000)/len(vertices)))
-        
+
         if lables: # ignore
             labelList[node] = "" if connection < theshold else clusterName[buildingId]+" :\n " +vertexLabels[node]
         else: # no labels
@@ -47,7 +48,7 @@ def makeGraph(vertices, edges, vertices2Cluster, cluster2Vertices,clusterName, r
             colorList.append(groupColor[clusterName[buildingId]]-1)
         else:
             colorList.append(colors[building])
-  
+
     pos = nx.spring_layout(G,k=0.05,  scale = 2)
     print(nx.info(G))
     print("labels for vertices:", [names for names in labelList.values() if names != ""])
@@ -58,19 +59,21 @@ def makeGraph(vertices, edges, vertices2Cluster, cluster2Vertices,clusterName, r
         ax.plot([0], [0], color=cmap(colorVal), label=key)
         a = mpl.patches.Patch(color=cmap(colorVal), label=key)
         handleList.append(a)
-    
+
     ec = nx.draw_networkx_edges(G, pos, alpha=0.2)
-    nc = nx.draw_networkx_nodes(G, pos, with_labels=True, node_size=sizeList, 
+    nc = nx.draw_networkx_nodes(G, pos, with_labels=True, node_size=sizeList,
                 node_color=np.array(colorList), alpha=0.7,  cmap="gist_rainbow")
     lc = nx.draw_networkx_labels(G, pos, labels=labelList, font_size= 10)
-    if colorbar: 
+    if colorbar:
         plt.colorbar(nc)
     plt.axis("off")
     plt.legend(handles=handleList)
     plt.tight_layout()
     plt.show()
 
-def timeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle = ["r-", "b.", "g--"], savePlt=False, saveName="defaultImage.png", animatePlt=True):
+def timeSeriesGraph(timeIntervals, xLim, yLim, data,
+                linestyle = ["r-", "b.", "g--"], savePlt=False,
+                saveName="defaultImage.png", animatePlt=True):
     fig, ax= plt.subplots(figsize = (10, 5))
     plt.xlim(xLim[0], xLim[1])
     plt.ylim(yLim[0], yLim[1])
@@ -87,17 +90,75 @@ def timeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle = ["r-", "b.", "g
         print("image saved as", saveName)
         plt.savefig(saveName)
     else:
-        plt.show()    
+        plt.show()
     # show animated graph
     if animatePlt:
         showAnimation(timeIntervals, animateData, xLim, yLim, len(timeIntervals))
 
+def filledTimeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle= ["r-", "b.", "g--"],
+                    savePlt=False, saveName="defaultImage.png"):
+    fig, ax= plt.subplots(figsize = (10, 5))
+    import pandas as pd
+    import seaborn as sns
+    import statfile as stat
+    plt.xlim(xLim[0], xLim[1])
+    plt.ylim(yLim[0], yLim[1])
+    maxData = 0
+    minData = 0
+    meanData = 0
+    clrs = sns.color_palette("husl", 5)
+    # reformat data
+    kValues = list(data[0].keys())
+    kValues.remove("quarantined")
+    newDict = dict()
+    for k in kValues:
+        newDict[k] = []
+    for simulationData in data:
+        for k, v in simulationData.items():
+            newDict[k].append(v)
+    print(len(newDict[k][0]))
+    print(newDict[k])
+    for k in kValues:
+        stds = []
+        mean = []
+        maxVals = []
+        minVals = []
+        descriptorCounts = newDict[k]
+        print(len(newDict[k][0]))
+        print(newDict[k])
+
+        for i in range(len(descriptorCounts[0])):
+            instanceList = [d[i] for d in descriptorCounts]
+            maxVals.append(max(instanceList))
+            minVals.append(max(instanceList))
+            instanceData = stat.analyzeData(instanceList)
+            stds.append(instanceData[3])
+            mean.append(instanceData[0])
+        ax.plot(mean, label=k)
+
+        lessStd = [m-std for m, std in zip(mean, stds)]
+        moreStd = [m+std for m, std in zip(mean, stds)]
+        ax.fill_between(lessStd, moreStd)
+    with sns.axes_style("darkgrid"):
+
+        for i in range(len(data)):
+            meanst = np.array(means.ix[i].values[3:-1], dtype=np.float64)
+            sdt = np.array(stds.ix[i].values[3:-1], dtype=np.float64)
+            ax.plot(timeIntervals, meanst, label=means.ix[i]["label"], c=clrs[i])
+            ax.fill_between(timeIntervals, meanst-sdt, meanst+sdt ,alpha=0.3, facecolor=clrs[i])
+        ax.legend()
+
+        plt.xlabel("Time (Hours)")
+        plt.ylabel("# of Agents")
+        plt.title("Agent's State over Time")
+        plt.show()
+
 def get_cmap(n, name='hsv'):
-    '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
+    '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct
     RGB color; the keyword argument name must be a standard mpl colormap name.'''
     return plt.cm.get_cmap(name, n)
 
-def showAnimation(timeList, dataList, xLim, yLim, frames):   
+def showAnimation(timeList, dataList, xLim, yLim, frames):
     fig = plt.figure()
     ax1 = plt.axes(xlim=xLim, ylim=yLim)
     # plot parameter is dimension x dimension2 # position of plot, and linewidth
@@ -108,7 +169,7 @@ def showAnimation(timeList, dataList, xLim, yLim, frames):
     dataSize = len(dataList)
     cmap = get_cmap(dataSize+1)
     lines = []
-    
+
     for i in range(dataSize):
         lobj = ax1.plot([], [], lw=2, c=cmap(i))[0]
         lines.append(lobj)
@@ -124,7 +185,7 @@ def showAnimation(timeList, dataList, xLim, yLim, frames):
         for lNum, line in enumerate(lines):
             line.set_data(xList[lNum], yList[lNum])
         return lines
-        
+
     ani = animation.FuncAnimation(fig, animate, init_func=init, frames = frames, interval = 200)
     plt.show()
 
