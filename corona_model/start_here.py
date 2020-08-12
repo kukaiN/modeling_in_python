@@ -540,10 +540,8 @@ def main():
         for categoryKey, listOfControls in modelControl.items():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
-        R0Count = 100 #if index == 0 else (100 i f index > 4 else 30)
-        multiCounts = 5 #if index == 0 else (50 if index > 4 else 5)
-        R0Count = 100#, 80
-        multiCounts = 20#20
+        R0Count = 100
+        multiCounts = 20
 
         if index > -1: #in [0, 9, 12, 15]:
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)

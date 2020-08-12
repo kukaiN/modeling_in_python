@@ -227,7 +227,7 @@ def comparingBoxPlots(dictObj, plottedData="R0", saveName="default"):
                     reg_labels.append(key)
                     reg_R0data.append(value[0])
                 R0AnalyzedData.append(value[1]) 
-            flr.savePickle(flr.fullPath("R0"+osExtension+ saveName, "picklefile")+".pkl", dictObj)
+            flr.saveObjUsingPickle(flr.fullPath("R0"+osExtension+ saveName, "picklefile")+".pkl", dictObj)
             boxplot(und_R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
                 ylabel="Infected Agents (R0)", labels=und_labels, savePlt=True, saveName=osExtension+"9R0_box_"+saveName)
             #statfile.barChart(und_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
@@ -250,7 +250,7 @@ def comparingBoxPlots(dictObj, plottedData="R0", saveName="default"):
                     labels1.append(key)
                     infectedCounts1.append(value)
             print(labels, labels1)
-            flr.savePickle(flr.fullPath("infectedCount"+osExtension+saveName, "picklefile")+".pkl", dictObj)
+            flr.saveObjUsingPickle(flr.fullPath("infectedCount"+osExtension+saveName, "picklefile")+".pkl", dictObj)
             boxplot(infectedCounts,oneD=False, pltTitle="Infection Comparison", xlabel="Model Name",
                 ylabel="Total # of Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_box_"+saveName)
             #statfile.barChart(infectedCounts, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
