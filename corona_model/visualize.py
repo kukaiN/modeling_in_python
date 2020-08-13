@@ -115,7 +115,8 @@ def filledTimeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle= ["r-", "b.
         newDict[k] = []
     for simulationData in data:
         for k, v in simulationData.items():
-            newDict[k].append(v)
+            if k in kValues:
+                newDict[k].append(v)
     print(len(newDict[k][0]))
     print(newDict[k])
     for k in kValues:

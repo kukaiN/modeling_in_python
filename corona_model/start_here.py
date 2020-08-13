@@ -542,7 +542,7 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100
         multiCounts = 20
-
+        break
         if index > -1: #in [0, 9, 12, 15]:
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
             InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName)
@@ -552,7 +552,7 @@ def main():
     print(InfectedCountDict.items())
     print(R0Dict.items())
 
-    if True:
+    if False:
 
         saveName = "comparingModels_"+simulationGeneration
         statfile.comparingBoxPlots(R0Dict, plottedData="R0", saveName=saveName)

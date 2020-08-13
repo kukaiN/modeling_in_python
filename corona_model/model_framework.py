@@ -171,7 +171,10 @@ def createFilledPlot(modelConfig, simulationN=10, days=100,
     xlim = [0, 0]
     ylim = [0, 0]
     timeSeries = 0
-
+    keyList = ["susceptible", "recovered", "TotalInfected"]
+    keyDict=dict()
+    for key in keyList:
+        keyDict[key] = []
     for i in range(simulationN):
         result = simpleCheck(modelConfig, days=days, visuals=False,
                             debug=debug, modelName=modelName+"_"+str(i))
@@ -181,8 +184,19 @@ def createFilledPlot(modelConfig, simulationN=10, days=100,
         xlim[1] = result[7]
         ylim[1] = result[6]
         timeSeries = result[8]
+    
+    for res in multiResult:
+        for key in keyList:
+            keyDict[key].append(res[key])
+
+    for key, dataMatrix in keyDict.items():
+        saveName =  key+"_"+modelName
+        dfObj = pd.DataFrame(np.array(dataMatrix))
+        flr.save_df_to_csv(flr.fullPath(saveName+".csv", "outputs"), dfObj)
+
     import visualize
     visualize.filledTimeSeriesGraph(timeSeries, xlim, ylim, multiResult)
+
 
 def createModel(modelConfig, debug=False, R0=False):
     """
