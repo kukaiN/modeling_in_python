@@ -553,8 +553,8 @@ def main():
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev))
     print(InfectedCountDict.items())
     print(R0Dict.items())
-    return
-    if False:
+    
+    if True:
 
         saveName = "comparingModels_"+simulationGeneration
         statfile.comparingBoxPlots(R0Dict, plottedData="R0", saveName=saveName)
