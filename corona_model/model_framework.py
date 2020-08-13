@@ -802,7 +802,7 @@ class AgentBasedModel:
         """
         for agentId in self.agents.keys():
             # negative value for durration means the state will persist on to infinity
-            self.changeStateDict(agentId, "susceptible", "susceptible")
+            self.changeStateDict(agentId, "NA", "susceptible")
 
         if self.hybridClass_intervention:
             seedNumber = self.config["HybridClass"]["ChangedSeedNumber"]
@@ -905,14 +905,17 @@ class AgentBasedModel:
             - previousState: the state of the agent, better to be a parameter because checks occurs before the function is called
             - newState: the state name to transition into
         """
-        if previousState != newState:
+        
+        if previousState != "NA":
             self.state2IdDict[previousState].discard(agentId)# remove the agent from the state list
-            if previousState == "quarantined" and not self.agents[agentId].infected:
-                self.state2IdDict["falsePositive"].discard(agentId)
-            self.state2IdDict[newState].add(agentId)# then add them to the new state list
-            self.agents[agentId].changeState(self.time, newState, self.transitionDict[newState])
-        else:
-            print("1"*100)
+        if previousState == "quarantined" and not self.agents[agentId].infected:
+            self.state2IdDict["falsePositive"].discard(agentId)
+        self.state2IdDict[newState].add(agentId)# then add them to the new state list
+        
+        self.agents[agentId].changeState(self.time, newState, self.transitionDict[newState])
+        if previousState == newState:
+            print(previousState, "day:", int(self.time/24))
+        
 
      # takes 4 seconds
 
@@ -1461,14 +1464,17 @@ class AgentBasedModel:
         if self.config["Quarantine"]["RandomSampling"]: # if random
             listOfId = np.random.choice(self.groupIds, size=self.config["Quarantine"]["RandomSampleSize"], replace=False)
         else: # we cycle through groups to check infected
-            listOfId = self.groupIds[self.quarantineGroupIndex]
+            listOfId = [agentId for agentId in self.groupIds[self.quarantineGroupIndex] if self.agents[agentId].state != "quarantined"]
             self.quarantineGroupIndex = (self.quarantineGroupIndex+1)% self.quarantineGroupNumber
 
         if self.config["Quarantine"]["ShowingUpForScreening"] == 1:
             pass# everyone shows up
         else:
             notSymptomatic = {agentId for agentId in listOfId
-                    if self.agents[agentId].state != "infected Symptomatic Mild" and self.agents[agentId].state != "infected Symptomatic Severe"}
+                    if self.agents[agentId].state != "infected Symptomatic Mild" 
+                    and self.agents[agentId].state != "infected Symptomatic Severe"
+                    
+                    }
             randomVec = np.random.random(len(notSymptomatic))
             complyingP = self.config["Quarantine"]["ShowingUpForScreening"]
             nonComplyingAgent = [agentId for i, agentId in enumerate(notSymptomatic) if randomVec[i] > complyingP]
@@ -1519,10 +1525,12 @@ class AgentBasedModel:
                     if self._debug:
                         print(f"Isolating at time: {self.time}, {self.dateDescriptor}, latency: {self.config['Quarantine']['ResultLatency']},  isolation of {len(quarantined_agent) + len(falsePos_agent)} agents, there are {len(self.quarantineList)} group backlog")
                     for agentId in quarantined_agent:
-                        self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
+                        if self.agents[agentId].state != "quarantined":
+                            self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
                     for agentId in falsePos_agent:
-                        self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
-                        self.addFalsePositive(agentId)
+                        if self.agents[agentId].state != "quarantined":
+                            self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
+                            self.addFalsePositive(agentId)
                 elif self._debug:
                     print(self.time, resultTime, "Isolation, no one was infected in the batch", self.screeningTime)
 
@@ -1695,6 +1703,10 @@ class AgentBasedModel:
         print([(k, v[-1]) for k, v in self.parameters.items()])
         #x = int(self.time/self.config["World"]["stateCounterInterval"])+1
         #self.timeSeries[:x])
+        if not ((sum(infectionInBuilding[0].values())-totalExposed) in [10, 7, 5, -10, -7, -5]):
+            print("this data set_"*20)
+        print(sum(infectionInBuilding[0].values()), totalExposed, "differ", data["TotalInfected"][-1]-totalExposed)
+        self.printRelevantInfo()
         return (newdata, otherData, data, totalExposed, infectionInBuilding[0], infectionInBuilding[1], len(self.agents), self.time, self.timeSeries)
 
     def totalExposed(self):

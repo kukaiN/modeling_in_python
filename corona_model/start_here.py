@@ -250,7 +250,7 @@ def main():
         },
 
         "NC_WP":{
-            # N = 100, L = 4, B = {G, L}, D = 0
+            # N = 150, L = 4, B = {G, L}, D = 0
             # f = 0, c = 0.80, h = 0.50, s' = 0
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "LessSocial", "ClosingBuildings"]),
@@ -258,7 +258,7 @@ def main():
             ],
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
-                ("BatchSize", 100), # N=100
+                ("BatchSize", 150), # N=150
                 ("ShowingUpForScreening", 0.8), # c = 0.8
             ],
             "ClosingBuildings": [
@@ -338,7 +338,7 @@ def main():
         },
 
         "SC_WP":{
-            # N = 100, L = 4, B = {G, L}, D = 0
+            # N = 150, L = 4, B = {G, L}, D = 0
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
@@ -346,7 +346,7 @@ def main():
             ],
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
-                ("BatchSize", 100), # N=100
+                ("BatchSize", 150), # N=150
                 ("ShowingUpForScreening", 0.9), # c = 0.9#############
             ],
             "ClosingBuildings": [
@@ -423,7 +423,7 @@ def main():
             ]
         },
         "VC_WP":{
-            # N = 100, L = 4, B = {G, L}, D = 0
+            # N = 150, L = 4, B = {G, L}, D = 0
             # f = 1, c = 1, h = 1, s' = 0.75, no large gatherings
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
@@ -433,7 +433,7 @@ def main():
             "Quarantine": [
                 ("ResultLatency", 4*24),
                  # L = 4
-                ("BatchSize", 100), # N=100
+                ("BatchSize", 150), # N=150
                 ("ShowingUpForScreening", 1), # c = 1
             ],
             "ClosingBuildings": [
@@ -545,10 +545,10 @@ def main():
         R0Count = 100
         multiCounts = 20
         
-        if index > 8 or index == 0: #in [0, 9, 12, 15]:
+        if index == 9:# or index == 0: #in [0, 9, 12, 15]:
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
-            #InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName)
-            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
+            InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName)
+            #R0Dict[modelName] = model_framework.R0_simulation(configCopy, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
 
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev))
     print(InfectedCountDict.items())
