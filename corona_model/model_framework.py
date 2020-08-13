@@ -178,9 +178,9 @@ def createFilledPlot(modelConfig, simulationN=10, days=100,
     for i in range(simulationN):
         result = simpleCheck(modelConfig, days=days, visuals=False,
                             debug=debug, modelName=modelName+"_"+str(i))
-        print(result[2])
+        #print(result[2])
         multiResult.append(result[2])
-        print(result[7], result[6])
+        #print(result[7], result[6])
         xlim[1] = result[7]
         ylim[1] = result[6]
         timeSeries = result[8]
@@ -191,7 +191,7 @@ def createFilledPlot(modelConfig, simulationN=10, days=100,
 
     for key, dataMatrix in keyDict.items():
         saveName =  key+"_"+modelName
-        dfObj = pd.DataFrame(np.array(dataMatrix))
+        dfObj = pd.DataFrame(np.array(dataMatrix), columns=timeSeries)
         flr.save_df_to_csv(flr.fullPath(saveName+".csv", "outputs"), dfObj)
 
     import visualize
