@@ -669,7 +669,7 @@ class AgentBasedModel:
                     agent.initial_location = "offCampus"
                 elif agentId in self.remoteFacultyIds:
                     agent.initial_location = "offCampus"
-            self.ghostAgents = self.remoteStudentIds | self.remoteFacultyIds | self.remoteOffCampusIds
+            #self.ghostAgents = self.remoteStudentIds | self.remoteFacultyIds | self.remoteOffCampusIds
 
         else:
             self.remoteStudentIds, self.remoteFacultyIds = {}, {}
@@ -905,12 +905,14 @@ class AgentBasedModel:
             - previousState: the state of the agent, better to be a parameter because checks occurs before the function is called
             - newState: the state name to transition into
         """
-        self.state2IdDict[previousState].discard(agentId)# remove the agent from the state list
-        if previousState == "quarantined" and not self.agents[agentId].infected:
-            self.state2IdDict["falsePositive"].discard(agentId)
-        self.state2IdDict[newState].add(agentId)# then add them to the new state list
-        self.agents[agentId].changeState(self.time, newState, self.transitionDict[newState])
-
+        if previousState != newState:
+            self.state2IdDict[previousState].discard(agentId)# remove the agent from the state list
+            if previousState == "quarantined" and not self.agents[agentId].infected:
+                self.state2IdDict["falsePositive"].discard(agentId)
+            self.state2IdDict[newState].add(agentId)# then add them to the new state list
+            self.agents[agentId].changeState(self.time, newState, self.transitionDict[newState])
+        else:
+            print("1"*100)
 
      # takes 4 seconds
 
@@ -1538,11 +1540,11 @@ class AgentBasedModel:
         if self.walkIn: # if people have a tendency of walkins and if it's 8AM
             mild, severe = self.state2IdDict["infected Symptomatic Mild"], self.state2IdDict["infected Symptomatic Severe"]
             for agentId in mild|severe: # union of the two sets
-                if self.agents[agentId].lastUpdate+23 > self.time: # people walkin if they seen symptoms for a day
+                if self.agents[agentId].lastUpdate+25 > self.time: # people walkin if they seen symptoms for a day
                     # with some probability the agent will walkin
                     tupP = np.random.random(2) # (P of walking in,  P for false Pos)
                     if tupP[0] < self.config["Quarantine"]["walkinProbability"].get(self.agents[agentId].state, 0): # walkin occurs
-                        if tupP[1] > self.config["Quarantine"]["falseNegative"]: # no false negatives
+                        if tupP[1] > self.config["Quarantine"]["falseNegative"]: # not false negatives
                             self.changeStateDict(agentId,self.agents[agentId].state, "quarantined")
 
     def big_gathering(self):
