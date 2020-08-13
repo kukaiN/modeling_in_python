@@ -97,6 +97,8 @@ def timeSeriesGraph(timeIntervals, xLim, yLim, data,
 
 def filledTimeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle= ["r-", "b.", "g--"],
                     savePlt=False, saveName="defaultImage.png"):
+    print(timeIntervals)
+
     fig, ax= plt.subplots(figsize = (10, 5))
     import pandas as pd
     import seaborn as sns
@@ -117,38 +119,29 @@ def filledTimeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle= ["r-", "b.
         for k, v in simulationData.items():
             if k in kValues:
                 newDict[k].append(v)
-    print(len(newDict[k][0]))
-    print(newDict[k])
-    for k in kValues:
-        stds = []
-        mean = []
-        maxVals = []
-        minVals = []
-        descriptorCounts = newDict[k]
-        print(len(newDict[k][0]))
-        print(newDict[k])
-
-        for i in range(len(descriptorCounts[0])):
-            instanceList = [d[i] for d in descriptorCounts]
-            maxVals.append(max(instanceList))
-            minVals.append(max(instanceList))
-            instanceData = stat.analyzeData(instanceList)
-            stds.append(instanceData[3])
-            mean.append(instanceData[0])
-        ax.plot(mean, label=k)
-
-        lessStd = [m-std for m, std in zip(mean, stds)]
-        moreStd = [m+std for m, std in zip(mean, stds)]
-        ax.fill_between(lessStd, moreStd)
+   
     with sns.axes_style("darkgrid"):
+        for k in kValues:
+            stds = []
+            mean = []
+            maxVals = []
+            minVals = []
+            descriptorCounts = newDict[k]
+            
 
-        for i in range(len(data)):
-            meanst = np.array(means.ix[i].values[3:-1], dtype=np.float64)
-            sdt = np.array(stds.ix[i].values[3:-1], dtype=np.float64)
-            ax.plot(timeIntervals, meanst, label=means.ix[i]["label"], c=clrs[i])
-            ax.fill_between(timeIntervals, meanst-sdt, meanst+sdt ,alpha=0.3, facecolor=clrs[i])
+            for i in range(len(descriptorCounts[0])):
+                instanceList = [d[i] for d in descriptorCounts]
+                instanceData = stat.analyzeData(instanceList)
+                maxVals.append(np.percentile(instanceList, 97.5))
+                minVals.append(np.percentile(instanceList, 2.5))
+                mean.append(instanceData[0])
+            
+
+            ax.plot(timeIntervals, mean, label=k)
+            #lessStd = [m-(2*std) for m, std in zip(mean, stds)]
+            #moreStd = [m+(2*std) for m, std in zip(mean, stds)]
+            ax.fill_between(timeIntervals, minVals, maxVals, alpha=0.4)
         ax.legend()
-
         plt.xlabel("Time (Hours)")
         plt.ylabel("# of Agents")
         plt.title("Agent's State over Time")
