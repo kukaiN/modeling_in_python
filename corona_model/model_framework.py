@@ -109,7 +109,7 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
 
 def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeriesVisual=False, R0Visuals=False, modelName="default"):
     R0Values = []
-    configCopy = dict(modelConfig)
+    configCopy = copy.deepcopy(modelConfig)
     for key, tups in R0Control.items():
         for variableTup in tups:
             if variableTup[0] in configCopy[key].keys():
@@ -1181,8 +1181,6 @@ class AgentBasedModel:
                 index+=1
 
     def updateSteps(self, step = 1):
-        if self.time == 0:
-            print(self.agents[1])
         for _ in range(step):
             self.time+=1
             modTime = self.time%24
@@ -1240,13 +1238,14 @@ class AgentBasedModel:
 
     def returnR0(self):
         counter = 0
-        timeRem = self.time//self.timeIncrement
+        #timeRem = self.time//self.timeIncrement
         for key, value in self.parameters.items():
             if key == "falsePositive":
-                counter -= value[timeRem]
+                #counter -= value[timeRem]
+                counter-=value[-1]
             elif key != "susceptible":
-                counter += value[timeRem]
-
+                #counter += value[timeRem]
+                counter+=value[-1]
         self.printRelevantInfo()
         R0 = (counter - self.config["Infection"]["SeedNumber"])/self.config["Infection"]["SeedNumber"]
         print(f"# infected: {counter}, initial: {self.config['Infection']['SeedNumber']}, Ave R0: {R0}")
@@ -1259,11 +1258,18 @@ class AgentBasedModel:
         """
         self.storeVal = True
         self.timeIncrement = self.config["World"]["stateCounterInterval"]
-        numEntry = int((self.config["World"]["InferedSimulatedDays"] * 24)/self.timeIncrement)
-        self.parameters = dict((stateName, [0]*numEntry) for stateList in self.config["Agents"]["PossibleStates"].values() for stateName in stateList)
-        self.timeSeries = list(range(0, (self.config["World"]["InferedSimulatedDays"]*24)+1, self.timeIncrement))
-
+        #numEntry = int((self.config["World"]["InferedSimulatedDays"] * 24)/self.timeIncrement)
+        #self.parameters = dict((stateName, [0]*numEntry) for stateList in self.config["Agents"]["PossibleStates"].values() for stateName in stateList)
+        #self.timeSeries = list(range(0, (self.config["World"]["InferedSimulatedDays"]*24)+1, self.timeIncrement))
+        self.parameters = dict((stateName, []) for stateList in self.config["Agents"]["PossibleStates"].values() for stateName in stateList)
+        self.timeSeries = []
+        
     def storeInformation(self):
+        if self.time%self.timeIncrement == 0:
+            for param in self.parameters.keys():
+                self.parameters[param].append((len(self.state2IdDict[param])))
+            self.timeSeries.append(self.time)
+        """
         if not (self.time//self.timeIncrement < len(self.timeSeries)-1):
             for param in self.parameters.keys():
                 self.parameters[param].append((len(self.state2IdDict[param])))
@@ -1272,7 +1278,7 @@ class AgentBasedModel:
         else:
             for param in self.parameters.keys():
                 self.parameters[param][self.time//self.timeIncrement] = len(self.state2IdDict[param])
-
+        """
     def printRelevantInfo(self):
         """ print relevant information about the model and its current state,
         this is the same as __str__ or __repr__, but this function is for debug purpose,
@@ -1613,11 +1619,12 @@ class AgentBasedModel:
             data = {k:v for k,v in self.parameters.items() if k not in self.config["Agents"]["PossibleStates"]["debugAndGraphingPurpose"]}
         data["susceptible"] = np.array(self.parameters["falsePositive"]) + np.array(data["susceptible"])
         print([(key, value[-1], len(value)) for key, value in data.items()])
-        x = int(self.time/self.config["World"]["stateCounterInterval"])+1
-        data = {k:v[:x] for k, v in data.items()}
+        #x = int(self.time/self.config["World"]["stateCounterInterval"])+1
+        #data = {k:v[:x] for k, v in data.items()}
         #print("susceptible", data["susceptible"][:x])
-        #print(self.time, x)
-        vs.timeSeriesGraph(self.timeSeries[:x], (0, self.time), (0,len(self.agents)), data, savePlt=savePlt, saveName=saveName, animatePlt=False)
+        #print(self.time, x) 
+        # self.timeSeries[:x]
+        vs.timeSeriesGraph(self.timeSeries, (0, self.time), (0,len(self.agents)), data, savePlt=savePlt, saveName=saveName, animatePlt=False)
 
     def visualizeBuildings(self):
         pairs = [(room, adjRoom[0]) for room, adjRooms in self.adjacencyDict.items() for adjRoom in adjRooms]
@@ -1674,17 +1681,19 @@ class AgentBasedModel:
         newdata = dict()
         newdata["largeGathering"] = self.gathering_count
         infectionInBuilding = self.infectedPerBuilding()
+        print(infectionInBuilding[1].items())
         for buildingType, count in infectionInBuilding[0].items():
             newdata[buildingType] = count
-
+        infectionInBuilding[0]['largeGathering'] = self.gathering_count
         maxInfected = max(data["TotalInfected"])
 
         print(f"p: {self.baseP}, R0: {self.R0Calculation}, total ever in exposed {totalExposed}, max infected {maxInfected}")
         otherData = {"total":totalExposed, "max":maxInfected}
-
-        x = int(self.time/self.config["World"]["stateCounterInterval"])+1
-
-        return (newdata, otherData, data, totalExposed, infectionInBuilding[0], infectionInBuilding[1], len(self.agents), self.time, self.timeSeries[:x])
+        print("here is the parameters dict")
+        print([(k, v[-1]) for k, v in self.parameters.items()])
+        #x = int(self.time/self.config["World"]["stateCounterInterval"])+1
+        #self.timeSeries[:x])
+        return (newdata, otherData, data, totalExposed, infectionInBuilding[0], infectionInBuilding[1], len(self.agents), self.time, self.timeSeries)
 
     def totalExposed(self):
         return len(self.agents) - self.parameters["susceptible"][-1] - self.parameters["falsePositive"][-1]

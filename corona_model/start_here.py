@@ -1,6 +1,8 @@
 import model_framework
 import platform
 import statfile
+import copy
+
 
 def main():
     """intialize and run the model, for indepth detail about the config or how to run the code, go to the github page for this code"""
@@ -528,30 +530,30 @@ def main():
     t1 = time.time()
     R0Dict = dict()
     InfectedCountDict = dict()
-    simulationGeneration = "2"
+    simulationGeneration = "0"
     osName = platform.system()
     files = "images\\" if osName.lower() == "windows" else "images/"
     osExtension = "win" if osName.lower() == "windows" else "Linux"
     for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
 
-        configCopy = dict(modelConfig)
+        configCopy = copy.deepcopy(modelConfig)
         print("*"*20)
         print(f"started working on initializing the simualtion for {modelName}")
         for categoryKey, listOfControls in modelControl.items():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
-        R0Count = 100
-        multiCounts = 20
-        break
-        if index > -1: #in [0, 9, 12, 15]:
+        R0Count = 1
+        multiCounts = 1
+        
+        if index > 8 or index == 0: #in [0, 9, 12, 15]:
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
             InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName)
-            #R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
+            R0Dict[modelName] = model_framework.R0_simulation(modelConfig, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
 
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev))
     print(InfectedCountDict.items())
     print(R0Dict.items())
-
+    return
     if False:
 
         saveName = "comparingModels_"+simulationGeneration
