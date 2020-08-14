@@ -1483,7 +1483,10 @@ class AgentBasedModel:
             #print("new size:", len(listOfId))
         fpDelayedList, delayedList = [], []
         falsePositiveMask = np.random.random(len(listOfId))
-        falsePositiveResult = [agentId for agentId, prob in zip(listOfId, falsePositiveMask) if prob < self.config["Quarantine"]["falsePositive"] and agentId in self.state2IdDict["susceptible"]]
+        falsePositiveResult = []
+        for i, agentId in enumerate(listOfId):
+            if falsePositiveMask[i] < self.config["Quarantine"]["falsePositive"] and self.agents[agentId].state == "susceptible":
+                falsePositiveResult.append(agentId) 
         normalScreeningId = list(set(listOfId) - set(falsePositiveResult))
         # these people had false positive results and are quarantined
         for agentId in falsePositiveResult:
@@ -1528,7 +1531,7 @@ class AgentBasedModel:
                         if self.agents[agentId].state != "quarantined":
                             self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
                     for agentId in falsePos_agent:
-                        if self.agents[agentId].state != "quarantined":
+                        if self.agents[agentId].state == "susceptible":
                             self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
                             self.addFalsePositive(agentId)
                 elif self._debug:
@@ -1705,7 +1708,7 @@ class AgentBasedModel:
         #self.timeSeries[:x])
         if not ((sum(infectionInBuilding[0].values())-totalExposed) in [10, 7, 5, -10, -7, -5]):
             print("this data set_"*20)
-        print(sum(infectionInBuilding[0].values()), totalExposed, "differ", data["TotalInfected"][-1]-totalExposed)
+        print(sum(infectionInBuilding[0].values()), totalExposed, "differ", sum(infectionInBuilding[0].values())-totalExposed)
         self.printRelevantInfo()
         return (newdata, otherData, data, totalExposed, infectionInBuilding[0], infectionInBuilding[1], len(self.agents), self.time, self.timeSeries)
 
