@@ -286,10 +286,10 @@ def main():
                 ("ShowingUpForScreening", 0.8), # c = 0.8
             ],
             "ClosingBuildings": [
-                ("ClosedBuildingOpenHub", ["dining"]), # ding stays open, but leaf Kv = 0####################################
+                ("ClosedBuildingOpenHub", ["dining"]), 
                 ("ClosedBuilding_ByType", ["gym", "library"]),
                 ("GoingHomeP", 0.5), # h = 0.5
-                ("Exception_SemiClosedBuilding",["dining", "faculty_dining_room"]), # replace these entrys 50/50###############
+                ("Exception_SemiClosedBuilding",["dining", "faculty_dining_room"]),
                 ("Exception_GoingHomeP", 0.5),
             ],
             "LessSocializing":[
@@ -543,9 +543,9 @@ def main():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100
-        multiCounts = 20
+        multiCounts = 40
         
-        if index in [9, 12, 13]:# or index == 0: #in [0, 9, 12, 15]:
+        if index > -1:# or index == 0: #in [0, 9, 12, 15]:
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
             InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName)
             #R0Dict[modelName] = model_framework.R0_simulation(configCopy, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
