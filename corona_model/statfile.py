@@ -7,7 +7,7 @@ import fileRelated as flr
 
 def analyzeModel(simulationData):
     """
-        the only function that is not stand alone, 
+        the only function that is not stand alone,
         requires data from model_framework
 
         Parameters:
@@ -48,7 +48,7 @@ def analyzeModel(simulationData):
 def plotBoxAverageAndDx(simulationDatas, pltTitle="some Title", xlabel="models", ylabel="infected #",labels=[], showPlt=False, savePlt=False, saveName="defaultimage.png"):
     """
     run simple analysis on the given data and plot a box and whiskers graph
-    
+
     Parameters:
     - simulationDatas: the data to plot
     - pltTitle: title for the generated plot
@@ -60,7 +60,7 @@ def plotBoxAverageAndDx(simulationDatas, pltTitle="some Title", xlabel="models",
     - saveName: string, ends with .png or some file format, save the plot with this name
 
     """
-    
+
     averages = []
     dx = []
     for simulationData in simulationDatas:
@@ -79,7 +79,7 @@ def boxplot(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel=
     - pltTitle: the title of the plot
     - xlabel: label for the x axis
     - ylabel: label for the y axis
-    - labels: labels for each box plot, pass a list with one entry if there's one B&W, and a list filled with entries for multiple B&W 
+    - labels: labels for each box plot, pass a list with one entry if there's one B&W, and a list filled with entries for multiple B&W
     - showPlt: boolean, show the plot or not
     - savePlt: boolean, save the plot with the given filename or not
     - saveName: string, ends with .png o some file format, save the plot with this name
@@ -99,8 +99,8 @@ def boxplot(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel=
     ax1.set_xticklabels(labels)
     ax1.set_xlabel(xlabel)
     ax1.set_ylabel(ylabel)
-    
-    
+
+
     ax1.spines['top'].set_visible(False)
     ax1.spines['right'].set_visible(False)
     #ax.spines['bottom'].set_visible(False)
@@ -123,7 +123,7 @@ def barChart(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel
     fig1, ax1 = plt.subplots()
     ax1.set_title(pltTitle)
     if oneD:
-        mean, _, _, standardDev = analyzeData(data) 
+        mean, _, _, standardDev = analyzeData(data)
         barLoc = [1]
         width=0.05
     else:
@@ -145,7 +145,7 @@ def barChart(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel
         height = bar.get_height()
         ax1.annotate('{}'.format(height), xy=(bar.get_x() + bar.get_width() / 2, height), xytext=(0, 3),  # 3 points vertical offset
                         textcoords="offset points", ha='center', va='bottom')
-    
+
     plt.tight_layout()
     if savePlt:
         if not saveName.endswith(".png"):
@@ -162,7 +162,7 @@ def changeOverUnitTime(listData):
     newData = np.array(listData)
     shfitedOriginal = newData[:-1]
     shiftedData = newData[1:]
-    return shiftedData-shfitedOriginal 
+    return shiftedData-shfitedOriginal
 
 def filterZeros(listData):
     "return a list with continuous zeros removed"
@@ -183,7 +183,7 @@ def analyzeData(ListData):
 
     # non numpy function
     #geo_mean = geometric_mean(ListData)
-    
+
     return (npMean, stdev, rangeVal, median)
 
 def geometric_mean(listData):
@@ -203,11 +203,11 @@ def geometric_mean(listData):
         npData += np.full(len(npData), 0.00001)
     elif min(listData)<0: # geometric mean doesnt work with negative
         return 0
-   
+
     logData = np.log(npData)
     logSum = np.sum(logData)
     return np.exp((1/len(logData)) * logSum)
- 
+
 def comparingBoxPlots(dictObj, plottedData="R0", saveName="default"):
     osName = platform.system()
     files = "images\\" if osName.lower() == "windows" else "images/"
@@ -226,15 +226,15 @@ def comparingBoxPlots(dictObj, plottedData="R0", saveName="default"):
                 else:
                     reg_labels.append(key)
                     reg_R0data.append(value[0])
-                R0AnalyzedData.append(value[1]) 
+                R0AnalyzedData.append(value[1])
             flr.saveObjUsingPickle(flr.fullPath("R0"+osExtension+ saveName, "picklefile")+".pkl", dictObj)
             boxplot(und_R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
                 ylabel="Infected Agents (R0)", labels=und_labels, savePlt=True, saveName=osExtension+"9R0_box_"+saveName)
-            #statfile.barChart(und_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
+            #statfile.barChart(und_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name",
             #    ylabel="Infected Agents (R0)", labels=und_labels, savePlt=True, saveName=osExtension+"9R0_bar_"+saveName)
             boxplot(reg_R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
                 ylabel="Infected people (R0)", labels=reg_labels, savePlt=True, saveName=osExtension+"restR0_box_"+saveName)
-            #statfile.barChart(reg_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name", 
+            #statfile.barChart(reg_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name",
             #    ylabel="Infected Agents (R0)", labels=reg_labels, savePlt=True, saveName=osExtension+"restR0_bar_"+saveName)
     elif plottedData == "inf":
         if len(dictObj) > 0 or True:
@@ -253,11 +253,11 @@ def comparingBoxPlots(dictObj, plottedData="R0", saveName="default"):
             flr.saveObjUsingPickle(flr.fullPath("infectedCount"+osExtension+saveName, "picklefile")+".pkl", dictObj)
             boxplot(infectedCounts,oneD=False, pltTitle="Infection Comparison", xlabel="Model Name",
                 ylabel="Total # of Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_box_"+saveName)
-            #statfile.barChart(infectedCounts, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
+            #statfile.barChart(infectedCounts, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name",
             #    ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_bar_"+saveName)
             boxplot(infectedCounts1,oneD=False, pltTitle="Infection Comparison", xlabel="Model Name",
                 ylabel="Total # of Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_box_"+saveName)
-            #statfile.barChart(infectedCounts1, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name", 
+            #statfile.barChart(infectedCounts1, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name",
             #    ylabel="Total Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_bar_"+saveName)
 
 def generateVisualByLoading(fileNames, plottedData="inf", saveName='default'):
@@ -270,7 +270,7 @@ def generateVisualByLoading(fileNames, plottedData="inf", saveName='default'):
         print(val)
         break
         dataDict[name] = val
-    comparingBoxPlots(dataDict, plottedData=plottedData, saveName=saveName) 
+    comparingBoxPlots(dataDict, plottedData=plottedData, saveName=saveName)
 
 def main():
     data = [10, 10, 10, 11, 12,41,71,1,1,12,3,56, 0,5,75,4, 0, 0, 0]

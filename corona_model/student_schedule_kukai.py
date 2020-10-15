@@ -24,16 +24,16 @@ import itertools
 
 def ticketCreation(countArray, seatRoomMatrix, buildingMatrix):
     tickets = []
-    roomCounts = [seatRoomMatrix[i] for buildingCounts in buildingMatrix 
+    roomCounts = [seatRoomMatrix[i] for buildingCounts in buildingMatrix
                     for i, buildingCount in enumerate(buildingCounts) for _ in range(buildingCount)]
-    
+
     ticketNumber = 0
     for roomCount in roomCounts:
         for roomNum ,count in zip(roomCount, countArray):
             for num in range(roomNum):
                 tickets.extend([ticketNumber]*count)
                 ticketNumber+=1
-    
+
     return tickets
 
 def scheduleCreator(social, onCampusCount=1500, offCampusCount = 500):
@@ -45,14 +45,14 @@ def scheduleCreator(social, onCampusCount=1500, offCampusCount = 500):
     libp = 0.15 #the probability or going to the library, as an off-campus student
     d = 1 - s - lib # the probability of going back to your dorm for an off campus student
 
-   
+
     # Create Agents
     agentTypes = ["STEM","Humanities","Arts"]
     numAgent = onCampusCount+offCampusCount
     modTime = 24
     StudentDistribution = [0.5, 0.25, 0.25]
     studentTypes = ["S", "H", "A"]
-    studentDistinction = [studentTp for studentTp, distribution in zip(studentTypes, StudentDistribution) 
+    studentDistinction = [studentTp for studentTp, distribution in zip(studentTypes, StudentDistribution)
                             for _ in range(int(distribution*numAgent))]
     OnorOff = list(itertools.repeat("On",1500))
     OnorOff.extend(list(itertools.repeat("Off",500)))
@@ -74,11 +74,11 @@ def scheduleCreator(social, onCampusCount=1500, offCampusCount = 500):
     classId = 0
 
     sizeMatrix = [small_building, medium_building, large_building]
-    buildingMatrix = [num_STEM_buildings, num_Arts_buildings, num_Hum_buildings] 
+    buildingMatrix = [num_STEM_buildings, num_Arts_buildings, num_Hum_buildings]
     tickets = ticketCreation(roomCountArray, sizeMatrix, buildingMatrix)
     A_day_tickets = [[(roomId, timeVal) for roomId in tickets] for timeVal in class_times]
     B_day_tickets = [[(roomId, timeVal) for roomId in tickets] for timeVal in class_times]
-    
+
     print(tickets)
 
     schedules = [0] * numAgent
@@ -87,15 +87,15 @@ def scheduleCreator(social, onCampusCount=1500, offCampusCount = 500):
     classTimeIndices = [(i, j) for i in range(len(class_days)) for j in range(len(class_times))]
 
     Type_to_class = []
-    
+
 
     print(classTimeIndices)
     for index, OnVOff in enumerate(OnorOff):
         schedule = [template for _ in days] if OnVOff == "On" else [offCampusTemplate for _ in days]
-        
 
-    
-            
+
+
+
 
 
     # print the first 5 agent's schedule

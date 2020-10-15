@@ -544,7 +544,7 @@ def main():
                 configCopy[categoryKey][specificKey] = specificValue
         R0Count = 100
         multiCounts = 20
-        
+
         if index in [9, 12, 13]:# or index == 0: #in [0, 9, 12, 15]:
             #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
             InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName)
@@ -553,7 +553,7 @@ def main():
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev))
     print(InfectedCountDict.items())
     print(R0Dict.items())
-    
+
     if True:
 
         saveName = "comparingModels_"+simulationGeneration

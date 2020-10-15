@@ -119,7 +119,7 @@ def filledTimeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle= ["r-", "b.
         for k, v in simulationData.items():
             if k in kValues:
                 newDict[k].append(v)
-   
+
     with sns.axes_style("darkgrid"):
         for k in kValues:
             stds = []
@@ -127,7 +127,7 @@ def filledTimeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle= ["r-", "b.
             maxVals = []
             minVals = []
             descriptorCounts = newDict[k]
-            
+
 
             for i in range(len(descriptorCounts[0])):
                 instanceList = [d[i] for d in descriptorCounts]
@@ -135,7 +135,7 @@ def filledTimeSeriesGraph(timeIntervals, xLim, yLim, data, linestyle= ["r-", "b.
                 maxVals.append(np.percentile(instanceList, 97.5))
                 minVals.append(np.percentile(instanceList, 2.5))
                 mean.append(instanceData[0])
-            
+
 
             ax.plot(timeIntervals, mean, label=k)
             #lessStd = [m-(2*std) for m, std in zip(mean, stds)]
