@@ -15,29 +15,32 @@ COVID model in python
      - [corona.py](#corona)
 
 ---
-<a id = "depend"></a> 
+<a id = "depend"></a>
 
 ## Dependencies
 Libraries used in this model:
 - Matplotlib
 - Pandas
 - Numpy
-- network x
+- networkX
+- pickle and dill (for saving models and loading data)
 Python standard libraries used in this project:
-- bisect
+- ~~bisect~~ (not used anymore)
 - random
+- itertools
+
 
 
 ## outputs:
 ![graph_output](IMAGES/Figure_1.png)
 
-Graphical representation of 
+Graphical representation of
 ![building_network](IMAGES/Figure_2.png)
 
 ---
-<a id = "refer"></a> 
+<a id = "refer"></a>
 
-## References to tricks used in my code:
+## References to things I used in my code:
 OOP tricks in python:
 - __slots__ (https://stackoverflow.com/questions/472000/usage-of-slots)
     - use different column names for every csv
@@ -49,14 +52,16 @@ refrence for people who wants to change the visuals
 
 ## Definitions
 
+note for self: this might not be needed
+
 png of nodes and edges
-- egde
-- vertex
-- directed vs undirected
+- egde:
+- vertex:
+- directed vs undirected:
 
 ---
 
-<a id = "works"></a> 
+<a id = "works"></a>
 
 ## How it Works
 
@@ -66,9 +71,9 @@ The spread of COVID-19 is implimented in this project and if the user wants to m
 
 
 * the term "room" in the following paragraph includes structures like rooms, hallways, cafeteria, gym, parks, soccor fields, and any structures that have an abstract representation with capacity. *
-In the COVID-19 model, we have clusters of rooms that represents a building and the agents move between the rooms and buildings.  The rooms have entry and exit points with adjacent rooms 
+In the COVID-19 model, we have clusters of rooms that represents a building and the agents move between the rooms and buildings.  The rooms have entry and exit points with adjacent rooms
 
-The infection model impliments buildings full of rooms and agents that move within the rooms. The building will have different rooms with configurable connections, and the connection represents paths that the agents can take to move to another room. The agent's behavior can be configured to take random or semi-defined schedules and they move between rooms that they're allowed to visit.   
+The infection model impliments buildings full of rooms and agents that move within the rooms. The building will have different rooms with configurable connections, and the connection represents paths that the agents can take to move to another room. The agent's behavior can be configured to take random or semi-defined schedules and they move between rooms that they're allowed to visit.
 
 <a id = "configurations"></a>
 
@@ -79,7 +84,7 @@ The infection model impliments buildings full of rooms and agents that move with
 
 
 
-<a id = "Building"></a> 
+<a id = "Building"></a>
 
 ### Buildings.csv
 This file lists names of the buildings/containers that will contain the rooms
@@ -92,24 +97,24 @@ This file lists names of the buildings/containers that will contain the rooms
 
 The term "Building" isn't 100% accurate, the term container is better.
 In the implimentation where we model a school campus, "outside" is also considered a "building/container" that will contain "roads" that allow travel to a different "building"
-<a id = "rooms"></a> 
+<a id = "rooms"></a>
 
-### rooms.csv 
+### rooms.csv
 
 | room name | room capacity | located building | connected to | travel time | ... |
 |-------------|---------------|------------------|--------------|-------------|-----|
 |             |               |                  |              |             |     |
-|               |               |               |               |           |       |   
+|               |               |               |               |           |       |
 
 Explanation of column value:
 - **room name** : room name, the names doesn't need to be unique, but it is the best practice to make the name unique so that when you print/extract information, it is easy to interpt the data
 - **room capacity** : int, defines the max number of agents that can be in the room
 - **located building** : name of building which the room is contained in
 - **connected to** : name of room which the current room is connected to.  If theres a connection between "Room A" and "Room B", and if "Room B" is contained in the "connected to" entry in the row for "Room A", then there's no need to make a row for "Room B" to "Room A". All conections are undirected edges.
-- **travel time**:  non-negative integer, represents the time required to travel through the edge. 
+- **travel time**:  non-negative integer, represents the time required to travel through the edge.
 * more columns can be added to the csv and if you want to use those newly added parameters modify the __init__() for the rooms class and call the new parameter in whatever function for effects to take place.
 
-<a id = "agents"></a> 
+<a id = "agents"></a>
 
 ### Agents.csv
 
@@ -119,15 +124,15 @@ Explanation of column value:
 |       |       |   |           |                   |           |           |
 
 Explanation of column value
-- **random** : T or F, if this value is F, then the model will load the data in that row.  If the value is T, then it will make random values for the rest of 
+- **random** : T or F, if this value is F, then the model will load the data in that row.  If the value is T, then it will make random values for the rest of
 - **name** : anything can go in this entry, repetition (same name) is allowed, and the name is just an entry to help distinguish agents
 - **age** : like name, anything can be put in this entry.
 - **immunity** : value in range [0, 1], defines the resistance of the agent, you can modify how this value will affect each other by modifying the infection_rule function in the main function.
-- **initial condition** : name of any room or building that's in either building.csv or rooms.csv.  If the name of the building is given, then it will choose a random room in the building as it's initial spawn point. 
+- **initial condition** : name of any room or building that's in either building.csv or rooms.csv.  If the name of the building is given, then it will choose a random room in the building as it's initial spawn point.
 - **infected** : True or False, defines if the agent is infected with some disease, in this case the COVID-19 disease.
 - **archetypes** : put in the archetype that corresponds to the specific agent.  This "archetype" can be configured in the agent_config.json, and depending on the value, the , you can make schedules restrictive by creating a archetype that only have few possible schedule.  more detail on how a schedule for each agent is chosen is written in the schedule section below.
 
-<a id = "ag_config"></a> 
+<a id = "ag_config"></a>
 
 ### agents configuration and scheduling:
 
@@ -149,7 +154,7 @@ from the config file, the code generates a table that looks like the following
 
 
 
-<a id = "file_related"></a> 
+<a id = "file_related"></a>
 
 ### File_related.py
 This python file contains functions related to opening and reading the csv files.  There are also some functions that reformats the data into a panda dataframe.
@@ -161,9 +166,9 @@ This python file contains functions related to opening and reading the csv files
 The main python file that have the code for the agents and rooms.  Creates, configures and simulate the model that is described in the csv file.
 
 current parameters:
-agents: 
-- static: name, age, gender 
-- influence schedule: archetype, 
+agents:
+- static: name, age, gender
+- influence schedule: archetype,
 - dynamic: immunity, state, motion_state, curr_location, arrival_time, travel_time, minimum_waiting_time, destination
 
 rooms:
