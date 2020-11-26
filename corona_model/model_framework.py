@@ -83,7 +83,7 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
         model = flr.loadUsingDill(pickleName)
         print("loaded pickled object successfully")
     # start initialization and configuration
-    model.intializeAndConfigureObjects()
+    model.initializeAndConfigureObjects()
     model.initializeStoringParameter(
         ["susceptible","exposed", "infected Asymptomatic",
         "infected Asymptomatic Fixed" ,"infected Symptomatic Mild",
@@ -127,7 +127,7 @@ def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeri
         print("*"*20, "starting model")
         new_model = copy.deepcopy(model)
         # start initialization and configuration
-        new_model.intializeAndConfigureObjects()
+        new_model.initializeAndConfigureObjects()
         new_model.initializeR0()
         new_model.initializeStoringParameter(
             ["susceptible","exposed", "infected Asymptomatic",
@@ -184,7 +184,7 @@ def createFilledPlot(modelConfig, simulationN=10, days=100,
         xlim[1] = result[7]
         ylim[1] = result[6]
         timeSeries = result[8]
-    
+
     for res in multiResult:
         for key in keyList:
             keyDict[key].append(res[key])
@@ -214,15 +214,18 @@ def createModel(modelConfig, debug=False, R0=False):
     model.initializeInterventionsAndPermittedActions()
     model.loadBuilder("newBuilding.csv")
     model.loadAgent("newAgent.csv")
+
     model.generateAgentDfFromDf()
     # object creation
 
     model.createWorld()
-
-
     model.startRoomLog()
 
     return model
+
+
+
+
 
 def AgentFactory(agent_df, slotVal):
     """
@@ -482,6 +485,32 @@ class AgentBasedModel:
         """use a builder to make the dataframe for the buiulding and rooms"""
         self.building_df, self.room_df = mod_df.mod_building(filename, folderName, debug=self._debug)
 
+    def add_immunity_and_vaccine(self):
+        """
+            add a column with 1 and 0 to the self.agent_df which is used to represent
+            agent's immunity.
+        """
+        immuneRatio = self.config["Agents"]["immunity"]
+        print(immuneRatio)
+        size = int(len(self.agent_df)*immuneRatio)
+        immune_vec = np.concatenate((np.ones(size), np.zeros(len(self.agent_df)-size)), axis=0)
+        np.random.shuffle(immune_vec)
+
+        if self.config["Agents"]["vaccine"]:
+            vaccinated_ratio = self.config["Agents"]["vaccinatedPopulation"]
+            vaccine_effectiveness = self.config["Agents"]["vaccineEffectiveness"]
+            # ask if its deterministic
+            vaccinated = int(len(self.agent_df)*vaccinated_ratio * vaccine_effectiveness)
+            vaccine_vec = np.concatenate((np.ones(vaccinated), np.zeros(len(self.agent_df)-vaccinated)), axis=0)
+            np.random.shuffle(vaccine_vec)
+
+            immune_vec = np.logical_or(immune_vec , vaccine_vec)
+        else:
+            vaccine_vec = np.zeros(len(self.agent_df))
+
+        self.agent_df["immunity"] = immune_vec
+        self.agent_df["vaccinated"]= vaccine_vec
+
     def generateAgentDfFromDf(self, counterColumn="totalCount"):
         """
         use this to multiple the number of agents, multiplies by looking at the counterColumn
@@ -497,6 +526,9 @@ class AgentBasedModel:
             rowCopy = row.drop(counterColumn).to_dict()
             tempList+=[rowCopy for _ in range(counter)]
         self.agent_df = pd.DataFrame(tempList)
+
+        # add the immunity parameter to the agents
+        self.add_immunity_and_vaccine()
 
     def createWorld(self):
         """
@@ -602,7 +634,7 @@ class AgentBasedModel:
             else:
                 setattr(agent, attrName,False)
 
-    def intializeAndConfigureObjects(self):
+    def initializeAndConfigureObjects(self):
         # # build a dictionary, key: state --> value: list of agentIds
         # initialize state2IdDict
         for stateList in self.config["Agents"]["PossibleStates"].values():
@@ -729,7 +761,6 @@ class AgentBasedModel:
                 spCounter[2]+=1
         print("# of rooms filled with [2 people, 1 , 0]", spCounter)
 
-
     #@functools.lru_cache(maxsize=128)
     def findMatchingRooms(self, partitionAttr, attrVal=None, strType=False):
         """
@@ -810,21 +841,17 @@ class AgentBasedModel:
         else:
             seedNumber = self.config["Infection"]["SeedNumber"]
         seedState = self.config["Infection"]["SeedState"]
-        onCampusIds = [agentId for agentId, agent in self.agents.items() if agent.Agent_type == "onCampus"]
-
+        onCampusIds = [agentId for agentId, agent in self.agents.items() if agent.Agent_type == "onCampus" and agent.immunity==0]
 
         if len(onCampusIds) < seedNumber:
             print("not enough agents to satisfy initial # of seed, taking the minimum")
         infectedAgentIds = np.random.choice(onCampusIds,size=min(len(onCampusIds), seedNumber), replace=False)
+
         for agentId in infectedAgentIds:
             self.changeStateDict(agentId, "susceptible",seedState)
-        debugTempDict = dict()
-        for agentId in infectedAgentIds:
-            debugTempDict[self.agents[agentId].Agent_type] = debugTempDict.get(self.agents[agentId].Agent_type, 0) + 1
+
         if self.R0Calculation:
             self.R0_agentIds = infectedAgentIds
-
-        print(f"{seedNumber} seeds starting off with {seedState}, {debugTempDict.keys()}")
 
         self.baseP = self.config["Infection"]["baseP"]
 
@@ -836,9 +863,18 @@ class AgentBasedModel:
         self.compliantZone = set(self.config["FaceMasks"]["CompliantHub"])
         self.nonCompliantZone = set(self.config["FaceMasks"]["NonCompliantBuilding"])
 
-        maskNumber = int(self.config["World"]["complianceRatio"]*len(self.agents))
-        maskVec = np.concatenate((np.ones(maskNumber),np.zeros(len(self.agents)-maskNumber)))
-        np.random.shuffle(maskVec)
+        if self.config["FaceMasks"]["use_compliance"]:
+            maskNumber = int(self.config["World"]["complianceRatio"]*len(self.agents))
+            maskVec = np.concatenate((np.ones(maskNumber),np.zeros(len(self.agents)-maskNumber)))
+            np.random.shuffle(maskVec)
+        else: # heres the new mask mode
+            mode = self.config["FaceMasks"]["facemask_mode"]
+            if mode == 0:
+                maskVec = np.zeros(len(self.agent_df))
+            if mode == 1:
+                maskVec = list(self.agent_df["vaccinated"])
+            elif mode == 2:
+                maskVec = np.ones(len(self.agent_df))
 
         counter=0
         for i, agent in enumerate(self.agents.values()):
@@ -905,17 +941,17 @@ class AgentBasedModel:
             - previousState: the state of the agent, better to be a parameter because checks occurs before the function is called
             - newState: the state name to transition into
         """
-        
+
         if previousState != "NA":
             self.state2IdDict[previousState].discard(agentId)# remove the agent from the state list
         if previousState == "quarantined" and not self.agents[agentId].infected:
             self.state2IdDict["falsePositive"].discard(agentId)
         self.state2IdDict[newState].add(agentId)# then add them to the new state list
-        
+
         self.agents[agentId].changeState(self.time, newState, self.transitionDict[newState])
         if previousState == newState:
             print(previousState, "day:", int(self.time/24))
-        
+
 
      # takes 4 seconds
 
@@ -1268,7 +1304,7 @@ class AgentBasedModel:
         #self.timeSeries = list(range(0, (self.config["World"]["InferedSimulatedDays"]*24)+1, self.timeIncrement))
         self.parameters = dict((stateName, []) for stateList in self.config["Agents"]["PossibleStates"].values() for stateName in stateList)
         self.timeSeries = []
-        
+
     def storeInformation(self):
         if self.time%self.timeIncrement == 0:
             for param in self.parameters.keys():
@@ -1314,7 +1350,7 @@ class AgentBasedModel:
             if loc[0] != loc[1]:
                 # if the agent is coming back to the network from the offcampus node
                 if not self.R0Calculation and loc[0] == self.roomNameId["offCampus_hub"] and loc[1] == self.roomNameId[self.config["World"]["transitName"]] and self.time%24<12:
-                    if agent.state == "susceptible" and randomVec[index] < transitionP:
+                    if agent.state == "susceptible" and randomVec[index] < transitionP and agent.immunity == 0:
                         if self._debug:
                             print("*"*5, "changed state from susceptible to exposed through transit")
                         self.changeStateDict(agentId,agent.state, "exposed")
@@ -1330,8 +1366,9 @@ class AgentBasedModel:
         for roomId, room in self.rooms.items():
             if room.room_name.endswith("_hub") and room.building_type != "offCampus":
                 totalInfection = self.infectionInRoom(roomId)
+                # check if the agent satisfy the min.requirement to be infected
                 for  agentId in room.agentsInside:
-                    if self.agents[agentId].state == "susceptible":
+                    if self.agents[agentId].state == "susceptible" and self.agents[agentId].immunity == 0:
                         coeff = 1
                         if self.faceMask_intervention and self.agents[agentId].compliance: # check for compliance
                             if self.rooms[roomId].building_type != "social":
@@ -1361,7 +1398,7 @@ class AgentBasedModel:
                 totalInfection = self.infectionInRoom(roomId)
                 if totalInfection > 0:
                     for agentId in room.agentsInside:
-                        if self.agents[agentId].state == "susceptible":
+                        if self.agents[agentId].state == "susceptible" and self.agents[agentId].immunity == 0:
                             coeff = 1
                             if self.faceMask_intervention and self.agents[agentId].compliance: # check for compliance
                                 if self.rooms[roomId].building_type not in self.nonCompliantLeaf:
@@ -1471,9 +1508,9 @@ class AgentBasedModel:
             pass# everyone shows up
         else:
             notSymptomatic = {agentId for agentId in listOfId
-                    if self.agents[agentId].state != "infected Symptomatic Mild" 
+                    if self.agents[agentId].state != "infected Symptomatic Mild"
                     and self.agents[agentId].state != "infected Symptomatic Severe"
-                    
+
                     }
             randomVec = np.random.random(len(notSymptomatic))
             complyingP = self.config["Quarantine"]["ShowingUpForScreening"]
@@ -1486,7 +1523,7 @@ class AgentBasedModel:
         falsePositiveResult = []
         for i, agentId in enumerate(listOfId):
             if falsePositiveMask[i] < self.config["Quarantine"]["falsePositive"] and self.agents[agentId].state == "susceptible":
-                falsePositiveResult.append(agentId) 
+                falsePositiveResult.append(agentId)
         normalScreeningId = list(set(listOfId) - set(falsePositiveResult))
         # these people had false positive results and are quarantined
         for agentId in falsePositiveResult:
@@ -1580,7 +1617,7 @@ class AgentBasedModel:
                 totalInfection = self.gathering_infection(subset)
                 totalinfectionVec[index] = totalInfection
                 for index, agentId in enumerate(subset):
-                    if self.agents[agentId].state == "susceptible" and randVec[index] < totalInfection:
+                    if self.agents[agentId].state == "susceptible" and randVec[index] < totalInfection and self.agents[agentId].immunity == 0:
                         self.changeStateDict(agentId,"susceptible" ,"exposed")
                         newly_infected+=1
             self.gathering_count+=newly_infected
@@ -1635,7 +1672,7 @@ class AgentBasedModel:
         #x = int(self.time/self.config["World"]["stateCounterInterval"])+1
         #data = {k:v[:x] for k, v in data.items()}
         #print("susceptible", data["susceptible"][:x])
-        #print(self.time, x) 
+        #print(self.time, x)
         # self.timeSeries[:x]
         vs.timeSeriesGraph(self.timeSeries, (0, self.time), (0,len(self.agents)), data, savePlt=savePlt, saveName=saveName, animatePlt=False)
 
@@ -1867,9 +1904,9 @@ def main():
         }
 
     }
-    model = createModel(modelConfig)
-    model.visualizeBuildings()
-    #start_here.main()
+    #model = createModel(modelConfig)
+    #model.visualizeBuildings()
+    start_here.main()
 
 if __name__ == "__main__":
     main()

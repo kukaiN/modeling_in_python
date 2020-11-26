@@ -22,7 +22,10 @@ def main():
                 ], # travelTime and officeAttendee will be commented out
             "ExtraZipParameters": [("motion", "stationary"), ("infected", False), ("compliance", False)],
             "booleanAssignment":[ ("gathering", 0.5)], # ("officeAttendee", 0),
-
+            "immunity": 0,
+            "vaccine": False,
+            "vaccineEffectiveness": 0.9,
+            "vaccinatedPopulation":0.3,
         },
         "Rooms" : {
             "ExtraParameters": ["roomId","agentsInside","oddCap", "evenCap", "classname", "infectedNumber", "hubCount"],
@@ -86,6 +89,8 @@ def main():
         "FaceMasks" : {
             "MaskInfectivity" : 0.5,
             "MaskBlock":0.75,
+            "use_compliance":True,
+            "facemask_mode": 0,
             "NonCompliantLeaf": ["dorm", "dining", "faculty_dining_hall", "faculty_dining_room"],
             "CompliantHub" : ["dorm", "dining"],
             "NonCompliantBuilding" : ["largeGathering"],
@@ -139,7 +144,7 @@ def main():
     # simulation name --> simulation controlled variable(s)
     # dont use . or - in the simulation name because the names are used to save images, or any symbols below
 
-    ControlledExperiment = {
+    old_ControlledExperiment = {
         "baseModel":{
         }, # no changes
         "facemasks":{
@@ -526,36 +531,385 @@ def main():
         ],
     }
 
-    import time
-    t1 = time.time()
+    new_ControlledExperiment1 = {
+        "base_case1":{},
+        "v1_f0":{
+            "Agents":[
+                ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.3),
+            ],
+            "World": [
+                 ("TurnedOnInterventions", ["FaceMasks"]),
+            ],
+            "FaceMasks":[
+                ("use_compliance", False),
+                ("Facemask_mode", 0),
+            ],
+        },
+        "v1_f1":{
+            "Agents":[
+                ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.3),
+            ],
+            "World": [
+                 ("TurnedOnInterventions", ["FaceMasks"]),
+            ],
+            "FaceMasks":[
+                ("use_compliance", False),
+                ("Facemask_mode", 1),
+            ],
+        },
+        "v1_f2":{
+            "Agents":[
+               ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.3),
+            ],
+            "World": [
+                 ("TurnedOnInterventions", ["FaceMasks"]),
+            ],
+            "FaceMasks":[
+                ("use_compliance", False),
+                ("Facemask_mode", 2),
+            ],
+        },
+        "v2_f0":{
+            "Agents":[
+                ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.6),
+            ],
+            "World": [
+                 ("TurnedOnInterventions", ["FaceMasks"]),
+            ],
+            "FaceMasks":[
+                ("use_compliance", False),
+                ("Facemask_mode", 0),
+            ],
+        },
+        "v2_f1":{
+            "Agents":[
+                     ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.6),
+            ],
+            "World": [
+                 ("TurnedOnInterventions", ["FaceMasks"]),
+            ],
+            "FaceMasks":[
+                ("use_compliance", False),
+                ("Facemask_mode", 1),
+            ],
+        },
+        "v2_f2":{
+            "Agents":[
+                     ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.6),
+            ],
+            "World": [
+                 ("TurnedOnInterventions", ["FaceMasks"]),
+            ],
+            "FaceMasks":[
+                ("use_compliance", False),
+                ("Facemask_mode", 2),
+            ],
+        },
+        "v3_f0":{
+            "Agents":[
+                      ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.9),
+            ],
+            "World": [
+                 ("TurnedOnInterventions", ["FaceMasks"]),
+            ],
+            "FaceMasks":[
+                ("use_compliance", False),
+                ("Facemask_mode", 0),
+            ],
+        },
+        "v3_f1":{
+            "Agents":[
+                    ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.9),
+            ],
+            "World": [
+                 ("TurnedOnInterventions", ["FaceMasks"]),
+            ],
+            "FaceMasks":[
+                ("use_compliance", False),
+                ("Facemask_mode", 1),
+            ],
+        },
+        "v3_f2":{
+            "Agents":[
+                ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.9),
+            ],
+            "World": [
+                 ("TurnedOnInterventions", ["FaceMasks"]),
+            ],
+            "FaceMasks":[
+                ("use_compliance", False),
+                ("Facemask_mode", 2),
+            ],
+        }
+    }
+    low_med = {
+        "NC_WP":{
+            # N = 150, L = 4, B = {G, L}, D = 0
+            # f = 0, c = 0.80, h = 0.50, s' = 0
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "LessSocial", "ClosingBuildings"]),
+                ("ComplianceRatio", 0), # f = 0
+            ],
+            "Quarantine": [
+                ("ResultLatency", 4*24), # L = 4
+                ("BatchSize", 150), # N=150
+                ("ShowingUpForScreening", 0.8), # c = 0.8
+            ],
+            "ClosingBuildings": [
+            ("ClosedBuildingOpenHub", []),
+            ("ClosedBuilding_ByType", ["gym", "library"]),
+            ("GoingHomeP", 0.5), # h = 0.5
+            ("Exception_SemiClosedBuilding", []),
+            ("Exception_GoingHomeP", 0.5),
+            ],
+            "LessSocializing":[
+                ("StayingHome",0), # s'
+            ],
+        },
+        "NC_MP":{
+            #N = 250, L = 3, B = {G, L, DH, LG}, D=650
+            # f = 0, c = 0.80, h = 0.50, s' = 0
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
+                ("ComplianceRatio", 0), # f = 0
+                ("LargeGathering", False)
+            ],
+            "Quarantine": [
+                ("ResultLatency", 3*24), # L = 3
+                ("BatchSize", 250), # N=250
+                ("ShowingUpForScreening", 0.8), # c = 0.8
+            ],
+            "ClosingBuildings": [
+                ("ClosedBuildingOpenHub", ["dining"]), # ding stays open, but leaf Kv = 0####################################
+                ("ClosedBuilding_ByType", ["gym", "library"]),
+                ("GoingHomeP", 0.5), # h = 0.5
+                ("Exception_SemiClosedBuilding",["dining", "faculty_dining_room"]), # replace these entrys 50/50###############
+                ("Exception_GoingHomeP", 0.5),
+            ],
+            "LessSocializing":[
+                ("StayingHome",0), # s'
+            ],
+            "HybridClass":[############################################################
+                ("RemoteStudentCount", 250),
+                ("RemoteFacultyCount", 150),
+                ("RemovedDoubleCount", 325), # 525 doubles, extra agents = 200, means need 200 double beds available
+                ("OffCampusCount", 250),
+                ("TurnOffLargeGathering", True),
+                ("ChangedSeedNumber", 7),
+            ],
+        },
+        "NC_SP":{
+            #N = 500, L = 2, B = {G, L, DH, LG, O}, D=1300
+            # f = 0, c = 0.80, h = 0.50, s' = 0
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
+                ("ComplianceRatio", 0), # f = 0
+                ("LargeGathering", False)
+            ],
+            "Quarantine": [
+                ("ResultLatency", 2*24), # L = 2
+                ("BatchSize", 500), # N=500
+                ("ShowingUpForScreening", 0.8), # c=0.8
+            ],
+            "ClosingBuildings": [
+                ("ClosedBuildingOpenHub", ["dining"]),
+                ("ClosedBuilding_ByType", ["gym", "library", "office"]),
+                ("GoingHomeP", 0.5), # h = 0.5
+                ("Exception_SemiClosedBuilding", ["dining", "faculty_dining_room"]),
+                ("Exception_GoingHomeP", 0.5), # h = 0.5
+            ],
+            "LessSocializing":[
+                ("StayingHome",0), # s'
+            ],
+            "HybridClass":[
+                ("RemoteStudentCount", 500),
+                ("RemoteFacultyCount", 300),
+                ("RemovedDoubleCount", 525), #525 = total number of double
+                ("OffCampusCount", 500),
+                ("TurnOffLargeGathering", True),
+                ("ChangedSeedNumber", 5),
+            ],
+        },
+
+        "SC_WP":{
+            # N = 150, L = 4, B = {G, L}, D = 0
+            # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
+                ("ComplianceRatio", 0.5), # f = 0.5
+            ],
+            "Quarantine": [
+                ("ResultLatency", 4*24), # L = 4
+                ("BatchSize", 150), # N=150
+                ("ShowingUpForScreening", 0.9), # c = 0.9#############
+            ],
+            "ClosingBuildings": [
+            ("ClosedBuildingOpenHub", []),
+            ("ClosedBuilding_ByType", ["gym", "library"]),
+            ("GoingHomeP", 0.75), # h = 0.75 ##################
+            ("Exception_SemiClosedBuilding", []),
+            ("Exception_GoingHomeP", 0.75),
+            ],
+            "LessSocializing":[
+                ("StayingHome",0.25), # s' = 0.25 ######################
+            ],
+        },
+        "SC_MP":{
+            #N = 250, L = 3, B = {G, L, DH, LG}, D=650
+            # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
+                ("ComplianceRatio", 0.5), # f = 0.5
+            ],
+            "Quarantine": [
+                ("ResultLatency", 3*24), # L = 3
+                ("BatchSize", 250), # N=250
+                ("ShowingUpForScreening", 0.9), # c = 0.9
+            ],
+            "ClosingBuildings": [
+                ("ClosedBuildingOpenHub", ["dining"]), # ding stays open, but leaf Kv = 0
+                ("ClosedBuilding_ByType", ["gym", "library"]),
+                ("GoingHomeP", 0.75), # h = 0.75
+                ("Exception_SemiClosedBuilding", ["dining", "faculty_dining_room"]), # replace these entrys 50/50
+                ("Exception_GoingHomeP", 0.75),
+            ],
+            "LessSocializing":[
+                ("StayingHome",0.25), # s' = 0.25
+            ],
+            "HybridClass":[
+                ("RemoteStudentCount", 250),
+                ("RemoteFacultyCount", 150),
+                ("RemovedDoubleCount", 325), # 525 - 250 = 275
+                ("OffCampusCount", 250),
+                ("TurnOffLargeGathering", True),
+                ("ChangedSeedNumber", 7),
+            ],
+        },
+        "SC_SP":{
+            #N = 500, L = 2, B = {G, L, DH, LG, O}, D=1300
+            # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
+                ("ComplianceRatio", 0.5), # f = 0.5
+            ],
+            "Quarantine": [
+                ("ResultLatency", 2*24), # L = 2
+                ("BatchSize", 500), # N=500
+                ("ShowingUpForScreening", 0.9), # c = 0.9
+            ],
+            "ClosingBuildings": [
+                ("ClosedBuildingOpenHub", ["dining"]),
+                ("ClosedBuilding_ByType", ["gym", "library", "office"]),
+                ("GoingHomeP", 0.75), # h = 0.75
+                ("Exception_SemiClosedBuilding", ["dining", "faculty_dining_room"]),
+                ("Exception_GoingHomeP", 0.75), # h = 0.5
+            ],
+            "LessSocializing":[
+                ("StayingHome",0.25), # s' = 0.25
+            ],
+            "HybridClass":[
+                ("RemoteStudentCount", 500),
+                ("RemoteFacultyCount", 300),
+                ("RemovedDoubleCount", 525), #525 = total number of double
+                ("OffCampusCount", 500),
+                ("TurnOffLargeGathering", True),
+                ("ChangedSeedNumber", 5),
+            ]
+        },
+    }
+    vaccine3 = {
+        "v1" : {
+            "Agents":[
+                ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.3),
+            ],
+        },
+        "v2" : {
+            "Agents":[
+                ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.6),
+            ],
+        },
+        "v3" : {
+            "Agents":[
+              ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.9),
+            ],
+        },
+    }
+
+    """
+    experiment2 = {}
+    for keyname, vaccine_experiment in vaccine3:
+        for low_med_keyname, sp_controls in low_med:
+            experiment2_name = low_med_keyname + keyname
+
+            experiment2[experiment2_name] = sp_controls.copy()
+            for key, value in vaccine_experiment:
+                experiment2[experiment2_name][key] = value.copy()
+    """
+
+
+
     R0Dict = dict()
     InfectedCountDict = dict()
-    simulationGeneration = "0"
-    osName = platform.system()
-    files = "images\\" if osName.lower() == "windows" else "images/"
-    osExtension = "win" if osName.lower() == "windows" else "Linux"
-    for index, (modelName, modelControl) in enumerate(ControlledExperiment.items()):
+
+    for index, (modelName, modelControl) in enumerate(new_ControlledExperiment1.items()):
 
         configCopy = copy.deepcopy(modelConfig)
         print("*"*20)
+        print(configCopy["Agents"].keys())
         print(f"started working on initializing the simualtion for {modelName}")
         for categoryKey, listOfControls in modelControl.items():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
-        R0Count = 100
-        multiCounts = 20
 
-        if index in [9, 12, 13]:# or index == 0: #in [0, 9, 12, 15]:
-            #model_framework.simpleCheck(configCopy, days=100, visuals=True, debug=True, modelName=modelName)
+        R0Count, multiCounts =1,1
+
+        if index > -1:
+            #model_framework.simpleCheck(configCopy, days=10, visuals=True, debug=True, modelName=modelName)
             InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName)
-            #R0Dict[modelName] = model_framework.R0_simulation(configCopy, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
+            R0Dict[modelName] = model_framework.R0_simulation(configCopy, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
 
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev))
     print(InfectedCountDict.items())
     print(R0Dict.items())
 
     if True:
-
+        simulationGeneration = "0"
         saveName = "comparingModels_"+simulationGeneration
         statfile.comparingBoxPlots(R0Dict, plottedData="R0", saveName=saveName)
         statfile.comparingBoxPlots(InfectedCountDict ,plottedData="inf", saveName=saveName)
@@ -564,7 +918,5 @@ def main():
         model_framework.createFilledPlot(modelConfig, modelName="baseModel",
                                                             simulationN=3)
 
-    timetook = time.time()-t1
-    print("took", timetook, "seconds", timetook/(60*60), "hours")
 if __name__ == "__main__":
     main()
