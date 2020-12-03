@@ -129,7 +129,7 @@ def main():
             matrix_data.append(data_points)
     print(matrix_data)
 
-    sf.boxplot(matrix_data, xlabel=name_list, ylabel="percentage")
+    sf.boxplot(matrix_data, xlabel=name_list, ylabel="percentage", savePlt=True, saveName="new_semster1")
     #print(x)
   
 
@@ -158,7 +158,7 @@ def main():
                 name_list2.append(new_name)
                 matrix_data2.append(data_points)
 
-    sf.boxplot(matrix_data2, xlabel=name_list2, ylabel="percentage")
+    sf.boxplot(matrix_data2, xlabel=name_list2, ylabel="percentage", savePlt=True, saveName="new_semester2")
 
 if __name__ == "__main__":
     main()
