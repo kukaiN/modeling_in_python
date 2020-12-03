@@ -871,23 +871,22 @@ def main():
         },
     }
 
-    """
+    
     experiment2 = {}
-    for keyname, vaccine_experiment in vaccine3:
-        for low_med_keyname, sp_controls in low_med:
-            experiment2_name = low_med_keyname + keyname
+    for keyname, vaccine_experiment in vaccine3.items():
+        for low_med_keyname, sp_controls in low_med.items():
+            experiment2_name = low_med_keyname +"_" + keyname
 
             experiment2[experiment2_name] = sp_controls.copy()
-            for key, value in vaccine_experiment:
+            for key, value in vaccine_experiment.items():
                 experiment2[experiment2_name][key] = value.copy()
-    """
-
-
+   
+    
 
     R0Dict = dict()
     InfectedCountDict = dict()
 
-    for index, (modelName, modelControl) in enumerate(new_ControlledExperiment1.items()):
+    for index, (modelName, modelControl) in enumerate(experiment2.items()):
 
         configCopy = copy.deepcopy(modelConfig)
         print("*"*20)
@@ -897,7 +896,7 @@ def main():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
 
-        R0Count, multiCounts =1,1
+        R0Count, multiCounts =20,20
 
         if index > -1:
             #model_framework.simpleCheck(configCopy, days=10, visuals=True, debug=True, modelName=modelName)
