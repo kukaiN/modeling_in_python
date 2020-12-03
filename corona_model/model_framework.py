@@ -868,14 +868,19 @@ class AgentBasedModel:
             maskVec = np.concatenate((np.ones(maskNumber),np.zeros(len(self.agents)-maskNumber)))
             np.random.shuffle(maskVec)
         else: # heres the new mask mode
-            mode = self.config["FaceMasks"]["facemask_mode"]
+            mode = self.config["FaceMasks"]["Facemask_mode"]
             if mode == 0:
                 maskVec = np.zeros(len(self.agent_df))
-            if mode == 1:
+            elif mode == 1:
+
+                
                 maskVec =np.ones(len(self.agent_df))- np.array(  list(self.agent_df["vaccinated"]))
+                print(sum(maskVec), sum(list(self.agent_df["vaccinated"])))               
+              
             elif mode == 2:
                 maskVec = np.ones(len(self.agent_df))
-
+            
+        
         counter=0
         for i, agent in enumerate(self.agents.values()):
             if maskVec[i] > 0.5:

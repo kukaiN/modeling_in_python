@@ -90,7 +90,7 @@ def main():
             "MaskInfectivity" : 0.5,
             "MaskBlock":0.75,
             "use_compliance":True,
-            "facemask_mode": 0,
+            "Facemask_mode": 0,
             "NonCompliantLeaf": ["dorm", "dining", "faculty_dining_hall", "faculty_dining_room"],
             "CompliantHub" : ["dorm", "dining"],
             "NonCompliantBuilding" : ["largeGathering"],
@@ -640,7 +640,7 @@ def main():
         },
         "v3_f1":{
             "Agents":[
-                    ("immunity", 0.05),
+                ("immunity", 0.05),
                 ("vaccine", True),
                 ("vaccineEffectiveness", 0.9),
                 ("vaccinatedPopulation",0.9),
@@ -886,8 +886,8 @@ def main():
     R0Dict = dict()
     InfectedCountDict = dict()
 
-    for index, (modelName, modelControl) in enumerate(experiment2.items()):
-
+    #for index, (modelName, modelControl) in enumerate(experiment2.items()):
+    for index, (modelName, modelControl) in enumerate(new_ControlledExperiment1.items()):
         configCopy = copy.deepcopy(modelConfig)
         print("*"*20)
         print(configCopy["Agents"].keys())
@@ -896,9 +896,9 @@ def main():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
 
-        R0Count, multiCounts =20,20
+        R0Count, multiCounts =20, 20
 
-        if index > -1:
+        if index > 0:
             #model_framework.simpleCheck(configCopy, days=10, visuals=True, debug=True, modelName=modelName)
             InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName)
             R0Dict[modelName] = model_framework.R0_simulation(configCopy, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)

@@ -99,7 +99,8 @@ def get_cd():
 
 
 
-def main():
+
+def make_graph(plt1, plt2):
     vacc = ["v1", "v2", "v3"]
     vacc_p = [0.3, 0.6, 0.9]
     facemask = ["f0", "f1", "f2"]
@@ -110,28 +111,30 @@ def main():
     matrix_data = []
 
     total_pop = 2380
-    for vX, vac_p in zip(vacc, vacc_p):
-        for fX in facemask:
-            new_name = vX+"_"+fX+".csv"
+    if plt1:
+        for vX, vac_p in zip(vacc, vacc_p):
+            for fX in facemask:
+                new_name = vX+"_"+fX+".csv"
 
-            x = openCsv(fullPath( new_name, folder="outputs//new_semester"))
-            print(new_name)
-            
-            data_points = []
-            for index, column_name in enumerate(x.columns):
-                if index == 0:
-                    location = x[column_name]
-                if index > 0:
-                    total_infection = x[column_name][10]
-                    print(total_infection)
-                    data_points.append(total_infection/(vac_p*total_pop))
-            name_list.append(new_name)
-            matrix_data.append(data_points)
-    print(matrix_data)
+                x = openCsv(fullPath( new_name, folder="outputs"))
+                print(new_name)
+                
+                data_points = []
+                for index, column_name in enumerate(x.columns):
+                    if index == 0:
+                        location = x[column_name]
+                    if index > 0:
+                        total_infection = x[column_name][10]
+                        print(total_infection)
+                        data_points.append(total_infection/(vac_p*total_pop))
+                name_list.append(new_name)
+                matrix_data.append(data_points)
+        print(matrix_data)
 
-    sf.boxplot(matrix_data, xlabel=name_list, ylabel="percentage", savePlt=True, saveName="new_semster1")
-    #print(x)
-  
+        sf.boxplot(matrix_data, xlabel="model", ylabel="total infected in percentage", pltTitle="Vx_Fx comparison",
+        labels= name_list, savePlt=True, saveName="new_semster1")
+        #print(x)
+    
 
     admin = ["NC", "SC"]
     policy = ["WP", "MP", "SP"]
@@ -140,25 +143,35 @@ def main():
     # for mp remote 650
     name_list2 = []
     matrix_data2 = []
-    for vX, vac_p in zip(vacc, vacc_p):
-        for cc in admin:
-            for p, p_count in zip(policy, policy_total):
-                new_name = cc+"_"+p+"_"+vX+".csv"
+    if plt2:
+        for vX, vac_p in zip(vacc, vacc_p):
+            for cc in admin:
+                for p, p_count in zip(policy, policy_total):
+                    new_name = cc+"_"+p+"_"+vX+".csv"
 
-                x = openCsv(fullPath( new_name, folder="outputs//new_semester2"))
-              
-                data_points = []
-                for index, column_name in enumerate(x.columns):
-                    if index == 0:
-                        location = x[column_name]
-                    if index > 0:
-                        total_infection = x[column_name][10]
-                        print(total_infection)
-                        data_points.append(total_infection/(vac_p*p_count))
-                name_list2.append(new_name)
-                matrix_data2.append(data_points)
+                    x = openCsv(fullPath( new_name, folder="outputs"))
+                
+                    data_points = []
+                    for index, column_name in enumerate(x.columns):
+                        if index == 0:
+                            location = x[column_name]
+                        if index > 0:
+                            total_infection = x[column_name][10]
+                            print(total_infection)
+                            data_points.append(total_infection/(vac_p*p_count))
+                    name_list2.append(new_name)
+                    matrix_data2.append(data_points)
 
-    sf.boxplot(matrix_data2, xlabel=name_list2, ylabel="percentage", savePlt=True, saveName="new_semester2")
+        sf.boxplot(matrix_data2, xlabel="model", ylabel="total infected in percentage", pltTitle="XP_XC_VX comparison",
+        savePlt=True, labels=name_list2, saveName="new_semester2")
+
+
+def main():
+    vx_fx = True
+    WP_WC_Vx = False
+
+    make_graph(vx_fx, WP_WC_Vx)
+
 
 if __name__ == "__main__":
     main()
