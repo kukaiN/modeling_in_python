@@ -872,7 +872,7 @@ class AgentBasedModel:
             if mode == 0:
                 maskVec = np.zeros(len(self.agent_df))
             if mode == 1:
-                maskVec = list(self.agent_df["vaccinated"])
+                maskVec =np.ones(len(self.agent_df))- np.array(  list(self.agent_df["vaccinated"]))
             elif mode == 2:
                 maskVec = np.ones(len(self.agent_df))
 
