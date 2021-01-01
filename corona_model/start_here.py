@@ -72,7 +72,7 @@ def main():
             # we can allocate the required space beforehand to speedup data storing
             "InferedSimulatedDays":100,
             # put the name(s) of intervention(s) to be turned on
-            "TurnedOnInterventions":[],# ["HybridClasses", "ClosingBuildings", "Quarantine", "FaceMasks"],
+            "TurnedOnInterventions":[],# ["HybridClasses", "ClosingBuildings", "Quarantine", "Screening", "FaceMasks"],
 
             "transitName": "transit_space_hub",
             "offCampusInfectionProbability":0.125/880,
@@ -99,6 +99,7 @@ def main():
             # this dictates if we randomly sample the population or cycle through Batches
             "RandomSampling": False,
             "RandomSampleSize": 100,
+            
             # for random sampling from the agent population
             "SamplingProbability" : 0,
             "ResultLatency":2*24,
@@ -108,11 +109,13 @@ def main():
                 "infected Symptomatic Severe": 0.95,
                 },
             "BatchSize" : 100,
+            "TestFromVaccinated":False,
             "ShowingUpForScreening": 1,
             "offset": 8, # start at 8AM
-            "checkupFrequency": 24*1,
+            "checkupFrequency": 24*1,  # this is the interval between checkups, 24 = daily and 24*7 = weekly checkup
             "falsePositive":0.001,
-            "falseNegative":0.03
+            "falseNegative":0.03,
+            "OnlySampleUnvaccinated": False,
         },
         "ClosingBuildings": {
             "ClosedBuildingOpenHub" : [],
@@ -524,7 +527,7 @@ def main():
             ],
         "Infection" : [
             ("baseP" , 1.25),
-            ("SeedNumber", 10),
+            ("SeedNumber", 100),
         ],
         "HybridClass":[
             ("ChangedSeedNumber", 10),
@@ -871,38 +874,151 @@ def main():
         },
     }
 
-    
-    experiment2 = {}
-    for keyname, vaccine_experiment in vaccine3.items():
-        for low_med_keyname, sp_controls in low_med.items():
-            experiment2_name = low_med_keyname +"_" + keyname
+ # 30, 50, 70, 90
+    vaccine4 = {
+        "v1" : {
+            "World": [
+                 ("TurnedOnInterventions", ["FaceMasks",  "Quarantine"]),
+            ],
+            "Agents":[
+                ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.3),
+            ],
+                "Quarantine" : [
+                # this dictates if we randomly sample the population or cycle through Batches
+                ("RandomSampling", False),
+                ("ResultLatency",3*24),
+                ("WalkIn",True),
+                ("BatchSize" , 250),
+                ("OnlySampleUnvaccinated",True),
+             ],
+        },
+        "v2" : {
+            "World": [
+                 ("TurnedOnInterventions", ["FaceMasks",  "Quarantine"]),
+            ],
+            "Agents":[
+                ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.5),
+            ],
+             "Quarantine" : [
+                # this dictates if we randomly sample the population or cycle through Batches
+                ("RandomSampling", False),
+                ("ResultLatency",3*24),
+                ("WalkIn",True),
+                ("BatchSize" , 250),
+                ("OnlySampleUnvaccinated",True),
+             ],
+        },
+           
+        "v3" : {
+            "World": [
+                 ("TurnedOnInterventions", ["FaceMasks",  "Quarantine"]),
+            ],
+            "Agents":[
+                ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.7),
+            ],
+            "Quarantine" : [
+                # this dictates if we randomly sample the population or cycle through Batches
+                ("RandomSampling", False),
+                ("ResultLatency",3*24),
+                ("WalkIn",True),
+                ("BatchSize" , 250),
+                ("OnlySampleUnvaccinated",True),
+             ],
+        },
+            
+        "v4" : {
+            "World": [
+                 ("TurnedOnInterventions", ["FaceMasks",  "Quarantine"]),
+            ],
+            "Agents":[
+                ("immunity", 0.05),
+                ("vaccine", True),
+                ("vaccineEffectiveness", 0.9),
+                ("vaccinatedPopulation",0.9),
+            ],
+            "Quarantine" : [
+                # this dictates if we randomly sample the population or cycle through Batches
+                ("RandomSampling", False),
+                ("ResultLatency",3*24),
+                ("WalkIn",True),
+                ("BatchSize" , 250),
+                ("OnlySampleUnvaccinated",True),
+             ],
+        }
+    }
+# 0, 1, 2
+    facemask3 = {
+        "f0": {
+            "FaceMasks":[
+                ("use_compliance", False),
+                ("Facemask_mode", 0),
+            ],
+        },
+        "f1": {
+             "FaceMasks":[
+                ("use_compliance", False),
+                ("Facemask_mode", 1),
+            ],
+        },
+        "f2": {
+             "FaceMasks":[
+                ("use_compliance", False),
+                ("Facemask_mode", 2),
+             ],
+        }
+    }
 
-            experiment2[experiment2_name] = sp_controls.copy()
-            for key, value in vaccine_experiment.items():
-                experiment2[experiment2_name][key] = value.copy()
-   
-    
+    def cross_screnarios(scenario1, scenario2):
+        experiments = {}
+        for keyname, experiment1 in scenario1.items():
+            for screenname, screen in scenario2.items():
+                experiment_name = screenname +"_" + keyname
+                experiments[experiment_name] = screen.copy()
+                for key, value in experiment1.items():
+                    #print(key, value)
+                    experiments[experiment_name][key] = value.copy()
+        return copy.deepcopy(experiments)
 
+    
+    experiment2 = cross_screnarios(vaccine3, low_med)
+    experiment3 =cross_screnarios(vaccine4, facemask3)
+
+    print(len(experiment3))
     R0Dict = dict()
     InfectedCountDict = dict()
 
+    basemodel = {"basemodel": {}}
     #for index, (modelName, modelControl) in enumerate(experiment2.items()):
-    for index, (modelName, modelControl) in enumerate(new_ControlledExperiment1.items()):
+    for index, (modelName, modelControl) in enumerate(experiment3.items()):
+        
+        
         configCopy = copy.deepcopy(modelConfig)
         print("*"*20)
         print(configCopy["Agents"].keys())
+        print("*"*20)
         print(f"started working on initializing the simualtion for {modelName}")
         for categoryKey, listOfControls in modelControl.items():
+            print(listOfControls)
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
 
-        R0Count, multiCounts =20, 20
+        R0Count, multiCounts = 40, 40
 
-        if index > 0:
+        print(configCopy)
+        if index > -1:
             #model_framework.simpleCheck(configCopy, days=10, visuals=True, debug=True, modelName=modelName)
             InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName)
             R0Dict[modelName] = model_framework.R0_simulation(configCopy, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
-
+            
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev))
     print(InfectedCountDict.items())
     print(R0Dict.items())

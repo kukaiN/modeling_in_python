@@ -126,7 +126,7 @@ def make_graph(plt1, plt2):
                     if index > 0:
                         total_infection = x[column_name][10]
                         print(total_infection)
-                        data_points.append(total_infection/(vac_p*total_pop))
+                        data_points.append(total_infection/((1-vac_p)*total_pop))
                 name_list.append(new_name)
                 matrix_data.append(data_points)
         print(matrix_data)

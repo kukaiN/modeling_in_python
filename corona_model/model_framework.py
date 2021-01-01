@@ -500,16 +500,24 @@ class AgentBasedModel:
             vaccinated_ratio = self.config["Agents"]["vaccinatedPopulation"]
             vaccine_effectiveness = self.config["Agents"]["vaccineEffectiveness"]
             # ask if its deterministic
-            vaccinated = int(len(self.agent_df)*vaccinated_ratio * vaccine_effectiveness)
+            vaccinated = int(len(self.agent_df)*vaccinated_ratio)
+            print(vaccinated_ratio)
             vaccine_vec = np.concatenate((np.ones(vaccinated), np.zeros(len(self.agent_df)-vaccinated)), axis=0)
             np.random.shuffle(vaccine_vec)
+            effectiveVaccinated = [0 if val == 0 else (1 if random.random() < vaccine_effectiveness else 0) for val in vaccine_vec]
 
-            immune_vec = np.logical_or(immune_vec , vaccine_vec)
+            immune_vec = np.logical_or(immune_vec , effectiveVaccinated)
         else:
             vaccine_vec = np.zeros(len(self.agent_df))
 
         self.agent_df["immunity"] = immune_vec
-        self.agent_df["vaccinated"]= vaccine_vec
+        self.agent_df["vaccinated"] = vaccine_vec
+        print(sum(vaccine_vec))
+        
+        self.vaccinated_id = [i for i, a in enumerate(vaccine_vec) if a == 1]
+        self.unvaccinated_id = [i for i, a in enumerate(vaccine_vec) if a == 0]
+       
+
 
     def generateAgentDfFromDf(self, counterColumn="totalCount"):
         """
@@ -840,6 +848,7 @@ class AgentBasedModel:
             self.config["Infection"]["SeedNumber"] = self.config["HybridClass"]["ChangedSeedNumber"]
         else:
             seedNumber = self.config["Infection"]["SeedNumber"]
+   
         seedState = self.config["Infection"]["SeedState"]
         onCampusIds = [agentId for agentId, agent in self.agents.items() if agent.Agent_type == "onCampus" and agent.immunity==0]
 
@@ -872,9 +881,7 @@ class AgentBasedModel:
             if mode == 0:
                 maskVec = np.zeros(len(self.agent_df))
             elif mode == 1:
-
-                
-                maskVec =np.ones(len(self.agent_df))- np.array(  list(self.agent_df["vaccinated"]))
+                maskVec =np.ones(len(self.agent_df))- np.array(list(self.agent_df["vaccinated"]))
                 print(sum(maskVec), sum(list(self.agent_df["vaccinated"])))               
               
             elif mode == 2:
@@ -898,6 +905,22 @@ class AgentBasedModel:
         self.screeningTime = []
         if self.config["Quarantine"]["RandomSampling"]: # do nothing if quarantine screening is with random samples from the population
             self.groupIds = [agentId for agentId, agent in self.agents.items() if agent.Agent_type != "faculty"]
+        elif self.config["Quarantine"]["OnlySampleUnvaccinated"]:
+          
+            totalIds = set([agentId for agentId, agent in self.agents.items() if agent.vaccinated == 0])
+            print("*"*20)
+            
+            size = len(totalIds)
+            print("size is", size)
+            self.groupIds = []
+            batchSize = int(size/4)+1
+            while len(totalIds) > 0:
+                sampledIds = np.random.choice(list(totalIds), size=min(len(totalIds), batchSize),replace=False)
+                totalIds -= set(sampledIds)
+                self.groupIds.append(list(sampledIds))
+
+            self.quarantineGroupNumber, self.quarantineGroupIndex = len(self.groupIds), 0
+        
         else: # the population is split in smaller groups and after every interval we cycle through the groups in order and screen each member in the group
             totalIds = set([agentId for agentId, agent in self.agents.items() if agent.archetype == "student"])
             size = len(self.agents)
@@ -910,6 +933,7 @@ class AgentBasedModel:
                 self.groupIds.append(list(sampledIds))
 
             self.quarantineGroupNumber, self.quarantineGroupIndex = len(self.groupIds), 0
+        print("here, there are", len(self.groupIds), "batches")
 
     def initializeClosingBuilding(self):
 
@@ -1244,11 +1268,12 @@ class AgentBasedModel:
                 self.infection()
 
             # if weekdays
-            if self.dateDescriptor != "W" or self.dateDescriptor!="LS":
+            if self.dateDescriptor != "W" and self.dateDescriptor!="LS":
                 if modTime == 8:
                     self.checkForWalkIn()
                 if self.quarantine_intervention and self.time%self.quarantineInterval == self.config["Quarantine"]["offset"]:
                     self.testForDisease()
+               
             if modTime == self.config["Quarantine"]["offset"]:
                 self.delayed_quarantine()
             # its a weekend and sunday midnight
@@ -1505,6 +1530,10 @@ class AgentBasedModel:
         """
         if self.config["Quarantine"]["RandomSampling"]: # if random
             listOfId = np.random.choice(self.groupIds, size=self.config["Quarantine"]["RandomSampleSize"], replace=False)
+        elif self.config["Quarantine"]["OnlySampleUnvaccinated"]:
+            listOfId = [agentId for agentId in self.groupIds[self.quarantineGroupIndex] if self.agents[agentId].state != "quarantined"]
+            self.quarantineGroupIndex = (self.quarantineGroupIndex+1)% self.quarantineGroupNumber
+
         else: # we cycle through groups to check infected
             listOfId = [agentId for agentId in self.groupIds[self.quarantineGroupIndex] if self.agents[agentId].state != "quarantined"]
             self.quarantineGroupIndex = (self.quarantineGroupIndex+1)% self.quarantineGroupNumber
@@ -1523,6 +1552,7 @@ class AgentBasedModel:
             #print("we have ", len(listOfId), "in testing and ", len(nonComplyingAgent), "didnt show up")
             listOfId = list(set(listOfId) - set(nonComplyingAgent))
             #print("new size:", len(listOfId))
+    
         fpDelayedList, delayedList = [], []
         falsePositiveMask = np.random.random(len(listOfId))
         falsePositiveResult = []
@@ -1809,7 +1839,7 @@ def main():
         },
         "Infection" : {
             "baseP" : 1.15,
-            "SeedNumber" : 10,
+            "SeedNumber" : 100,
             "SeedState" : "exposed",
             "Contribution" : {
                 "infected Asymptomatic":0.5,
