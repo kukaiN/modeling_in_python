@@ -2,7 +2,8 @@ import model_framework
 import platform
 import statfile
 import copy
-
+import fileRelated
+import pandas as pd
 
 def main():
     """intialize and run the model, for indepth detail about the config or how to run the code, go to the github page for this code"""
@@ -34,7 +35,7 @@ def main():
             "ExtraParameters": ["buildingId","roomsInside"],
         },
         "Infection" : {
-            "baseP" : 1.25,
+            "baseP" : 0.75,  # summer was 1.25
             "SeedNumber" : 10,
             "SeedState" : "exposed",
             "Contribution" : {
@@ -256,7 +257,8 @@ def main():
                 ("ChangedSeedNumber", 7),
             ],
         },
-
+    }
+    original_3x3 = {
         "NC_WP":{
             # N = 150, L = 4, B = {G, L}, D = 0
             # f = 0, c = 0.80, h = 0.50, s' = 0
@@ -529,6 +531,15 @@ def main():
             ("baseP" , 1.25),
             ("SeedNumber", 100),
         ],
+        "HybridClass":[
+            ("ChangedSeedNumber", 10),
+        ],
+    }
+    # this overrides the previous experiments, since base_p is being chnaged
+    R0_controls = {
+        "World" : [
+            ("DynamicCapacity", False),
+            ],
         "HybridClass":[
             ("ChangedSeedNumber", 10),
         ],
@@ -977,6 +988,33 @@ def main():
         }
     }
 
+    base_p_experiments = {
+        "p1.00": {"Infection" : [("baseP" , 1.00)],},
+        "p1.05": {"Infection" : [("baseP" , 1.05)],},
+        "p1.10": {"Infection" : [("baseP" , 1.10)],},
+        "p1.15": {"Infection" : [("baseP" , 1.15)],},
+        "p1.20": {"Infection" : [("baseP" , 1.20)],},
+        "p1.25": {"Infection" : [("baseP" , 1.25)],},
+        "p1.30": {"Infection" : [("baseP" , 1.30)],},
+        "p1.35": {"Infection" : [("baseP" , 1.35)],},
+        "p1.40": {"Infection" : [("baseP" , 1.40)],},
+        "p1.45": {"Infection" : [("baseP" , 1.45)],},
+        "p1.50": {"Infection" : [("baseP" , 1.50)],},
+    }
+    base_p_initial_count_experiment = {
+        "p125_10" : { "Infection" : [("baseP" , 1.25), ("SeedNumber", 10)]},
+        "p125_20" : {"Infection" : [("baseP" , 1.25), ("SeedNumber", 20)]},
+        "p125_30" : {"Infection" : [("baseP" , 1.25), ("SeedNumber", 30)]},
+        "p125_40" : {"Infection" : [("baseP" , 1.25), ("SeedNumber", 40)]},
+        "p125_50" : {"Infection" : [("baseP" , 1.25), ("SeedNumber", 50)]},
+        "p125_60" : {"Infection" : [("baseP" , 1.25), ("SeedNumber", 60)]},
+        "p125_70" : {"Infection" : [("baseP" , 1.25), ("SeedNumber", 70)]},
+        "p125_80" : {"Infection" : [("baseP" , 1.25), ("SeedNumber", 80)]},
+        "p125_90" : {"Infection" : [("baseP" , 1.25), ("SeedNumber", 90)]},
+        "p125_100" : {"Infection" : [("baseP" , 1.25), ("SeedNumber", 100)]},
+
+    }
+
     def cross_screnarios(scenario1, scenario2):
         experiments = {}
         for keyname, experiment1 in scenario1.items():
@@ -998,23 +1036,23 @@ def main():
 
     basemodel = {"basemodel": {}}
     #for index, (modelName, modelControl) in enumerate(experiment2.items()):
-    for index, (modelName, modelControl) in enumerate(experiment3.items()):
+    for index, (modelName, modelControl) in enumerate(original_3x3.items()):
         
-        
+        print("finished", index)
         configCopy = copy.deepcopy(modelConfig)
-        print("*"*20)
-        print(configCopy["Agents"].keys())
-        print("*"*20)
-        print(f"started working on initializing the simualtion for {modelName}")
+        #print("*"*20)
+        #print(configCopy["Agents"].keys())
+        #print("*"*20)
+        #print(f"started working on initializing the simualtion for {modelName}")
         for categoryKey, listOfControls in modelControl.items():
-            print(listOfControls)
+            #print(listOfControls)
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
 
-        R0Count, multiCounts = 40, 40
+        R0Count, multiCounts = 100, 100
 
-        print(configCopy)
-        if index > -1:
+        #print(configCopy)
+        if index >-1:
             #model_framework.simpleCheck(configCopy, days=10, visuals=True, debug=True, modelName=modelName)
             InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName)
             R0Dict[modelName] = model_framework.R0_simulation(configCopy, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
@@ -1022,12 +1060,20 @@ def main():
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev))
     print(InfectedCountDict.items())
     print(R0Dict.items())
-
+    
     if True:
+       
+
         simulationGeneration = "0"
         saveName = "comparingModels_"+simulationGeneration
         statfile.comparingBoxPlots(R0Dict, plottedData="R0", saveName=saveName)
         statfile.comparingBoxPlots(InfectedCountDict ,plottedData="inf", saveName=saveName)
+
+        for key, value in R0Dict.items():
+            R0Dict[key] = value[0]
+        R0_df = pd.DataFrame(R0Dict)
+        fileRelated.save_df_to_csv(fileRelated.fullPath("R0_data.csv", "outputs"), R0_df)
+
     else:
         #statfile.generateVisualByLoading(ControlledExperiment, plottedData="inf", saveName=saveName)
         model_framework.createFilledPlot(modelConfig, modelName="baseModel",

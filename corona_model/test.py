@@ -138,4 +138,8 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     pass
+    stuff = {'a': [1, 1, 1], "b": [2, 2, 2]}
+    df = pd.DataFrame(stuff)
+    print(df)
+
     #profile.runctx('model_framework.main()', globals(), {})

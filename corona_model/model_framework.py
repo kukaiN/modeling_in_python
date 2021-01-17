@@ -64,7 +64,7 @@ def multiSimulation(simulationCount, modelConfig, days, debug, modelName):
     dfobj = pd.DataFrame.from_dict(multiResults, orient="index")
     flr.save_df_to_csv(flr.fullPath(modelName+".csv", "outputs"), dfobj)
     flr.save_df_to_csv(flr.fullPath(modelName+"_infCount.csv", "outputs"), newDfObj)
-    print(infectionData)
+    #print(infectionData)
     return infectionData
 
 def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="default"):
@@ -81,7 +81,7 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
             return 0
     else:
         model = flr.loadUsingDill(pickleName)
-        print("loaded pickled object successfully")
+        #print("loaded pickled object successfully")
     # start initialization and configuration
     model.initializeAndConfigureObjects()
     model.initializeStoringParameter(
@@ -124,7 +124,7 @@ def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeri
     days=20
     t1 = time.time()
     for i in range(simulationN):
-        print("*"*20, "starting model")
+        #print("*"*20, "starting model")
         new_model = copy.deepcopy(model)
         # start initialization and configuration
         new_model.initializeAndConfigureObjects()
@@ -144,20 +144,20 @@ def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeri
             for key, value in logDataDict.items():
                 max_limits[key] = max_limits.get(key, []) + [value]
         R0Values.append(new_model.returnR0())
-        print(f"finished {(i+1)/simulationN*100}% of cases")
+        #print(f"finished {(i+1)/simulationN*100}% of cases")
     if debug:
         for key, value in max_limits.items():
             print(key, "max is the following:", value)
-    print("R0 is", R0Values)
+    #print("R0 is", R0Values)
     if timeSeriesVisual:
         new_model.visualOverTime()
-    print("time:", time.time()-t1)
+    #print("time:", time.time()-t1)
     data = statfile.analyzeData(R0Values)
     pickleName = flr.fullPath(modelName+"R0Data.pkl", "picklefile")
     # save the data just in case
     flr.saveUsingDill(pickleName, R0Values)
-    print(data)
-    print("(npMean, stdev, rangeVal, median)")
+    #print(data)
+    #print("(npMean, stdev, rangeVal, median)")
     if R0Visuals:
         statfile.boxplot(R0Values,oneD=True, pltTitle="R0 Simulation (box)", xlabel="Model Name",
              ylabel="Infected people (R0)", labels=[modelName], savePlt=True, saveName=modelName)
@@ -464,8 +464,8 @@ class AgentBasedModel:
         self.hybridClass_intervention = inInterventions("HybridClasses")
         self.lessSocial_intervention = inInterventions("LessSocial")
         self.largeGathering = self.config["World"]["LargeGathering"]
-        print("the following interventions are turned on/off:")
-        print(f" (Facemask, {self.faceMask_intervention}), (Quarantine, {self.quarantine_intervention}), (Closed,  {self.closedBuilding_intervention}), (Hybrid, {self.hybridClass_intervention}), (Less Social, {self.lessSocial_intervention})")
+        #print("the following interventions are turned on/off:")
+        #print(f" (Facemask, {self.faceMask_intervention}), (Quarantine, {self.quarantine_intervention}), (Closed,  {self.closedBuilding_intervention}), (Hybrid, {self.hybridClass_intervention}), (Less Social, {self.lessSocial_intervention})")
 
     def configureDebug(self, debugBool):
         """
@@ -491,7 +491,7 @@ class AgentBasedModel:
             agent's immunity.
         """
         immuneRatio = self.config["Agents"]["immunity"]
-        print(immuneRatio)
+        #print(immuneRatio)
         size = int(len(self.agent_df)*immuneRatio)
         immune_vec = np.concatenate((np.ones(size), np.zeros(len(self.agent_df)-size)), axis=0)
         np.random.shuffle(immune_vec)
@@ -501,7 +501,7 @@ class AgentBasedModel:
             vaccine_effectiveness = self.config["Agents"]["vaccineEffectiveness"]
             # ask if its deterministic
             vaccinated = int(len(self.agent_df)*vaccinated_ratio)
-            print(vaccinated_ratio)
+            #print(vaccinated_ratio)
             vaccine_vec = np.concatenate((np.ones(vaccinated), np.zeros(len(self.agent_df)-vaccinated)), axis=0)
             np.random.shuffle(vaccine_vec)
             effectiveVaccinated = [0 if val == 0 else (1 if random.random() < vaccine_effectiveness else 0) for val in vaccine_vec]
@@ -512,7 +512,7 @@ class AgentBasedModel:
 
         self.agent_df["immunity"] = immune_vec
         self.agent_df["vaccinated"] = vaccine_vec
-        print(sum(vaccine_vec))
+        #print(sum(vaccine_vec))
         
         self.vaccinated_id = [i for i, a in enumerate(vaccine_vec) if a == 1]
         self.unvaccinated_id = [i for i, a in enumerate(vaccine_vec) if a == 0]
@@ -721,17 +721,17 @@ class AgentBasedModel:
         """
         # convert agent's location to the corresponding room_id and add the agent's id to the room member
         # initialize
-        print("*"*20, "intializing Agents")
+        #print("*"*20, "intializing Agents")
         possibleBType = {building.building_type for building in self.buildings.values()}
         counter = [0, 0, 0]
         if self.hybridClass_intervention:
             dorms = self.findMatchingRooms("building_type", "dorm")
             doubleRooms = [roomId for roomId in dorms if self.rooms[roomId].capacity == 2]
             convertCount = min(len(doubleRooms), self.config["HybridClass"]["RemovedDoubleCount"])
-            print(f"{len(dorms) -len(doubleRooms)} single dorms and {len(doubleRooms)} doubles")
+            #print(f"{len(dorms) -len(doubleRooms)} single dorms and {len(doubleRooms)} doubles")
             for roomId in np.random.choice(doubleRooms, size=convertCount, replace=False):
                 self.rooms[roomId].capacity = 1
-            print("NewCap", sum(self.rooms[roomId].capacity for roomId in dorms) ,"and we have", self.countAgents("onCampus", "Agent_type"), 'oncampusStudents but', self.countAgents("dorm", "initial_location"), "in dorm")
+            #print("NewCap", sum(self.rooms[roomId].capacity for roomId in dorms) ,"and we have", self.countAgents("onCampus", "Agent_type"), 'oncampusStudents but', self.countAgents("dorm", "initial_location"), "in dorm")
         dormRoom = self.findMatchingRooms("building_type", "dorm")
 
         for agentId, agent in self.agents.items():
@@ -767,7 +767,7 @@ class AgentBasedModel:
                 spCounter[1]+=1
             else:
                 spCounter[2]+=1
-        print("# of rooms filled with [2 people, 1 , 0]", spCounter)
+        #print("# of rooms filled with [2 people, 1 , 0]", spCounter)
 
     #@functools.lru_cache(maxsize=128)
     def findMatchingRooms(self, partitionAttr, attrVal=None, strType=False):
@@ -823,7 +823,7 @@ class AgentBasedModel:
 
             maxDict[buildingType] = max(maxDict.get(buildingType, 0), max(value))
             scheduleDict[self.rooms[key].room_name] = a
-        print("distribution of social", [(k, v) for  k, v, in sorted(socialCount.items())])
+        #print("distribution of social", [(k, v) for  k, v, in sorted(socialCount.items())])
         nodes = ["gym", "library", "offCampus", "social"]
         for node in nodes:
             if self._debug:
@@ -895,7 +895,7 @@ class AgentBasedModel:
                 agent.compliance = True
             else:
                 agent.compliance = False
-        print("this many with facemask", counter)
+        #print("this many with facemask", counter)
 
     def initializeTestingAndQuarantine(self):
         self.quarantineInterval = self.config["Quarantine"]["checkupFrequency"]
@@ -908,10 +908,10 @@ class AgentBasedModel:
         elif self.config["Quarantine"]["OnlySampleUnvaccinated"]:
           
             totalIds = set([agentId for agentId, agent in self.agents.items() if agent.vaccinated == 0])
-            print("*"*20)
+            #print("*"*20)
             
             size = len(totalIds)
-            print("size is", size)
+            #print("size is", size)
             self.groupIds = []
             batchSize = int(size/4)+1
             while len(totalIds) > 0:
@@ -933,7 +933,7 @@ class AgentBasedModel:
                 self.groupIds.append(list(sampledIds))
 
             self.quarantineGroupNumber, self.quarantineGroupIndex = len(self.groupIds), 0
-        print("here, there are", len(self.groupIds), "batches")
+        #print("here, there are", len(self.groupIds), "batches")
 
     def initializeClosingBuilding(self):
 
@@ -941,7 +941,7 @@ class AgentBasedModel:
         closedBuildingId = [roomId for bType in closedBuilding for roomId in self.findMatchingRooms("building_type", bType)]
         closedLeafOpenHub = [roomId for bType in self.config["ClosingBuildings"]["ClosedBuildingOpenHub"] for roomId in self.findMatchingRooms("building_type", bType)]
         semiClosedBuilding = [roomId for bType in self.config["ClosingBuildings"]["Exception_SemiClosedBuilding"] for roomId in self.findMatchingRooms("building_type", bType)]
-        print("closed", closedLeafOpenHub)
+        #print("closed", closedLeafOpenHub)
         for roomId in closedLeafOpenHub:
             self.rooms[roomId].Kv = 0
         self.homeP = self.config["ClosingBuildings"]["GoingHomeP"]
@@ -1040,11 +1040,12 @@ class AgentBasedModel:
         if self.closedBuilding_intervention:
             closedBuilding, semiClosed = self.initializeClosingBuilding()
             closedBuilding, semiClosed = set(closedBuilding), set(semiClosed)
-            print("*"*20)
-            print([roomId for roomId in closedBuilding])
-            print([roomId for roomId in semiClosed])
-            print("*"*20)
-            print("going back to home with p =", self.homeP)
+            if self._debug:
+                print("*"*20)
+                print([roomId for roomId in closedBuilding])
+                print([roomId for roomId in semiClosed])
+                print("*"*20)
+                print("going back to home with p =", self.homeP)
             counter=[0,0]
             counterDict = dict()###################################################################################
             for index, schedule in enumerate(schedules):
@@ -1379,7 +1380,8 @@ class AgentBasedModel:
             loc = agent.updateLoc(self.time, self.adjacencyDict)
             if loc[0] != loc[1]:
                 # if the agent is coming back to the network from the offcampus node
-                if not self.R0Calculation and loc[0] == self.roomNameId["offCampus_hub"] and loc[1] == self.roomNameId[self.config["World"]["transitName"]] and self.time%24<12:
+                if (not self.R0Calculation and loc[0] == self.roomNameId["offCampus_hub"] and 
+                    loc[1] == self.roomNameId[self.config["World"]["transitName"]] and self.time%24<12):
                     if agent.state == "susceptible" and randomVec[index] < transitionP and agent.immunity == 0:
                         if self._debug:
                             print("*"*5, "changed state from susceptible to exposed through transit")
@@ -1725,18 +1727,19 @@ class AgentBasedModel:
             used to print relevant inormation
         """
         # type and count dictionary
-        print("*"*20, "abstactly represented location:")
-        print("large gathering", self.gathering_count)
-        print("*"*20, "breakdown for specific rooms:")
-        for building in self.buildings.values():
-            if building.building_type == "dining":
-                for roomId in building.roomsInside:
-                    if "faculty" in self.rooms[roomId].room_name:
-                        print(f"in {self.rooms[roomId].room_name}, there were {self.rooms[roomId].infectedNumber} infection")
-        print("*"*20, "filtering by building type:")
+        if self._debug:
+            print("*"*20, "abstactly represented location:")
+            print("large gathering", self.gathering_count)
+            print("*"*20, "breakdown for specific rooms:")
+            for building in self.buildings.values():
+                if building.building_type == "dining":
+                    for roomId in building.roomsInside:
+                        if "faculty" in self.rooms[roomId].room_name:
+                            print(f"in {self.rooms[roomId].room_name}, there were {self.rooms[roomId].infectedNumber} infection")
+            print("*"*20, "filtering by building type:")
 
-        for buildingType, count in self.infectedPerBuilding()[0].items():
-            print(buildingType, count)
+            for buildingType, count in self.infectedPerBuilding()[0].items():
+                print(buildingType, count)
 
 
     def infectedPerBuilding(self):
@@ -1766,7 +1769,8 @@ class AgentBasedModel:
         newdata = dict()
         newdata["largeGathering"] = self.gathering_count
         infectionInBuilding = self.infectedPerBuilding()
-        print(infectionInBuilding[1].items())
+        
+        #print(infectionInBuilding[1].items())
         for buildingType, count in infectionInBuilding[0].items():
             newdata[buildingType] = count
         infectionInBuilding[0]['largeGathering'] = self.gathering_count
@@ -1774,13 +1778,12 @@ class AgentBasedModel:
 
         print(f"p: {self.baseP}, R0: {self.R0Calculation}, total ever in exposed {totalExposed}, max infected {maxInfected}")
         otherData = {"total":totalExposed, "max":maxInfected}
-        print("here is the parameters dict")
-        print([(k, v[-1]) for k, v in self.parameters.items()])
+        #print("here is the parameters dict")
+        #print([(k, v[-1]) for k, v in self.parameters.items()])
         #x = int(self.time/self.config["World"]["stateCounterInterval"])+1
         #self.timeSeries[:x])
-        if not ((sum(infectionInBuilding[0].values())-totalExposed) in [10, 7, 5, -10, -7, -5]):
-            print("this data set_"*20)
-        print(sum(infectionInBuilding[0].values()), totalExposed, "differ", sum(infectionInBuilding[0].values())-totalExposed)
+      
+        #print(sum(infectionInBuilding[0].values()), totalExposed, "differ", sum(infectionInBuilding[0].values())-totalExposed)
         self.printRelevantInfo()
         return (newdata, otherData, data, totalExposed, infectionInBuilding[0], infectionInBuilding[1], len(self.agents), self.time, self.timeSeries)
 
