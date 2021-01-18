@@ -37,6 +37,7 @@ def main():
         "Infection" : {
             "baseP" : 0.75,  # summer was 1.25
             "SeedNumber" : 10,
+            "offCampusInfectionMultiplyer" : 8,
             "SeedState" : "exposed",
             "Contribution" : {
                 "infected Asymptomatic":0.5,
@@ -76,7 +77,7 @@ def main():
             "TurnedOnInterventions":[],# ["HybridClasses", "ClosingBuildings", "Quarantine", "Screening", "FaceMasks"],
 
             "transitName": "transit_space_hub",
-            "offCampusInfectionProbability":0.125/880,
+            "offCampusStudentCount":880,
             "massInfectionRatio":0.10,
             "complianceRatio": 0,
             "stateCounterInterval": 5,
@@ -100,7 +101,7 @@ def main():
             # this dictates if we randomly sample the population or cycle through Batches
             "RandomSampling": False,
             "RandomSampleSize": 100,
-            
+
             # for random sampling from the agent population
             "SamplingProbability" : 0,
             "ResultLatency":2*24,
@@ -139,7 +140,6 @@ def main():
         "LessSocializing":{
             "StayingHome":0.5
         }
-
     }
 
     # you can control for multiple interventions by adding a case:
@@ -925,7 +925,7 @@ def main():
                 ("OnlySampleUnvaccinated",True),
              ],
         },
-           
+
         "v3" : {
             "World": [
                  ("TurnedOnInterventions", ["FaceMasks",  "Quarantine"]),
@@ -945,7 +945,7 @@ def main():
                 ("OnlySampleUnvaccinated",True),
              ],
         },
-            
+
         "v4" : {
             "World": [
                  ("TurnedOnInterventions", ["FaceMasks",  "Quarantine"]),
@@ -1026,7 +1026,7 @@ def main():
                     experiments[experiment_name][key] = value.copy()
         return copy.deepcopy(experiments)
 
-    
+
     experiment2 = cross_screnarios(vaccine3, low_med)
     experiment3 =cross_screnarios(vaccine4, facemask3)
 
@@ -1037,7 +1037,7 @@ def main():
     basemodel = {"basemodel": {}}
     #for index, (modelName, modelControl) in enumerate(experiment2.items()):
     for index, (modelName, modelControl) in enumerate(original_3x3.items()):
-        
+
         print("finished", index)
         configCopy = copy.deepcopy(modelConfig)
         #print("*"*20)
@@ -1056,13 +1056,13 @@ def main():
             #model_framework.simpleCheck(configCopy, days=10, visuals=True, debug=True, modelName=modelName)
             InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName)
             R0Dict[modelName] = model_framework.R0_simulation(configCopy, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
-            
+
             # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev))
     print(InfectedCountDict.items())
     print(R0Dict.items())
-    
+
     if True:
-       
+
 
         simulationGeneration = "0"
         saveName = "comparingModels_"+simulationGeneration

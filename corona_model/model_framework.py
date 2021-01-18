@@ -513,10 +513,10 @@ class AgentBasedModel:
         self.agent_df["immunity"] = immune_vec
         self.agent_df["vaccinated"] = vaccine_vec
         #print(sum(vaccine_vec))
-        
+
         self.vaccinated_id = [i for i, a in enumerate(vaccine_vec) if a == 1]
         self.unvaccinated_id = [i for i, a in enumerate(vaccine_vec) if a == 0]
-       
+
 
 
     def generateAgentDfFromDf(self, counterColumn="totalCount"):
@@ -848,7 +848,7 @@ class AgentBasedModel:
             self.config["Infection"]["SeedNumber"] = self.config["HybridClass"]["ChangedSeedNumber"]
         else:
             seedNumber = self.config["Infection"]["SeedNumber"]
-   
+
         seedState = self.config["Infection"]["SeedState"]
         onCampusIds = [agentId for agentId, agent in self.agents.items() if agent.Agent_type == "onCampus" and agent.immunity==0]
 
@@ -882,12 +882,12 @@ class AgentBasedModel:
                 maskVec = np.zeros(len(self.agent_df))
             elif mode == 1:
                 maskVec =np.ones(len(self.agent_df))- np.array(list(self.agent_df["vaccinated"]))
-                print(sum(maskVec), sum(list(self.agent_df["vaccinated"])))               
-              
+                print(sum(maskVec), sum(list(self.agent_df["vaccinated"])))
+
             elif mode == 2:
                 maskVec = np.ones(len(self.agent_df))
-            
-        
+
+
         counter=0
         for i, agent in enumerate(self.agents.values()):
             if maskVec[i] > 0.5:
@@ -906,10 +906,10 @@ class AgentBasedModel:
         if self.config["Quarantine"]["RandomSampling"]: # do nothing if quarantine screening is with random samples from the population
             self.groupIds = [agentId for agentId, agent in self.agents.items() if agent.Agent_type != "faculty"]
         elif self.config["Quarantine"]["OnlySampleUnvaccinated"]:
-          
+
             totalIds = set([agentId for agentId, agent in self.agents.items() if agent.vaccinated == 0])
             #print("*"*20)
-            
+
             size = len(totalIds)
             #print("size is", size)
             self.groupIds = []
@@ -920,7 +920,7 @@ class AgentBasedModel:
                 self.groupIds.append(list(sampledIds))
 
             self.quarantineGroupNumber, self.quarantineGroupIndex = len(self.groupIds), 0
-        
+
         else: # the population is split in smaller groups and after every interval we cycle through the groups in order and screen each member in the group
             totalIds = set([agentId for agentId, agent in self.agents.items() if agent.archetype == "student"])
             size = len(self.agents)
@@ -1274,7 +1274,7 @@ class AgentBasedModel:
                     self.checkForWalkIn()
                 if self.quarantine_intervention and self.time%self.quarantineInterval == self.config["Quarantine"]["offset"]:
                     self.testForDisease()
-               
+
             if modTime == self.config["Quarantine"]["offset"]:
                 self.delayed_quarantine()
             # its a weekend and sunday midnight
@@ -1372,7 +1372,7 @@ class AgentBasedModel:
         """call the update function on each person"""
         # change location if the old and new location is different
         index = 0
-        transitionP = self.config["World"]["offCampusInfectionProbability"]
+        transitionP =  (self.config["Infection"]["offCampusInfectionMultiplyer"]*self.baseP)/self.config["World"]["offCampusStudentCount"]
         offCampusNumber = len(self.rooms[self.roomNameId["offCampus_hub"]].agentsInside)
         if not self.R0Calculation and offCampusNumber > 0 and self.time%24 < 12:
             randomVec = np.random.random(offCampusNumber)
@@ -1380,7 +1380,7 @@ class AgentBasedModel:
             loc = agent.updateLoc(self.time, self.adjacencyDict)
             if loc[0] != loc[1]:
                 # if the agent is coming back to the network from the offcampus node
-                if (not self.R0Calculation and loc[0] == self.roomNameId["offCampus_hub"] and 
+                if (not self.R0Calculation and loc[0] == self.roomNameId["offCampus_hub"] and
                     loc[1] == self.roomNameId[self.config["World"]["transitName"]] and self.time%24<12):
                     if agent.state == "susceptible" and randomVec[index] < transitionP and agent.immunity == 0:
                         if self._debug:
@@ -1554,7 +1554,7 @@ class AgentBasedModel:
             #print("we have ", len(listOfId), "in testing and ", len(nonComplyingAgent), "didnt show up")
             listOfId = list(set(listOfId) - set(nonComplyingAgent))
             #print("new size:", len(listOfId))
-    
+
         fpDelayedList, delayedList = [], []
         falsePositiveMask = np.random.random(len(listOfId))
         falsePositiveResult = []
@@ -1769,7 +1769,7 @@ class AgentBasedModel:
         newdata = dict()
         newdata["largeGathering"] = self.gathering_count
         infectionInBuilding = self.infectedPerBuilding()
-        
+
         #print(infectionInBuilding[1].items())
         for buildingType, count in infectionInBuilding[0].items():
             newdata[buildingType] = count
@@ -1782,7 +1782,7 @@ class AgentBasedModel:
         #print([(k, v[-1]) for k, v in self.parameters.items()])
         #x = int(self.time/self.config["World"]["stateCounterInterval"])+1
         #self.timeSeries[:x])
-      
+
         #print(sum(infectionInBuilding[0].values()), totalExposed, "differ", sum(infectionInBuilding[0].values())-totalExposed)
         self.printRelevantInfo()
         return (newdata, otherData, data, totalExposed, infectionInBuilding[0], infectionInBuilding[1], len(self.agents), self.time, self.timeSeries)
@@ -1882,7 +1882,7 @@ def main():
             "TurnedOnInterventions":[],# ["HybridClasses", "ClosingBuildings", "Quarantine", "FaceMasks"],
 
             "transitName": "transit_space_hub",
-            "offCampusInfectionProbability":0.125/880,
+
             "massInfectionRatio":0.10,
             "complianceRatio": 0,
             "stateCounterInterval": 5,
