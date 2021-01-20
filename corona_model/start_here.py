@@ -35,7 +35,7 @@ def main():
             "ExtraParameters": ["buildingId","roomsInside"],
         },
         "Infection" : {
-            "baseP" : 0.75,  # summer was 1.25
+            "baseP" : 1.25,  # summer was 1.25
             "SeedNumber" : 10,
             "offCampusInfectionMultiplyer" : 8,
             "SeedState" : "exposed",
