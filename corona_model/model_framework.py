@@ -611,8 +611,8 @@ class AgentBasedModel:
         tempDict = func(dfRef, slotVal)
         numObj, objVal = len(tempDict), list(tempDict.values())
         className = objVal[0].__class__.__name__ if numObj > 0 else ""
-        if self._debug:
-            print(f"creating {numObj} {className} class objects, each obj will have {len(slotVal)} attributes, __slots__ = {slotVal}")
+        #if self._debug:
+        #    print(f"creating {numObj} {className} class objects, each obj will have {len(slotVal)} attributes, __slots__ = {slotVal}")
         return tempDict
 
     def addRoomsToBuildings(self):
