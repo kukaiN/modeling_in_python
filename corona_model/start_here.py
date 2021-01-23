@@ -196,9 +196,9 @@ def main():
     experiment1 = experiment.original_3x3
     experiment2 = cross_scenarios(experiment.different_base_p_jump_025, experiment.medium_student_vary_policy)
     experiment3 = cross_scenarios(experiment.medium_student_vary_policy, experiment.off_campus_multiplier)
-    print(len(experiment3))
+    #print(len(experiment3))
     #print_nicely(experiment3)
-    return 
+    
     R0Dict = dict()
     InfectedCountDict = dict()
 
