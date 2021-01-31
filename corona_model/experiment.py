@@ -1,3 +1,27 @@
+only_medium = {"SC_WP":{
+            # N = 150, L = 4, B = {G, L}, D = 0
+            # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
+            "World": [
+                ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
+                ("ComplianceRatio", 0.5), # f = 0.5
+            ],
+            "Quarantine": [
+                ("ResultLatency", 4*24), # L = 4
+                ("BatchSize", 150), # N=150
+                ("ShowingUpForScreening", 0.9), # c = 0.9#############
+            ],
+            "ClosingBuildings": [
+            ("ClosedBuildingOpenHub", []),
+            ("ClosedBuilding_ByType", ["gym", "library"]),
+            ("GoingHomeP", 0.75), # h = 0.75 ##################
+            ("Exception_SemiClosedBuilding", []),
+            ("Exception_GoingHomeP", 0.75),
+            ],
+            "LessSocializing":[
+                ("StayingHome",0.25), # s' = 0.25 ######################
+            ],
+        },}
+
 medium_student_vary_policy = {
     "SC_WP":{
             # N = 150, L = 4, B = {G, L}, D = 0
@@ -91,6 +115,35 @@ off_campus_multiplier = {
     "OCM_2x": {"Infection" : [("offCampusInfectionMultiplyer", 2)]},
     "OCM_4x": {"Infection" : [("offCampusInfectionMultiplyer", 4)]},
     "OCM_8x": {"Infection" : [("offCampusInfectionMultiplyer", 8)]},
+}
+original_multiplier = {
+    "OCM_0.1x": {"Infection" : [("offCampusInfectionMultiplyer", 0.1)]}
+}
+new_batch1 = {
+    "BTC_150": {"Quarantine": [("BatchSize", 150)]},
+    "BTC_160": {"Quarantine": [("BatchSize", 160)]},
+    "BTC_170": {"Quarantine": [("BatchSize", 170)]},
+    "BTC_180": {"Quarantine": [("BatchSize", 180)]},
+    "BTC_190": {"Quarantine": [("BatchSize", 190)]},
+    "BTC_200": {"Quarantine": [("BatchSize", 200)]},
+    "BTC_210": {"Quarantine": [("BatchSize", 210)]},
+    "BTC_220": {"Quarantine": [("BatchSize", 220)]},
+    "BTC_230": {"Quarantine": [("BatchSize", 230)]},
+    "BTC_240": {"Quarantine": [("BatchSize", 240)]},
+    "BTC_250": {"Quarantine": [("BatchSize", 250)]},
+}
+new_batch2 = {
+    "BTC_275": {"Quarantine": [("BatchSize", 275)]},
+    "BTC_300": {"Quarantine": [("BatchSize", 300)]},
+    "BTC_350": {"Quarantine": [("BatchSize", 350)]},
+    "BTC_400": {"Quarantine": [("BatchSize", 400)]},
+    "BTC_450": {"Quarantine": [("BatchSize", 450)]},
+    "BTC_500": {"Quarantine": [("BatchSize", 500)]},
+    "BTC_550": {"Quarantine": [("BatchSize", 550)]},
+    "BTC_600": {"Quarantine": [("BatchSize", 600)]},
+    "BTC_650": {"Quarantine": [("BatchSize", 650)]},
+    "BTC_700": {"Quarantine": [("BatchSize", 700)]},
+
 }
 
 new_ControlledExperiment1 = {
@@ -948,3 +1001,4 @@ original_3x3 = {
         ]
     },
 }
+

@@ -198,13 +198,17 @@ def main():
     experiment3 = cross_scenarios(experiment.medium_student_vary_policy, experiment.off_campus_multiplier)
     #print(len(experiment3))
     #print_nicely(experiment3)
+    experiment4 = cross_scenarios(experiment.only_medium, experiment.original_multiplier)
+    experiment5 = cross_scenarios(experiment.medium_student_vary_policy, experiment.original_multiplier)
     
+    experiment4 = cross_scenarios(experiment4, experiment.new_batch1)
+    experiment5 = cross_scenarios(experiment5, experiment.new_batch2)
     R0Dict = dict()
     InfectedCountDict = dict()
 
     basemodel = {"basemodel": {}}
     
-    for index, (modelName, modelControl) in enumerate(experiment2.items()):
+    for index, (modelName, modelControl) in enumerate(experiment4.items()):
 
         print("finished", index)
         configCopy = copy.deepcopy(modelConfig)
@@ -217,10 +221,10 @@ def main():
             for (specificKey, specificValue) in listOfControls:
                 configCopy[categoryKey][specificKey] = specificValue
 
-        R0Count, multiCounts = 100, 100
+        R0Count, multiCounts = 20, 40
 
         #print(configCopy)
-        if index >-1:
+        if index > -1:
             #model_framework.simpleCheck(configCopy, days=10, visuals=True, debug=True, modelName=modelName)
             InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName)
             R0Dict[modelName] = model_framework.R0_simulation(configCopy, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)

@@ -495,7 +495,7 @@ class AgentBasedModel:
         size = int(len(self.agent_df)*immuneRatio)
         immune_vec = np.concatenate((np.ones(size), np.zeros(len(self.agent_df)-size)), axis=0)
         np.random.shuffle(immune_vec)
-
+        # checked its all 0 in base case
         if self.config["Agents"]["vaccine"]:
             vaccinated_ratio = self.config["Agents"]["vaccinatedPopulation"]
             vaccine_effectiveness = self.config["Agents"]["vaccineEffectiveness"]
@@ -1268,7 +1268,7 @@ class AgentBasedModel:
                         self.hub_infection()
                 self.infection()
 
-            # if weekdays
+            # if weekdays ######right here 
             if self.dateDescriptor != "W" and self.dateDescriptor!="LS":
                 if modTime == 8:
                     self.checkForWalkIn()
