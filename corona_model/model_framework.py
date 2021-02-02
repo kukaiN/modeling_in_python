@@ -1268,12 +1268,15 @@ class AgentBasedModel:
                         self.hub_infection()
                 self.infection()
 
-            # if weekdays ######right here 
-            if self.dateDescriptor != "W" and self.dateDescriptor!="LS":
-                if modTime == 8:
+           
+            if self.dateDescriptor != "W" or self.dateDescriptor!="LS":
+                if modTime == 8: # if its 8AM people go checkin if they feel bad
                     self.checkForWalkIn()
+                #if self.dateDescriptor != "W" or self.dateDescriptor!="LS":
+                # this checks if the intervention it turned on and if it is the next testing period
                 if self.quarantine_intervention and self.time%self.quarantineInterval == self.config["Quarantine"]["offset"]:
-                    self.testForDisease()
+                    self.testForDisease()  # people are in specific groups and the group is called for testing
+                    
 
             if modTime == self.config["Quarantine"]["offset"]:
                 self.delayed_quarantine()
@@ -1546,7 +1549,6 @@ class AgentBasedModel:
             notSymptomatic = {agentId for agentId in listOfId
                     if self.agents[agentId].state != "infected Symptomatic Mild"
                     and self.agents[agentId].state != "infected Symptomatic Severe"
-
                     }
             randomVec = np.random.random(len(notSymptomatic))
             complyingP = self.config["Quarantine"]["ShowingUpForScreening"]
@@ -1554,12 +1556,12 @@ class AgentBasedModel:
             #print("we have ", len(listOfId), "in testing and ", len(nonComplyingAgent), "didnt show up")
             listOfId = list(set(listOfId) - set(nonComplyingAgent))
             #print("new size:", len(listOfId))
-
+            #print(len(listOfId))
         fpDelayedList, delayedList = [], []
         falsePositiveMask = np.random.random(len(listOfId))
         falsePositiveResult = []
         for i, agentId in enumerate(listOfId):
-            if falsePositiveMask[i] < self.config["Quarantine"]["falsePositive"] and self.agents[agentId].state == "susceptible":
+            if falsePositiveMask[i] < self.config["Quarantine"]["falsePositive"]:
                 falsePositiveResult.append(agentId)
         normalScreeningId = list(set(listOfId) - set(falsePositiveResult))
         # these people had false positive results and are quarantined

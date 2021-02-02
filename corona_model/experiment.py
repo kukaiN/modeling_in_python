@@ -132,6 +132,9 @@ new_batch1 = {
     "BTC_240": {"Quarantine": [("BatchSize", 240)]},
     "BTC_250": {"Quarantine": [("BatchSize", 250)]},
 }
+sp_batch1 = {
+    "BTC_200": {"Quarantine": [("BatchSize", 200)]},
+}
 new_batch2 = {
     "BTC_275": {"Quarantine": [("BatchSize", 275)]},
     "BTC_300": {"Quarantine": [("BatchSize", 300)]},
