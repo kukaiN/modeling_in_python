@@ -116,9 +116,7 @@ off_campus_multiplier = {
     "OCM_4x": {"Infection" : [("offCampusInfectionMultiplyer", 4)]},
     "OCM_8x": {"Infection" : [("offCampusInfectionMultiplyer", 8)]},
 }
-original_multiplier = {
-    "OCM_0.1x": {"Infection" : [("offCampusInfectionMultiplyer", 0.1)]}
-}
+
 new_batch1 = {
     "BTC_150": {"Quarantine": [("BatchSize", 150)]},
     "BTC_160": {"Quarantine": [("BatchSize", 160)]},

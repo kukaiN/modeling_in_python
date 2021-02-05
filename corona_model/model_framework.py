@@ -36,7 +36,7 @@ def clock(func):
         return result
     return clocked
 
-def multiSimulation(simulationCount, modelConfig, days, debug, modelName):
+def multiSimulation(simulationCount, modelConfig, days, debug, modelName, outputDir="outputs"):
     """
         run multiple simulations and return the location where the infection occured, the total number infected, and the max infected
     """
@@ -62,19 +62,19 @@ def multiSimulation(simulationCount, modelConfig, days, debug, modelName):
 
     newDfObj = pd.DataFrame.from_dict(newDict, orient="index")
     dfobj = pd.DataFrame.from_dict(multiResults, orient="index")
-    flr.save_df_to_csv(flr.fullPath(modelName+".csv", "outputs"), dfobj)
-    flr.save_df_to_csv(flr.fullPath(modelName+"_infCount.csv", "outputs"), newDfObj)
+    flr.save_df_to_csv(flr.fullPath(modelName+".csv", outputDir), dfobj)
+    flr.save_df_to_csv(flr.fullPath(modelName+"_infCount.csv", outputDir), newDfObj)
     #print(infectionData)
     return infectionData
 
-def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="default"):
+def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="default", outputDir="outputs"):
     """
         runs one simulatons with the given config and showcase the number of infection and the graph
     """
     loadDill, saveDill = False, False
     pickleName = flr.fullPath("coronaModel.pkl", "picklefile")
     if not loadDill:
-        model = createModel(modelConfig, debug=debug)
+        model = createModel(modelConfig, debug=debug) # this is the usual path
         if saveDill:
             flr.saveUsingDill(pickleName, model)
             # save an instance for faster loading
@@ -100,14 +100,14 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
     #    print(description, tupVal)
     if visuals:
         fileformat = ".png"
-        model.visualOverTime(False, True, flr.fullPath(modelName+fileformat, "outputs"))
+        model.visualOverTime(False, True, flr.fullPath(modelName+fileformat, outputDir))
         modelName+="_total"
-        model.visualOverTime(True, True, flr.fullPath(modelName+fileformat, "outputs"))
+        model.visualOverTime(True, True, flr.fullPath(modelName+fileformat, outputDir))
     #model.visualizeBuildings()
     # return (newdata, otherData, data, totalExposed)
     return model.outputs()
 
-def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeriesVisual=False, R0Visuals=False, modelName="default"):
+def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeriesVisual=False, R0Visuals=False, modelName="default", outputDir="outputs"):
     R0Values = []
     configCopy = copy.deepcopy(modelConfig)
     for key, tups in R0Control.items():
@@ -155,18 +155,18 @@ def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeri
     data = statfile.analyzeData(R0Values)
     pickleName = flr.fullPath(modelName+"R0Data.pkl", "picklefile")
     # save the data just in case
-    flr.saveUsingDill(pickleName, R0Values)
+    #flr.saveUsingDill(pickleName, R0Values)
     #print(data)
     #print("(npMean, stdev, rangeVal, median)")
     if R0Visuals:
         statfile.boxplot(R0Values,oneD=True, pltTitle="R0 Simulation (box)", xlabel="Model Name",
-             ylabel="Infected people (R0)", labels=[modelName], savePlt=True, saveName=modelName)
+             ylabel="Infected people (R0)", labels=[modelName], savePlt=True, saveName=modelName,  outputDir=outputDir)
         statfile.boxplot(R0Values, oneD=True, pltTitle="R0 Simulation (bar)", xlabel="Model Name",
-            ylabel="Infected Agents (R0)", labels=[modelName], savePlt=True, saveName=modelName)
+            ylabel="Infected Agents (R0)", labels=[modelName], savePlt=True, saveName=modelName,  outputDir=outputDir)
     return (R0Values, ("(npMean, stdev, rangeVal, median)", data))
 
 def createFilledPlot(modelConfig, simulationN=10, days=100,
-                                    modelName="default", debug=False):
+                                    modelName="default", debug=False, outputDir="outputs"):
     multiResult = []
     xlim = [0, 0]
     ylim = [0, 0]
@@ -192,7 +192,7 @@ def createFilledPlot(modelConfig, simulationN=10, days=100,
     for key, dataMatrix in keyDict.items():
         saveName =  key+"_"+modelName
         dfObj = pd.DataFrame(np.array(dataMatrix), columns=timeSeries)
-        flr.save_df_to_csv(flr.fullPath(saveName+".csv", "outputs"), dfObj)
+        flr.save_df_to_csv(flr.fullPath(saveName+".csv", outputDir), dfObj)
 
     import visualize
     visualize.filledTimeSeriesGraph(timeSeries, xlim, ylim, multiResult)
@@ -1375,7 +1375,7 @@ class AgentBasedModel:
         """call the update function on each person"""
         # change location if the old and new location is different
         index = 0
-        transitionP =  (self.config["Infection"]["offCampusInfectionMultiplyer"]*self.baseP)/self.config["World"]["offCampusStudentCount"]
+        transitionP =  (self.config["Infection"]["offCampusInfectionMultiplyer"]*self.config["Infection"]["offCampusInfectionP"])/self.config["World"]["offCampusStudentCount"]
         offCampusNumber = len(self.rooms[self.roomNameId["offCampus_hub"]].agentsInside)
         if not self.R0Calculation and offCampusNumber > 0 and self.time%24 < 12:
             randomVec = np.random.random(offCampusNumber)

@@ -28,7 +28,8 @@ modelConfig = {
         "Infection" : {
             "baseP" : 1.25,  # summer was 1.25
             "SeedNumber" : 10,
-            "offCampusInfectionMultiplyer" : 1,
+            "offCampusInfectionMultiplyer":  1,
+            "offCampusInfectionP": 0.125,
             "SeedState" : "exposed",
             "Contribution" : {
                 "infected Asymptomatic":0.5,

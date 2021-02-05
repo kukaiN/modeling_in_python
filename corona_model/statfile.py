@@ -71,7 +71,7 @@ def plotBoxAverageAndDx(simulationDatas, pltTitle="some Title", xlabel="models",
     #boxplot(dx, "averageChanges", "models", "d(infected)/dt #", labels=labels)
 
 
-def boxplot(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel="Default Y", labels=[], showPlt=True, savePlt=False, saveName="defaultimage.png"):
+def boxplot(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel="Default Y", labels=[], showPlt=True, savePlt=False, saveName="defaultimage.png", outputDir="outputs"):
     """
     Parameters:
     - data: the data to plot, can be a one or two dimentional list, if a 2D list is passed, each row is going to be a data for a separate box plot
@@ -114,7 +114,7 @@ def boxplot(data, oneD=False, pltTitle="Some Title", xlabel="Default X", ylabel=
         if not saveName.endswith(".png"):
             saveName+=".png"
         print("image saved as", saveName)
-        plt.savefig(flr.fullPath(saveName, "outputs"))
+        plt.savefig(flr.fullPath(saveName, outputDir))
     else:
         plt.show()
     plt.close()
@@ -208,57 +208,64 @@ def geometric_mean(listData):
     logSum = np.sum(logData)
     return np.exp((1/len(logData)) * logSum)
 
-def comparingBoxPlots(dictObj, plottedData="R0", saveName="default"):
+def comparingBoxPlots(dictObj, plottedData="R0", saveName="default", outputDir="outputs"):
     osName = platform.system()
     files = "images\\" if osName.lower() == "windows" else "images/"
     osExtension = "win" if osName.lower() == "windows" else "Linux"
+    print("this is it")
+    print(dictObj)
     if plottedData == "R0":
         if len(dictObj) > 0:
             und_labels = []
             und_R0data = []
-            R0AnalyzedData = []
+            #R0AnalyzedData = []
             reg_labels = []
             reg_R0data = []
             for key, value in dictObj.items():
-                if "NC_" in key or "VC_" in key or "SC_" in key:
-                    und_labels.append(key)
-                    und_R0data.append(value[0])
-                else:
-                    reg_labels.append(key)
-                    reg_R0data.append(value[0])
-                R0AnalyzedData.append(value[1])
+                #if ("NC_" in key or "VC_" in key or "SC_" in key) and isinstance(value[0], float):
+                #    und_labels.append(key)
+                #    und_R0data.append(value[0])
+                #else:
+                reg_labels.append(key)
+                reg_R0data.append(value[0])
+             
+                #R0AnalyzedData.append(value[1])
             flr.saveObjUsingPickle(flr.fullPath("R0"+osExtension+ saveName, "picklefile")+".pkl", dictObj)
-            boxplot(und_R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
-                ylabel="Infected Agents (R0)", labels=und_labels, savePlt=True, saveName=osExtension+"9R0_box_"+saveName)
+            #boxplot(und_R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
+            #    ylabel="Infected Agents (R0)", labels=und_labels, savePlt=True, saveName=osExtension+"9R0_box_"+saveName, outputDir=outputDir)
             #statfile.barChart(und_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name",
             #    ylabel="Infected Agents (R0)", labels=und_labels, savePlt=True, saveName=osExtension+"9R0_bar_"+saveName)
             boxplot(reg_R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
-                ylabel="Infected people (R0)", labels=reg_labels, savePlt=True, saveName=osExtension+"restR0_box_"+saveName)
+                ylabel="Infected people (R0)", labels=reg_labels, savePlt=True, saveName=osExtension+"restR0_box_"+saveName,  outputDir=outputDir)
             #statfile.barChart(reg_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name",
             #    ylabel="Infected Agents (R0)", labels=reg_labels, savePlt=True, saveName=osExtension+"restR0_bar_"+saveName)
     elif plottedData == "inf":
-        if len(dictObj) > 0 or True:
+        if len(dictObj) > 0:
             labels = []
             infectedCounts = []
             labels1 = []
             infectedCounts1 = []
             for key, value in dictObj.items():#InfectedCountDict.items():
-                if "NC_" in key or "VC_" in key or "SC_" in key:
-                    labels.append(key)
-                    infectedCounts.append(value)
-                else:
-                    labels1.append(key)
-                    infectedCounts1.append(value)
+                #if "NC_" in key or "VC_" in key or "SC_" in key:
+                #    labels.append(key)
+                #    infectedCounts.append(value)
+                #else:
+                labels1.append(key)
+                infectedCounts1.append(value)
             print(labels, labels1)
             flr.saveObjUsingPickle(flr.fullPath("infectedCount"+osExtension+saveName, "picklefile")+".pkl", dictObj)
-            boxplot(infectedCounts,oneD=False, pltTitle="Infection Comparison", xlabel="Model Name",
-                ylabel="Total # of Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_box_"+saveName)
-            #statfile.barChart(infectedCounts, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name",
-            #    ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_bar_"+saveName)
-            boxplot(infectedCounts1,oneD=False, pltTitle="Infection Comparison", xlabel="Model Name",
-                ylabel="Total # of Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_box_"+saveName)
-            #statfile.barChart(infectedCounts1, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name",
-            #    ylabel="Total Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_bar_"+saveName)
+            
+            if len(infectedCounts) > 0:
+                boxplot(infectedCounts,oneD=False, pltTitle="Infection Comparison", xlabel="Model Name",
+                    ylabel="Total # of Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_box_"+saveName,  outputDir=outputDir)
+                #statfile.barChart(infectedCounts, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name",
+                #    ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_bar_"+saveName)
+            
+            if len(infectedCounts1) > 0:
+                boxplot(infectedCounts1,oneD=False, pltTitle="Infection Comparison", xlabel="Model Name",
+                    ylabel="Total # of Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_box_"+saveName,  outputDir=outputDir)
+                #statfile.barChart(infectedCounts1, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name",
+                #    ylabel="Total Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_bar_"+saveName)
 
 def generateVisualByLoading(fileNames, plottedData="inf", saveName='default'):
     # get all csv in filenames and create the visuals for it

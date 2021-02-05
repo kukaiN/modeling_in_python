@@ -68,16 +68,9 @@ def main():
     experiment3 = cross_scenarios(experiment.medium_student_vary_policy, experiment.off_campus_multiplier)
     #print(len(experiment3))
     #print_nicely(experiment3)
-    experiment4 = cross_scenarios(experiment.only_medium, experiment.original_multiplier)
-    experiment5 = cross_scenarios(experiment.medium_student_vary_policy, experiment.original_multiplier)
-    
 
-    experiment6 = cross_scenarios(experiment4, experiment.sp_batch1)
-    experiment4 = cross_scenarios(experiment4, experiment.new_batch1)
-    experiment5 = cross_scenarios(experiment5, experiment.new_batch2)
-    print(len(experiment6))
-    R0Dict = dict()
-    InfectedCountDict = dict()
+    print(len(experiment1))
+   
 
     basemodel = {"basemodel": {}}
 
@@ -91,12 +84,14 @@ def main():
 
 
     for (request_name, modelConfigs) in multi_experiments.items():
+        R0Dict = dict()
+        InfectedCountDict = dict()
         output_dir = fileRelated.fullPath(request_name, "outputs")
         Path(output_dir).mkdir(parents=False, exist_ok=True)
-        
+        output_folder = "outputs/"+ request_name
 
 
-        for index, (modelName, modelControl) in enumerate(multi_experiment.items()):
+        for index, (modelName, modelControl) in enumerate(modelConfigs.items()):
 
             print("finished", index)
             configCopy = copy.deepcopy(modelConfig)
@@ -109,35 +104,42 @@ def main():
                 for (specificKey, specificValue) in listOfControls:
                     configCopy[categoryKey][specificKey] = specificValue
 
-            R0Count, multiCounts = 0, 40
+            R0Count, multiCounts = 1, 100
 
             #print(configCopy)
             if index > -1:
                 #model_framework.simpleCheck(configCopy, days=10, visuals=True, debug=True, modelName=modelName)
-                InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName)
-                R0Dict[modelName] = model_framework.R0_simulation(configCopy, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName)
-
+                InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName, outputDir=output_folder)
+                R0Dict[modelName] = model_framework.R0_simulation(configCopy, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName, outputDir=output_folder)
+                
                 # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev))
-        print(InfectedCountDict.items())
-        print(R0Dict.items())
+            print(InfectedCountDict.items())
+            print(R0Dict.items())
 
-        if True:
+            if True:
 
 
-            simulationGeneration = "0"
-            saveName = "comparingModels_"+simulationGeneration
-            statfile.comparingBoxPlots(R0Dict, plottedData="R0", saveName=saveName)
-            statfile.comparingBoxPlots(InfectedCountDict ,plottedData="inf", saveName=saveName)
+                simulationGeneration = "0"
+                saveName = "comparingModels_"+simulationGeneration
+                statfile.comparingBoxPlots(R0Dict, plottedData="R0", saveName=saveName, outputDir=output_folder)
+                
+                statfile.comparingBoxPlots(InfectedCountDict ,plottedData="inf", saveName=saveName, outputDir=output_folder)
 
-            for key, value in R0Dict.items():
-                R0Dict[key] = value[0]
-            R0_df = pd.DataFrame(R0Dict)
-            fileRelated.save_df_to_csv(fileRelated.fullPath("R0_data.csv", "outputs"), R0_df)
+                for key, value in R0Dict.items():
+                    if R0Dict[key][1]== "(npMean, stdev, rangeVal, median)":
+                        R0Dict[key] = value[0]
+                    # else do nothing
+                    #print(key, value)
+                print(R0Dict)
+                # check if dict is not empty
+                     
+                R0_df = pd.DataFrame(R0Dict)
+                fileRelated.save_df_to_csv(fileRelated.fullPath("R0_data.csv", output_folder), R0_df)
 
-        else:
-        #statfile.generateVisualByLoading(ControlledExperiment, plottedData="inf", saveName=saveName)
-        model_framework.createFilledPlot(modelConfig, modelName="baseModel",
-                                                            simulationN=3)
-
+            else:  # never ran after jan 30
+                #statfile.generateVisualByLoading(ControlledExperiment, plottedData="inf", saveName=saveName)
+                model_framework.createFilledPlot(modelConfig, modelName="baseModel",
+                                                                    simulationN=3, outputDir=output_folder)
+        break
 if __name__ == "__main__":
     main()
