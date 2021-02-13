@@ -1268,8 +1268,8 @@ class AgentBasedModel:
                         self.hub_infection()
                 self.infection()
 
-           
-            if self.dateDescriptor != "W" or self.dateDescriptor!="LS":
+            #and or
+            if self.dateDescriptor != "W" and self.dateDescriptor!="LS":
                 if modTime == 8: # if its 8AM people go checkin if they feel bad
                     self.checkForWalkIn()
                 #if self.dateDescriptor != "W" or self.dateDescriptor!="LS":
@@ -1607,7 +1607,7 @@ class AgentBasedModel:
                         if self.agents[agentId].state != "quarantined":
                             self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
                     for agentId in falsePos_agent:
-                        if self.agents[agentId].state == "susceptible":
+                        if self.agents[agentId].state  == "susceptible":#!= "quarantined":#
                             self.changeStateDict(agentId, self.agents[agentId].state, "quarantined")
                             self.addFalsePositive(agentId)
                 elif self._debug:

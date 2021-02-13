@@ -79,18 +79,22 @@ def main():
         "request_2": experiment2,
         "request_3": experiment3,
     }
-
-   
+    #multi_experiments = {"new_request4": experiment.new_check}
+    user_input = input("which request # do you want to run? 0 to run all in one thread")
+    user_input = int(user_input)
+    if user_input < 0 or user_input >= len(multi_experiments):
+        print("input number does not match experiment number, exiting program")
+        return
 
 
     for sp_index, (request_name, modelConfigs) in enumerate(multi_experiments.items()):
-        R0Dict = dict()
-        InfectedCountDict = dict()
-        output_dir = fileRelated.fullPath(request_name, "outputs")
-        Path(output_dir).mkdir(parents=False, exist_ok=True)
-        output_folder = "outputs/"+ request_name
-        print(request_name)
-        if sp_index > 0: 
+        if (sp_index == user_input-1) or (user_input == 0): 
+            R0Dict = dict()
+            InfectedCountDict = dict()
+            output_dir = fileRelated.fullPath(request_name, "outputs")
+            Path(output_dir).mkdir(parents=False, exist_ok=True)
+            output_folder = "outputs/"+ request_name
+            print(request_name)
             for index, (modelName, modelControl) in enumerate(modelConfigs.items()):
 
                 print("finished", index)
@@ -139,7 +143,8 @@ def main():
                 else:  # never ran after jan 30
                     #statfile.generateVisualByLoading(ControlledExperiment, plottedData="inf", saveName=saveName)
                     model_framework.createFilledPlot(modelConfig, modelName="baseModel",
-                                                                        simulationN=3, outputDir=output_folder)
+                                                                       simulationN=3, outputDir=output_folder)
+     
             
 
 
