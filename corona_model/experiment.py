@@ -1017,7 +1017,7 @@ base_p_initial_count_experiment = {
 
 }
 
-old_ControlledExperiment = {
+marginals = {
     "baseModel":{
     }, # no changes
     "facemasks":{
@@ -1126,6 +1126,35 @@ old_ControlledExperiment = {
             ("ChangedSeedNumber", 7),
         ],
     },
+    "building_closure_h_05":{
+        "World": [
+            ("TurnedOnInterventions", ["ClosingBuildings"]),
+        ],
+    "ClosingBuildings": [
+            ("ClosedBuildingOpenHub", []),
+            ("ClosedBuilding_ByType", ["gym", "library", "dining"]),
+            ("GoingHomeP", 0.5), # h = 0.5
+            ("Exception_SemiClosedBuilding", []),
+            ("Exception_GoingHomeP", 0.5),
+        ],
+    "building_closure_h_1":{
+        "World": [
+            ("TurnedOnInterventions", ["ClosingBuildings"]),
+        ],
+    "ClosingBuildings": [
+            ("ClosedBuildingOpenHub", []),
+            ("ClosedBuilding_ByType", ["gym", "library", "dining"]),
+            ("GoingHomeP", 1), # h = 0.5
+            ("Exception_SemiClosedBuilding", []),
+            ("Exception_GoingHomeP", 0.5),
+        ],
+    
+
+
+
+},
+
+
 }
 
 original_3x3 = {

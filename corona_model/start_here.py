@@ -63,9 +63,11 @@ def main():
 
     #experiment2 = cross_scenarios(experiment.vaccine3, experiment.low_med)
     #experiment3 =cross_scenarios(experiment.vaccine4, experiment.facemask3)
-    experiment1 = experiment.original_3x3
-    experiment2 = cross_scenarios(experiment.different_base_p_jump_025, experiment.medium_student_vary_policy)
-    experiment3 = cross_scenarios(experiment.medium_student_vary_policy, experiment.off_campus_multiplier)
+    experiment1 = experiment.marginals
+    experiment2 = experiment.original_3x3
+    experiment3 = cross_scenarios(experiment.different_base_p_jump_025, experiment.medium_student_vary_policy)
+    experiment4 = cross_scenarios(experiment.medium_student_vary_policy, experiment.off_campus_multiplier)
+    
     #print(len(experiment3))
     #print_nicely(experiment3)
 
@@ -78,11 +80,12 @@ def main():
         "request_1": experiment1,
         "request_2": experiment2,
         "request_3": experiment3,
+        "request_4": experiment4,
     }
     #multi_experiments = {"new_request4": experiment.new_check}
     user_input = input("which request # do you want to run? 0 to run all in one thread")
     user_input = int(user_input)
-    if user_input < 0 or user_input >= len(multi_experiments):
+    if user_input < 0 or user_input > len(multi_experiments):
         print("input number does not match experiment number, exiting program")
         return
 
@@ -119,32 +122,32 @@ def main():
                     # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev))
                 print(InfectedCountDict.items())
                 print(R0Dict.items())
+                
+            if True:
 
-                if True:
 
+                simulationGeneration = "0"
+                saveName = "comparingModels_"+simulationGeneration
+                statfile.comparingBoxPlots(R0Dict, plottedData="R0", saveName=saveName, outputDir=output_folder)
+                
+                statfile.comparingBoxPlots(InfectedCountDict ,plottedData="inf", saveName=saveName, outputDir=output_folder)
 
-                    simulationGeneration = "0"
-                    saveName = "comparingModels_"+simulationGeneration
-                    statfile.comparingBoxPlots(R0Dict, plottedData="R0", saveName=saveName, outputDir=output_folder)
+                for key, value in R0Dict.items():
+                    if R0Dict[key][1]== "(npMean, stdev, rangeVal, median)":
+                        R0Dict[key] = value[0]
+                    # else do nothing
+                    #print(key, value)
+                print(R0Dict)
+                # check if dict is not empty
                     
-                    statfile.comparingBoxPlots(InfectedCountDict ,plottedData="inf", saveName=saveName, outputDir=output_folder)
+                R0_df = pd.DataFrame(R0Dict)
+                fileRelated.save_df_to_csv(fileRelated.fullPath("R0_data.csv", output_folder), R0_df)
 
-                    for key, value in R0Dict.items():
-                        if R0Dict[key][1]== "(npMean, stdev, rangeVal, median)":
-                            R0Dict[key] = value[0]
-                        # else do nothing
-                        #print(key, value)
-                    print(R0Dict)
-                    # check if dict is not empty
-                        
-                    R0_df = pd.DataFrame(R0Dict)
-                    fileRelated.save_df_to_csv(fileRelated.fullPath("R0_data.csv", output_folder), R0_df)
-
-                else:  # never ran after jan 30
-                    #statfile.generateVisualByLoading(ControlledExperiment, plottedData="inf", saveName=saveName)
-                    model_framework.createFilledPlot(modelConfig, modelName="baseModel",
-                                                                       simulationN=3, outputDir=output_folder)
-     
+            else:  # never ran after jan 30
+                #statfile.generateVisualByLoading(ControlledExperiment, plottedData="inf", saveName=saveName)
+                model_framework.createFilledPlot(modelConfig, modelName="baseModel",
+                                                                    simulationN=3, outputDir=output_folder)
+    
             
 
 
