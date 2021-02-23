@@ -1137,6 +1137,7 @@ marginals = {
             ("Exception_SemiClosedBuilding", []),
             ("Exception_GoingHomeP", 0.5),
         ],
+    },
     "building_closure_h_1":{
         "World": [
             ("TurnedOnInterventions", ["ClosingBuildings"]),
@@ -1148,13 +1149,8 @@ marginals = {
             ("Exception_SemiClosedBuilding", []),
             ("Exception_GoingHomeP", 0.5),
         ],
-    
 
-
-
-},
-
-
+    }
 }
 
 original_3x3 = {
