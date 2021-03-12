@@ -183,6 +183,28 @@ def get_cd():
     if os.getcwd() != scriptPath: filePath = scriptPath + path_slash
     return scriptPath, filePath
 
+def mergeR0(pastR0, R0_location):
+    pastdata = openCsv(R0_location)
+    
+    for k, v in pastdata.iteritems():
+        if k != "Unnamed: 0":
+            datastring = v[0]
+            
+            datastring = "".join([i for i in datastring if i not in ["[", "]"]])
+            datastring = datastring.split(",")
+            datastring = [float(i) for i in datastring]
+            
+            pastR0[k]= (datastring, '(npMean, stdev, rangeVal, median)',)
+    
+
+    """
+    request_name = "request_7"
+    saveName = "R0"
+    output_dir = fileRelated.fullPath(request_name, "outputs")
+    Path(output_dir).mkdir(parents=False, exist_ok=True)
+    output_folder = "outputs/"+ request_name
+    statfile.comparingBoxPlots(dict_A, plottedData="R0", saveName=saveName, outputDir=output_folder)
+    """
 
 def main():
     # run this to check if the files can be extracted

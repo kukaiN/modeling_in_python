@@ -406,8 +406,24 @@ new_check= {
         
 }
 
+smaller_seed_number = {
+    "p125_1": {"Infection": [("baseP", 1.25),("SeedNumber", 1)]},
+    "p125_5": {"Infection": [("baseP", 1.25),("SeedNumber", 5)]},
+}
 
+diff_seed_number = {
+    "p125_10": {"Infection": [("baseP", 1.25),("SeedNumber", 10)]},
+    "p125_20": {"Infection": [("baseP", 1.25),("SeedNumber", 20)]},
+    "p125_30": {"Infection": [("baseP", 1.25),("SeedNumber", 30)]},
+    "p125_40": {"Infection": [("baseP", 1.25),("SeedNumber", 40)]},
+    "p125_50": {"Infection": [("baseP", 1.25),("SeedNumber", 50)]},
+    "p125_60": {"Infection": [("baseP", 1.25),("SeedNumber", 60)]},
+    "p125_70": {"Infection": [("baseP", 1.25),("SeedNumber", 70)]},
+    "p125_80": {"Infection": [("baseP", 1.25),("SeedNumber", 80)]},
+    "p125_90": {"Infection": [("baseP", 1.25),("SeedNumber", 90)]},
+    "p125_100": {"Infection": [("baseP", 1.25),("SeedNumber", 100)]},
 
+}
 
 
 

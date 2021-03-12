@@ -67,7 +67,8 @@ def main():
     experiment2 = experiment.original_3x3
     experiment3 = cross_scenarios(experiment.different_base_p_jump_025, experiment.medium_student_vary_policy)
     experiment4 = cross_scenarios(experiment.medium_student_vary_policy, experiment.off_campus_multiplier)
-    
+    experiment5 = experiment.diff_seed_number
+    experiment6 = experiment.smaller_seed_number
     #print(len(experiment3))
     #print_nicely(experiment3)
 
@@ -81,6 +82,8 @@ def main():
         "request_2": experiment2,
         "request_3": experiment3,
         "request_4": experiment4,
+        "request_5": experiment5,
+        "request_6": experiment6,
     }
     #multi_experiments = {"new_request4": experiment.new_check}
     user_input = input("which request # do you want to run? 0 to run all in one thread")
@@ -99,7 +102,7 @@ def main():
             output_folder = "outputs/"+ request_name
             print(request_name)
             for index, (modelName, modelControl) in enumerate(modelConfigs.items()):
-
+               
                 print("finished", index)
                 configCopy = copy.deepcopy(modelConfig)
                 #print("*"*20)
@@ -111,7 +114,7 @@ def main():
                     for (specificKey, specificValue) in listOfControls:
                         configCopy[categoryKey][specificKey] = specificValue
 
-                R0Count, multiCounts = 1, 100
+                R0Count, multiCounts = 200, 0
 
                 #print(configCopy)
                 if index > -1:
@@ -128,6 +131,9 @@ def main():
 
                 simulationGeneration = "0"
                 saveName = "comparingModels_"+simulationGeneration
+                # reads R0 data
+                fileRelated.mergeR0(R0Dict, fileRelated.fullPath("request_5/R0_data.csv", "outputs"))
+                merged = True
                 statfile.comparingBoxPlots(R0Dict, plottedData="R0", saveName=saveName, outputDir=output_folder)
                 
                 statfile.comparingBoxPlots(InfectedCountDict ,plottedData="inf", saveName=saveName, outputDir=output_folder)
@@ -139,9 +145,9 @@ def main():
                     #print(key, value)
                 print(R0Dict)
                 # check if dict is not empty
-                    
-                R0_df = pd.DataFrame(R0Dict)
-                fileRelated.save_df_to_csv(fileRelated.fullPath("R0_data.csv", output_folder), R0_df)
+                if not merged:   
+                    R0_df = pd.DataFrame(R0Dict)
+                    fileRelated.save_df_to_csv(fileRelated.fullPath("R0_data.csv", output_folder), R0_df)
 
             else:  # never ran after jan 30
                 #statfile.generateVisualByLoading(ControlledExperiment, plottedData="inf", saveName=saveName)
@@ -153,3 +159,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+    
+    
+
+ 
