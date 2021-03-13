@@ -10,7 +10,7 @@ from pathlib import Path
 
 def main():
     """intialize and run the model, for indepth detail about the config or how to run the code, go to the github page for this code"""
-    
+
 
     # you can control for multiple interventions by adding a case:
     #  [(modified attr1, newVal), (modified attr2, newVal), ...]
@@ -18,7 +18,7 @@ def main():
     # simulation name --> simulation controlled variable(s)
     # dont use . or - in the simulation name because the names are used to save images, or any symbols below
     modelConfig = main_config.modelConfig
-   
+
 
     R0_controls = {
         "World" : [
@@ -42,7 +42,7 @@ def main():
         ],
     }
 
-   
+
 
     def cross_scenarios(scenario1, scenario2):
         experiments = {}
@@ -73,7 +73,7 @@ def main():
     #print_nicely(experiment3)
 
     print(len(experiment1))
-   
+
 
     basemodel = {"basemodel": {}}
 
@@ -94,7 +94,7 @@ def main():
 
 
     for sp_index, (request_name, modelConfigs) in enumerate(multi_experiments.items()):
-        if (sp_index == user_input-1) or (user_input == 0): 
+        if (sp_index == user_input-1) or (user_input == 0):
             R0Dict = dict()
             InfectedCountDict = dict()
             output_dir = fileRelated.fullPath(request_name, "outputs")
@@ -102,7 +102,7 @@ def main():
             output_folder = "outputs/"+ request_name
             print(request_name)
             for index, (modelName, modelControl) in enumerate(modelConfigs.items()):
-               
+
                 print("finished", index)
                 configCopy = copy.deepcopy(modelConfig)
                 #print("*"*20)
@@ -121,11 +121,11 @@ def main():
                     #model_framework.simpleCheck(configCopy, days=10, visuals=True, debug=True, modelName=modelName)
                     InfectedCountDict[modelName] = model_framework.multiSimulation(multiCounts, configCopy, days=100, debug=False, modelName=modelName, outputDir=output_folder)
                     R0Dict[modelName] = model_framework.R0_simulation(configCopy, R0_controls,R0Count, debug=False, timeSeriesVisual=False, R0Visuals=True, modelName=modelName, outputDir=output_folder)
-                    
+
                     # the value of the dictionary is ([multiple R0 values], (descriptors, (tuple of useful data like mean and stdev))
                 print(InfectedCountDict.items())
                 print(R0Dict.items())
-                
+
             if True:
 
 
@@ -135,7 +135,7 @@ def main():
                 fileRelated.mergeR0(R0Dict, fileRelated.fullPath("request_5/R0_data.csv", "outputs"))
                 merged = True
                 statfile.comparingBoxPlots(R0Dict, plottedData="R0", saveName=saveName, outputDir=output_folder)
-                
+
                 statfile.comparingBoxPlots(InfectedCountDict ,plottedData="inf", saveName=saveName, outputDir=output_folder)
 
                 for key, value in R0Dict.items():
@@ -145,7 +145,7 @@ def main():
                     #print(key, value)
                 print(R0Dict)
                 # check if dict is not empty
-                if not merged:   
+                if not merged:
                     R0_df = pd.DataFrame(R0Dict)
                     fileRelated.save_df_to_csv(fileRelated.fullPath("R0_data.csv", output_folder), R0_df)
 
@@ -153,13 +153,12 @@ def main():
                 #statfile.generateVisualByLoading(ControlledExperiment, plottedData="inf", saveName=saveName)
                 model_framework.createFilledPlot(modelConfig, modelName="baseModel",
                                                                     simulationN=3, outputDir=output_folder)
-    
-            
+
+
 
 
 if __name__ == "__main__":
     main()
-    
-    
 
- 
+
+

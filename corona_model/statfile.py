@@ -228,7 +228,7 @@ def comparingBoxPlots(dictObj, plottedData="R0", saveName="default", outputDir="
                 #else:
                 reg_labels.append(key)
                 reg_R0data.append(value[0])
-             
+
                 #R0AnalyzedData.append(value[1])
             flr.saveObjUsingPickle(flr.fullPath("R0"+osExtension+ saveName, "picklefile")+".pkl", dictObj)
             #boxplot(und_R0data,oneD=False, pltTitle="R0 Comparison (box)", xlabel="Model Name",
@@ -239,7 +239,7 @@ def comparingBoxPlots(dictObj, plottedData="R0", saveName="default", outputDir="
                 ylabel="Infected people (R0)", labels=reg_labels, savePlt=True, saveName=osExtension+"restR0_box_"+saveName,  outputDir=outputDir)
             #statfile.barChart(reg_R0data, oneD=False, pltTitle="R0 Comparison (bar)", xlabel="Model Name",
             #    ylabel="Infected Agents (R0)", labels=reg_labels, savePlt=True, saveName=osExtension+"restR0_bar_"+saveName)
-    elif plottedData == "inf":
+    elif plottedData in ["inf", "double"]:
         if len(dictObj) > 0:
             labels = []
             infectedCounts = []
@@ -254,16 +254,22 @@ def comparingBoxPlots(dictObj, plottedData="R0", saveName="default", outputDir="
                 infectedCounts1.append(value)
             print(labels, labels1)
             flr.saveObjUsingPickle(flr.fullPath("infectedCount"+osExtension+saveName, "picklefile")+".pkl", dictObj)
-            
+            title = "Infection Comparison"
+            xlabels = "Model Name"
+            ylabels = "Total # of Infected Agents"
+            if plottedData =="double":
+                xlabels = "number infected, n"
+                ylabels = "time, t"
+                title = "doubling time"
             if len(infectedCounts) > 0:
-                boxplot(infectedCounts,oneD=False, pltTitle="Infection Comparison", xlabel="Model Name",
-                    ylabel="Total # of Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_box_"+saveName,  outputDir=outputDir)
+                boxplot(infectedCounts,oneD=False, pltTitle=title, xlabel=xlabels,
+                    ylabel=ylabels, labels=labels, savePlt=True, saveName=osExtension+"9infe_box_"+saveName,  outputDir=outputDir)
                 #statfile.barChart(infectedCounts, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name",
                 #    ylabel="Total Infected Agents", labels=labels, savePlt=True, saveName=osExtension+"9infe_bar_"+saveName)
-            
+
             if len(infectedCounts1) > 0:
-                boxplot(infectedCounts1,oneD=False, pltTitle="Infection Comparison", xlabel="Model Name",
-                    ylabel="Total # of Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_box_"+saveName,  outputDir=outputDir)
+                boxplot(infectedCounts1,oneD=False, pltTitle=title, xlabel=xlabels,
+                    ylabel=ylabels, labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_box_"+saveName,  outputDir=outputDir)
                 #statfile.barChart(infectedCounts1, oneD=False, pltTitle="Infection Comparison (bar)", xlabel="Model Name",
                 #    ylabel="Total Infected Agents", labels=labels1, savePlt=True, saveName=osExtension+"rest_infe_bar_"+saveName)
 

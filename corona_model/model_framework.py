@@ -67,7 +67,19 @@ def multiSimulation(simulationCount, modelConfig, days, debug, modelName, output
     #print(infectionData)
     return infectionData
 
-def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="default", outputDir="outputs"):
+def doubletime(simulationCount, modelConfig, days, debug, modelName, outputDir="outputs"):
+    """
+        run multiple simulations and return the location where the infection occured, the total number infected, and the max infected
+    """
+
+    infectionData = [] # list that will contain multiple time series dictionary
+
+    for i in range(simulationCount):
+        result = simpleCheck(modelConfig, days=days, visuals=False, debug=debug, modelName=modelName+"_"+str(i),returnTimeseries=True)
+        infectionData.append(result["susceptible"])
+    return infectionData
+
+def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="default", outputDir="outputs", returnTimeseries=False):
     """
         runs one simulatons with the given config and showcase the number of infection and the graph
     """
@@ -105,6 +117,8 @@ def simpleCheck(modelConfig, days=100, visuals=True, debug=False, modelName="def
         model.visualOverTime(True, True, flr.fullPath(modelName+fileformat, outputDir))
     #model.visualizeBuildings()
     # return (newdata, otherData, data, totalExposed)
+    if returnTimeseries:
+        return model.returnStoredInfo()
     return model.outputs()
 
 def R0_simulation(modelConfig, R0Control, simulationN=100, debug=False, timeSeriesVisual=False, R0Visuals=False, modelName="default", outputDir="outputs"):
@@ -1276,7 +1290,7 @@ class AgentBasedModel:
                 # this checks if the intervention it turned on and if it is the next testing period
                 if self.quarantine_intervention and self.time%self.quarantineInterval == self.config["Quarantine"]["offset"]:
                     self.testForDisease()  # people are in specific groups and the group is called for testing
-                    
+
 
             if modTime == self.config["Quarantine"]["offset"]:
                 self.delayed_quarantine()
@@ -1344,6 +1358,7 @@ class AgentBasedModel:
             for param in self.parameters.keys():
                 self.parameters[param].append((len(self.state2IdDict[param])))
             self.timeSeries.append(self.time)
+
         """
         if not (self.time//self.timeIncrement < len(self.timeSeries)-1):
             for param in self.parameters.keys():
