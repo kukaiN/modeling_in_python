@@ -49,7 +49,7 @@ def main():
                     for (specificKey, specificValue) in listOfControls:
                         configCopy[categoryKey][specificKey] = specificValue
 
-                simulation_count = 0
+                simulation_count = 100
                 timeSeriesList = model_framework.doubletime(simulation_count, configCopy, days=100, debug=False, modelName=modelName, outputDir=output_folder)
 
             doublingtime = []
@@ -90,18 +90,18 @@ def main():
                 double_df = pd.DataFrame(timeSeriesDict)
                 fileRelated.save_df_to_csv(fileRelated.fullPath("doubling_data.csv", output_folder), double_df)
 
-                def graphdoubling(timeseries, scale, output_folder):
+                def graphdoubling(timeseries, scale, output_folder, scaleStr =""):
                     timeSeriesD = copy.deepcopy(timeseries)
                     if scale != 1:
                         for k, v in timeSeriesD.items():
                             timeSeriesD[k] = [item/scale for item in v]
 
                     saveName = "doubletime_scale_"+str(scale)+"h"
-                    statfile.comparingBoxPlots(timeSeriesD,plottedData="double", saveName=saveName, outputDir=output_folder)
+                    statfile.comparingBoxPlots(timeSeriesD,plottedData="double", saveName=saveName, outputDir=output_folder, scale=scaleStr)
 
                 graphdoubling(timeSeriesDict, 1, output_folder)
-                graphdoubling(timeSeriesDict, 6, output_folder)
-                graphdoubling(timeSeriesDict, 24, output_folder)
+                graphdoubling(timeSeriesDict, 6, output_folder, "6 hours")
+                graphdoubling(timeSeriesDict, 24, output_folder, "24 hours")
 
 
 

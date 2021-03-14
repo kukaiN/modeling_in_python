@@ -208,7 +208,7 @@ def geometric_mean(listData):
     logSum = np.sum(logData)
     return np.exp((1/len(logData)) * logSum)
 
-def comparingBoxPlots(dictObj, plottedData="R0", saveName="default", outputDir="outputs"):
+def comparingBoxPlots(dictObj, plottedData="R0", saveName="default", outputDir="outputs", scale=''):
     osName = platform.system()
     files = "images\\" if osName.lower() == "windows" else "images/"
     osExtension = "win" if osName.lower() == "windows" else "Linux"
@@ -259,7 +259,13 @@ def comparingBoxPlots(dictObj, plottedData="R0", saveName="default", outputDir="
             ylabels = "Total # of Infected Agents"
             if plottedData =="double":
                 xlabels = "number infected, n"
-                ylabels = "time, t"
+                ylabels = "time in hours, t"
+                if scale == "24 hours":
+                    ylabels = "time in days, d"
+                if scale == "6 hours":
+                    ylabels = "time scaled by 6 hours, t"
+                elif len(scale):
+                    ylabels = "time scaled by {scale}, t"
                 title = "doubling time"
             if len(infectedCounts) > 0:
                 boxplot(infectedCounts,oneD=False, pltTitle=title, xlabel=xlabels,
