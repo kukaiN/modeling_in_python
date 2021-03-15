@@ -264,8 +264,8 @@ def comparingBoxPlots(dictObj, plottedData="R0", saveName="default", outputDir="
                     ylabels = "time in days, d"
                 if scale == "6 hours":
                     ylabels = "time scaled by 6 hours, t"
-                elif len(scale):
-                    ylabels = "time scaled by {scale}, t"
+                elif len(scale) > 0:
+                    ylabels = f"time scaled by {scale}, t"
                 title = "doubling time"
             if len(infectedCounts) > 0:
                 boxplot(infectedCounts,oneD=False, pltTitle=title, xlabel=xlabels,
