@@ -3,7 +3,7 @@ only_medium = {"SC_WP":{
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-                ("ComplianceRatio", 0.5), # f = 0.5
+                ("complianceRatio", 0.5), # f = 0.5
             ],
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
@@ -29,7 +29,7 @@ new_check= {
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-                ("ComplianceRatio", 0.5), # f = 0.5
+                ("complianceRatio", 0.5), # f = 0.5
             ],
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
@@ -52,7 +52,7 @@ new_check= {
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-                ("ComplianceRatio", 0.5), # f = 0.5
+                ("complianceRatio", 0.5), # f = 0.5
             ],
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
@@ -75,7 +75,7 @@ new_check= {
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-                ("ComplianceRatio", 0.5), # f = 0.5
+                ("complianceRatio", 0.5), # f = 0.5
             ],
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
@@ -98,7 +98,7 @@ new_check= {
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-                ("ComplianceRatio", 0.5), # f = 0.5
+                ("complianceRatio", 0.5), # f = 0.5
             ],
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
@@ -121,7 +121,7 @@ new_check= {
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-                ("ComplianceRatio", 0.5), # f = 0.5
+                ("complianceRatio", 0.5), # f = 0.5
             ],
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
@@ -144,7 +144,7 @@ new_check= {
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-                ("ComplianceRatio", 0.5), # f = 0.5
+                ("complianceRatio", 0.5), # f = 0.5
             ],
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
@@ -167,7 +167,7 @@ new_check= {
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-                ("ComplianceRatio", 0.5), # f = 0.5
+                ("complianceRatio", 0.5), # f = 0.5
             ],
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
@@ -190,7 +190,7 @@ new_check= {
         # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0.5), # f = 0.5
+            ("complianceRatio", 0.5), # f = 0.5
         ],
         "Quarantine": [
             ("ResultLatency", 3*24), # L = 3
@@ -221,7 +221,7 @@ new_check= {
         # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0.5), # f = 0.5
+            ("complianceRatio", 0.5), # f = 0.5
         ],
         "Quarantine": [
             ("ResultLatency", 3*24), # L = 3
@@ -252,7 +252,7 @@ new_check= {
         # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0.5), # f = 0.5
+            ("complianceRatio", 0.5), # f = 0.5
         ],
         "Quarantine": [
             ("ResultLatency", 3*24), # L = 3
@@ -283,7 +283,7 @@ new_check= {
         # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0.5), # f = 0.5
+            ("complianceRatio", 0.5), # f = 0.5
         ],
         "Quarantine": [
             ("ResultLatency", 3*24), # L = 3
@@ -314,7 +314,7 @@ new_check= {
         # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0.5), # f = 0.5
+            ("complianceRatio", 0.5), # f = 0.5
         ],
         "Quarantine": [
             ("ResultLatency", 3*24), # L = 3
@@ -345,7 +345,7 @@ new_check= {
         # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0.5), # f = 0.5
+            ("complianceRatio", 0.5), # f = 0.5
         ],
         "Quarantine": [
             ("ResultLatency", 3*24), # L = 3
@@ -376,7 +376,7 @@ new_check= {
         # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0.5), # f = 0.5
+            ("complianceRatio", 0.5), # f = 0.5
         ],
         "Quarantine": [
             ("ResultLatency", 3*24), # L = 3
@@ -406,9 +406,45 @@ new_check= {
         
 }
 
+facemask_param = {
+    "FM_30_55":{
+        "World": [("TurnedOnInterventions", ["FaceMasks"]), ("complianceRatio", 1)],
+        "FaceMasks": [("MaskInfectivity", 0.30), ("MaskBlock",0.55)]
+    },
+    "FM_40_65":{
+        "World": [("TurnedOnInterventions", ["FaceMasks"]), ("complianceRatio", 1)],
+        "FaceMasks": [("MaskInfectivity", 0.40), ("MaskBlock",0.65)]
+    },
+    "FM_50_75":{
+        "World": [("TurnedOnInterventions", ["FaceMasks"]), ("complianceRatio", 1)],
+        "FaceMasks": [("MaskInfectivity", 0.50), ("MaskBlock",0.75),]
+    },
+    "FM_60_85":{
+        "World": [("TurnedOnInterventions", ["FaceMasks"]), ("complianceRatio", 1)],
+        "FaceMasks": [("MaskInfectivity", 0.60), ("MaskBlock",0.85),]
+    },
+    "FM_70_95":{
+        "World": [("TurnedOnInterventions", ["FaceMasks"]), ("complianceRatio", 1)],
+        "FaceMasks": [("MaskInfectivity", 0.70), ("MaskBlock",0.95),]
+    },    
+}
+
+
 smaller_seed_number = {
     "p125_1": {"Infection": [("baseP", 1.25),("SeedNumber", 1)]},
     "p125_5": {"Infection": [("baseP", 1.25),("SeedNumber", 5)]},
+    "p125_10": {"Infection": [("baseP", 1.25),("SeedNumber", 10)]},
+    "p125_20": {"Infection": [("baseP", 1.25),("SeedNumber", 20)]},
+    "p125_30": {"Infection": [("baseP", 1.25),("SeedNumber", 30)]},
+    "p125_40": {"Infection": [("baseP", 1.25),("SeedNumber", 40)]},
+    "p125_50": {"Infection": [("baseP", 1.25),("SeedNumber", 50)]},
+    "p125_60": {"Infection": [("baseP", 1.25),("SeedNumber", 60)]},
+    "p125_70": {"Infection": [("baseP", 1.25),("SeedNumber", 70)]},
+    "p125_80": {"Infection": [("baseP", 1.25),("SeedNumber", 80)]},
+    "p125_90": {"Infection": [("baseP", 1.25),("SeedNumber", 90)]},
+    "p125_100": {"Infection": [("baseP", 1.25),("SeedNumber", 100)]},
+    
+
 }
 
 diff_seed_number = {
@@ -434,7 +470,7 @@ medium_student_vary_policy = {
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-                ("ComplianceRatio", 0.5), # f = 0.5
+                ("complianceRatio", 0.5), # f = 0.5
             ],
             "Quarantine": [
                 ("ResultLatency", 4*24), # L = 4
@@ -457,7 +493,7 @@ medium_student_vary_policy = {
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-                ("ComplianceRatio", 0.5), # f = 0.5
+                ("complianceRatio", 0.5), # f = 0.5
             ],
             "Quarantine": [
                 ("ResultLatency", 3*24), # L = 3
@@ -488,7 +524,7 @@ medium_student_vary_policy = {
             # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
             "World": [
                 ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-                ("ComplianceRatio", 0.5), # f = 0.5
+                ("complianceRatio", 0.5), # f = 0.5
             ],
             "Quarantine": [
                 ("ResultLatency", 2*24), # L = 2
@@ -698,7 +734,7 @@ low_med = {
         # f = 0, c = 0.80, h = 0.50, s' = 0
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "LessSocial", "ClosingBuildings"]),
-            ("ComplianceRatio", 0), # f = 0
+            ("complianceRatio", 0), # f = 0
         ],
         "Quarantine": [
             ("ResultLatency", 4*24), # L = 4
@@ -721,7 +757,7 @@ low_med = {
         # f = 0, c = 0.80, h = 0.50, s' = 0
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0), # f = 0
+            ("complianceRatio", 0), # f = 0
             ("LargeGathering", False)
         ],
         "Quarantine": [
@@ -753,7 +789,7 @@ low_med = {
         # f = 0, c = 0.80, h = 0.50, s' = 0
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0), # f = 0
+            ("complianceRatio", 0), # f = 0
             ("LargeGathering", False)
         ],
         "Quarantine": [
@@ -786,7 +822,7 @@ low_med = {
         # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-            ("ComplianceRatio", 0.5), # f = 0.5
+            ("complianceRatio", 0.5), # f = 0.5
         ],
         "Quarantine": [
             ("ResultLatency", 4*24), # L = 4
@@ -809,7 +845,7 @@ low_med = {
         # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0.5), # f = 0.5
+            ("complianceRatio", 0.5), # f = 0.5
         ],
         "Quarantine": [
             ("ResultLatency", 3*24), # L = 3
@@ -840,7 +876,7 @@ low_med = {
         # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0.5), # f = 0.5
+            ("complianceRatio", 0.5), # f = 0.5
         ],
         "Quarantine": [
             ("ResultLatency", 2*24), # L = 2
@@ -1039,7 +1075,7 @@ marginals = {
     "facemasks":{
         "World": [
             ("TurnedOnInterventions", ["FaceMasks"]),
-            ("ComplianceRatio", 1),
+            ("complianceRatio", 1),
             ],
     },
     "highDeden":{
@@ -1175,7 +1211,7 @@ original_3x3 = {
         # f = 0, c = 0.80, h = 0.50, s' = 0
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "LessSocial", "ClosingBuildings"]),
-            ("ComplianceRatio", 0), # f = 0
+            ("complianceRatio", 0), # f = 0
         ],
         "Quarantine": [
             ("ResultLatency", 4*24), # L = 4
@@ -1198,7 +1234,7 @@ original_3x3 = {
         # f = 0, c = 0.80, h = 0.50, s' = 0
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0), # f = 0
+            ("complianceRatio", 0), # f = 0
             ("LargeGathering", False)
         ],
         "Quarantine": [
@@ -1230,7 +1266,7 @@ original_3x3 = {
         # f = 0, c = 0.80, h = 0.50, s' = 0
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0), # f = 0
+            ("complianceRatio", 0), # f = 0
             ("LargeGathering", False)
         ],
         "Quarantine": [
@@ -1263,7 +1299,7 @@ original_3x3 = {
         # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-            ("ComplianceRatio", 0.5), # f = 0.5
+            ("complianceRatio", 0.5), # f = 0.5
         ],
         "Quarantine": [
             ("ResultLatency", 4*24), # L = 4
@@ -1286,7 +1322,7 @@ original_3x3 = {
         # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0.5), # f = 0.5
+            ("complianceRatio", 0.5), # f = 0.5
         ],
         "Quarantine": [
             ("ResultLatency", 3*24), # L = 3
@@ -1317,7 +1353,7 @@ original_3x3 = {
         # f = 0.5, c = 0.90, h = 0.75, s' = 0.25
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 0.5), # f = 0.5
+            ("complianceRatio", 0.5), # f = 0.5
         ],
         "Quarantine": [
             ("ResultLatency", 2*24), # L = 2
@@ -1348,7 +1384,7 @@ original_3x3 = {
         # f = 1, c = 1, h = 1, s' = 0.75, no large gatherings
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial"]),
-            ("ComplianceRatio", 1), # f = 1
+            ("complianceRatio", 1), # f = 1
             ("LargeGathering", False),
         ],
         "Quarantine": [
@@ -1373,7 +1409,7 @@ original_3x3 = {
         # f = 1, c = 1, h = 1, s' = 0.75, no large gatherings
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 1), # f = 1
+            ("complianceRatio", 1), # f = 1
             ("LargeGathering", False)
         ],
         "Quarantine": [
@@ -1405,7 +1441,7 @@ original_3x3 = {
         # f = 1, c = 1, h = 1, s' = 0.75, no large gatherings
         "World": [
             ("TurnedOnInterventions", ["FaceMasks", "Quarantine", "ClosingBuildings", "LessSocial", "HybridClasses"]),
-            ("ComplianceRatio", 1), # f = 1
+            ("complianceRatio", 1), # f = 1
             ("LargeGathering", False)
         ],
         "Quarantine": [

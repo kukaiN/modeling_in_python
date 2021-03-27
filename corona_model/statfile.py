@@ -176,10 +176,12 @@ def analyzeData(ListData):
     # convert to numpy array
     newData = np.array(ListData)
     # numpy's statistic functions
-    rangeVal = np.ptp(newData)
-    median = np.median(newData)
-    npMean = np.mean(newData)
-    stdev = np.std(newData)
+    npMean, stdev, rangeVal, median = 0,0,0,0
+    if len(newData) > 0:
+        rangeVal = np.ptp(newData)
+        median = np.median(newData)
+        npMean = np.mean(newData)
+        stdev = np.std(newData)
 
     # non numpy function
     #geo_mean = geometric_mean(ListData)
@@ -227,7 +229,10 @@ def comparingBoxPlots(dictObj, plottedData="R0", saveName="default", outputDir="
                 #    und_R0data.append(value[0])
                 #else:
                 reg_labels.append(key)
-                reg_R0data.append(value[0])
+                if isinstance(value[-1], str) or isinstance(value[-1], tuple):
+                    reg_R0data.append(value[0])
+                else:
+                    reg_R0data.append(value)
 
                 #R0AnalyzedData.append(value[1])
             flr.saveObjUsingPickle(flr.fullPath("R0"+osExtension+ saveName, "picklefile")+".pkl", dictObj)

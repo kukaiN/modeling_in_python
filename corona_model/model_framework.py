@@ -909,7 +909,7 @@ class AgentBasedModel:
                 agent.compliance = True
             else:
                 agent.compliance = False
-        #print("this many with facemask", counter)
+        print("this many with facemask", counter)
 
     def initializeTestingAndQuarantine(self):
         self.quarantineInterval = self.config["Quarantine"]["checkupFrequency"]
