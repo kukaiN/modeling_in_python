@@ -909,7 +909,7 @@ class AgentBasedModel:
                 agent.compliance = True
             else:
                 agent.compliance = False
-        print("this many with facemask", counter)
+        #print("this many with facemask", counter)
 
     def initializeTestingAndQuarantine(self):
         self.quarantineInterval = self.config["Quarantine"]["checkupFrequency"]
@@ -1283,7 +1283,7 @@ class AgentBasedModel:
                 self.infection()
 
             #and or
-            if self.dateDescriptor != "W" and self.dateDescriptor!="LS":
+            if self.dateDescriptor != "W" or self.dateDescriptor!="LS":
                 if modTime == 8: # if its 8AM people go checkin if they feel bad
                     self.checkForWalkIn()
                 #if self.dateDescriptor != "W" or self.dateDescriptor!="LS":

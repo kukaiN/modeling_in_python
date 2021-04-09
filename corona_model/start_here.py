@@ -72,7 +72,7 @@ def main():
     #print(len(experiment3))
     #print_nicely(experiment3)
 
- 
+
 
 
     basemodel = {"basemodel": {}}
@@ -121,7 +121,7 @@ def main():
                     for (specificKey, specificValue) in listOfControls:
                         if specificKey not in configCopy[categoryKey].keys():
                             print("error", specificKey, specificValue, " was not assigned correctly")
-                            
+
                             #return
                         else:
                             configCopy[categoryKey][specificKey] = specificValue
@@ -148,7 +148,7 @@ def main():
                 saveName = "comparingModels_"+simulationGeneration
                 # reads R0 data
                 #fileRelated.mergeR0(R0Dict, fileRelated.fullPath("request_5/R0_data.csv", "outputs"))
-                
+
                 print(R0Dict)
                 if R0Count > 0:
                     statfile.comparingBoxPlots(R0Dict, plottedData="R0", saveName=saveName, outputDir=output_folder)

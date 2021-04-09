@@ -403,7 +403,7 @@ new_check= {
         ],
     },
 
-        
+
 }
 
 facemask_param = {
@@ -426,7 +426,7 @@ facemask_param = {
     "FM_70_95":{
         "World": [("TurnedOnInterventions", ["FaceMasks"]), ("complianceRatio", 1)],
         "FaceMasks": [("MaskInfectivity", 0.70), ("MaskBlock",0.95),]
-    },    
+    },
 }
 
 
@@ -443,7 +443,7 @@ smaller_seed_number = {
     "p125_80": {"Infection": [("baseP", 1.25),("SeedNumber", 80)]},
     "p125_90": {"Infection": [("baseP", 1.25),("SeedNumber", 90)]},
     "p125_100": {"Infection": [("baseP", 1.25),("SeedNumber", 100)]},
-    
+
 
 }
 
@@ -1110,7 +1110,7 @@ marginals = {
         "World": [
             ("TurnedOnInterventions", ["Quarantine","HybridClasses"]),
         ],
-            "Quarantine": [
+        "Quarantine": [
             ("ResultLatency", 4*24), # L = 4
             ("BatchSize", 250), # N=250
             ("ShowingUpForScreening", 1), # c = 1
@@ -1145,6 +1145,7 @@ marginals = {
     "Medium+L2":{
         "World": [
             ("TurnedOnInterventions", ["Quarantine","HybridClasses"]),
+
         ],
             "Quarantine": [
             ("ResultLatency", 2*24), # L = 2
@@ -1163,6 +1164,8 @@ marginals = {
     "Medium+L1":{
         "World": [
             ("TurnedOnInterventions", ["Quarantine","HybridClasses"]),
+
+
         ],
             "Quarantine": [
             ("ResultLatency", 1*24), # L = 1
