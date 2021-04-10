@@ -94,14 +94,17 @@ def main():
     #multi_experiments = {"new_request4": experiment.new_check}
     user_input = input("which request # do you want to run? 0 to run all in one thread")
     user_input = int(user_input)
-    sp_num = [123, 456]
+    sp_num = [123, 456, 12, 34, 56]
     if (user_input < 0 or user_input > len(multi_experiments)) and user_input not in sp_num:
         print("input number does not match experiment number, exiting program")
         return
 
 
     for sp_index, (request_name, modelConfigs) in enumerate(multi_experiments.items()):
-        if (sp_index == user_input-1) or (user_input == 0) or (user_input==123 and sp_index < 3) or (user_input==456 and sp_index >= 3):
+        if ((sp_index == user_input-1) or (user_input == 0) or (user_input==123 and sp_index < 3) or
+            (user_input==456 and sp_index >= 3) or (user_input==12 and sp_index < 2) or (user_input==34 and 4>sp_index>1)
+            or (user_input==56 and sp_index >= 4)):
+            print(sp_index)
             R0Dict = dict()
             InfectedCountDict = dict()
             output_dir = fileRelated.fullPath(request_name, "outputs")
