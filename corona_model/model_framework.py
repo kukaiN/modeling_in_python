@@ -36,6 +36,25 @@ def clock(func):
         return result
     return clocked
 
+def exposure_count(modelConfig, days, debug=False):
+    """This function runs one simualtion and collects agent's data
+    """
+    model = createModel(modelConfig, debug=debug)
+    model.initializeAndConfigureObjects()
+    model.initializeStoringParameter(
+        ["susceptible","exposed", "infected Asymptomatic",
+        "infected Asymptomatic Fixed" ,"infected Symptomatic Mild",
+        "infected Symptomatic Severe", "recovered", "quarantined"])
+    model.printRelevantInfo()
+    model.collectAgentData()
+    for _ in range(days):
+        model.updateSteps(24)
+        if debug:
+            model.printRelevantInfo()
+    model.final_check()
+    model.printRoomLog()
+    return model.agentData()
+
 def multiSimulation(simulationCount, modelConfig, days, debug, modelName, outputDir="outputs"):
     """
         run multiple simulations and return the location where the infection occured, the total number infected, and the max infected
@@ -211,7 +230,6 @@ def createFilledPlot(modelConfig, simulationN=10, days=100,
     import visualize
     visualize.filledTimeSeriesGraph(timeSeries, xlim, ylim, multiResult)
 
-
 def createModel(modelConfig, debug=False, R0=False):
     """
         calls the required function(s) to properly initialize the model and returns it
@@ -236,10 +254,6 @@ def createModel(modelConfig, debug=False, R0=False):
     model.startRoomLog()
 
     return model
-
-
-
-
 
 def AgentFactory(agent_df, slotVal):
     """
@@ -357,6 +371,14 @@ def AgentFactory(agent_df, slotVal):
             if stateName in ["exposed", "infected Asymptomatic", "infected Asymptomatic Fixed", "infected Symptomatic Mild", "infected Symptomatic Severe"]:
                 self.infected = True
 
+        def collect_exposure(self, agentCount):
+            self.contacts = np.zeros(agentCount)
+
+        def exposure(self, agentId, otherAgents, room_risk):
+            for otherAgentId in otherAgents:
+                self.contacts[otherAgentId]+=room_risk
+            self.contacts[agentId]-=room_risk
+
         def transitionTime(self):
             """
                 return the time that that the agent can change state,
@@ -454,6 +476,7 @@ class AgentBasedModel:
         self.state2IdDict=dict()
         self.gathering_count = 0
         self.ghostAgents = set()
+        self.monitoredAgentId = []
 
     def addKeys(self, tempDict):
         """
@@ -531,7 +554,15 @@ class AgentBasedModel:
         self.vaccinated_id = [i for i, a in enumerate(vaccine_vec) if a == 1]
         self.unvaccinated_id = [i for i, a in enumerate(vaccine_vec) if a == 0]
 
+    def collectAgentData(self):
+        onCampusIds = self.getAgents("onCampus", "Agent_type")
+        offCampusIds = self.getAgents("offCampus", "Agent_type")
+        monitoredOnCampus = np.random.choice(onCampusIds, self.config["Exposure"]["OnCampusData"])
+        monitoredOffCampus = np.random.choice(offCampusIds, self.config["Exposure"]["OnCampusData"])
+        self.monitoredAgentId = list(monitoredOnCampus) + list(monitoredOffCampus)
 
+        for agentId in self.monitoredAgentId:
+            self.agents[agentId].collect_exposure(len(self.agents))
 
     def generateAgentDfFromDf(self, counterColumn="totalCount"):
         """
@@ -1313,6 +1344,14 @@ class AgentBasedModel:
                 else:
                     self.dateDescriptor ="O"
 
+            if self.config["Exposure"]["CollectData"]:
+                for agentId in self.monitoredAgentId:
+                    # get location ID and get the agents in the room
+                    loc = self.agents[agentId].currLocation
+                    room = self.rooms[loc]
+                    self.agents[agentId].exposure(agentId, room.agentsInside, room.Kv/room.limit)
+
+
     def convertScheduleToRoomName(self, schedule):
         """
             for debugging/output purpose, return the agent's schedule but replace all Ids with the name of the room
@@ -1806,6 +1845,10 @@ class AgentBasedModel:
 
     def totalExposed(self):
         return len(self.agents) - self.parameters["susceptible"][-1] - self.parameters["falsePositive"][-1]
+
+    def agentData(self):
+        #first #x is for oncampus and the rest are offcampus
+        return [self.agents[agentId].contacts for agentId in self.monitoredAgentId]
 
     def findDoubleTime(self):
         """

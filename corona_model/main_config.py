@@ -9,7 +9,7 @@ modelConfig = {
             "ExtraParameters":[
                         "agentId","path", "destination", "currLocation",
                         "statePersistance","lastUpdate", "personality",
-                        "arrivalTime", "schedule",  "gathering",
+                        "arrivalTime", "schedule",  "gathering", "contacts",
                         # "travelTime", "officeAttendee",
                 ], # travelTime and officeAttendee will be commented out
             "ExtraZipParameters": [("motion", "stationary"), ("infected", False), ("compliance", False)],
@@ -131,5 +131,10 @@ modelConfig = {
         },
         "LessSocializing":{
             "StayingHome":0.5
+        },
+        "Exposure":{
+            "CollectData":False,
+            "OnCampusData": 2,
+            "OffCampusData":2,
         }
     }
