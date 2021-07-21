@@ -23,8 +23,9 @@ def main():
     exposure_model = {
         "exposure": {
             "Exposure":[("CollectData", True),
-                        ("OnCampusData", 2),
-                        ("OffCampusData",2), ]
+                        ("OnCampusData", 100),
+                        ("OffCampusData",100),
+                        ("facultyData",100)]
             }
     }
     # index is the simulation number and each item will be a set of vector
@@ -65,16 +66,19 @@ def main():
     df.columns = ["agent_"+str(id_num) for id_num in range(num_agents)]
 
     fileRelated.save_df_to_csv(fileRelated.fullPath("exposure_data.csv", "outputs"), df)
+    def visual1():
+        for arr in list_ver:
+            x = sorted(arr)
+            plt.bar(range(100), x[-100:])
+        plt.show()
+    def visual2():
+        for arr in list_ver:
+            x = sorted(arr)
+            plt.bar(range(num_agents-1), x[0:-1], alpha=0.5)
+        plt.show()
 
-    for arr in list_ver:
-        x = sorted(arr)
-        plt.bar(range(100), x[-100:])
-    plt.show()
-
-    for arr in list_ver:
-        x = sorted(arr)
-        plt.bar(range(num_agents-1), x[0:-1], alpha=0.5)
-    plt.show()
+    visual1()
+    #visual2()
 
 if __name__ == "__main__":
     main()

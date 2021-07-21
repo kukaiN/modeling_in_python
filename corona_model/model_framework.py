@@ -557,9 +557,11 @@ class AgentBasedModel:
     def collectAgentData(self):
         onCampusIds = self.getAgents("onCampus", "Agent_type")
         offCampusIds = self.getAgents("offCampus", "Agent_type")
+        facultyIds = self.getAgents("faculty", "Agent_type")
         monitoredOnCampus = np.random.choice(onCampusIds, self.config["Exposure"]["OnCampusData"])
         monitoredOffCampus = np.random.choice(offCampusIds, self.config["Exposure"]["OnCampusData"])
-        self.monitoredAgentId = list(monitoredOnCampus) + list(monitoredOffCampus)
+        monitoredFaculty = np.random.choice(facultyIds, self.config["Exposure"]["facultyData"])
+        self.monitoredAgentId = list(monitoredOnCampus) + list(monitoredOffCampus) + list(monitoredFaculty)
 
         for agentId in self.monitoredAgentId:
             self.agents[agentId].collect_exposure(len(self.agents))
@@ -1296,11 +1298,27 @@ class AgentBasedModel:
                             self.agents[agentId].schedule[i][j] = randRoomIds[indx][index]
                 index+=1
 
+    def monitorAgents(self, hub=False):
+        blacklisted_rooms = self.findMatchingRooms("building_type","offCampus")
+
+        if self.config["Exposure"]["CollectData"]:
+            for agentId in self.monitoredAgentId:
+                # get location ID and get the agents in the room
+                loc = self.agents[agentId].currLocation
+                init_loc = self.agents[agentId].initial_location
+                room = self.rooms[loc]
+
+
+                if loc not in blacklisted_rooms and len(room.agentsInside) > 1:
+                    if hub and self.rooms[loc].room_name.endswith("_hub"):
+                        self.agents[agentId].exposure(agentId, room.agentsInside, room.Kv/room.limit)
+                    elif not hub:
+                        self.agents[agentId].exposure(agentId, room.agentsInside, room.Kv/room.limit)
     def updateSteps(self, step = 1):
         for _ in range(step):
             self.time+=1
             modTime = self.time%24
-            # between [7AM, 10PM]
+            # between [8AM, 10PM]
             if  23 > modTime > 6 and len(self.state2IdDict["recovered"]) != len(self.agents):
                 # update 4 times to move the agents to their final destination
                 # 4 is the max number of updates required for moving the agents from room --> building_hub --> transit_hub --> building_hub --> room
@@ -1308,11 +1326,12 @@ class AgentBasedModel:
                     if self._debug and False:
                         print(f"at time {self.time} lazy sunday, no one is moving")
                 else:
-                    for _ in range(4):
+                    for k in range(4):
                         self.updateAgent()
                         self.hub_infection()
+                        self.monitorAgents(hub=True)
                 self.infection()
-
+                self.monitorAgents()
             #and or
             if self.dateDescriptor != "W" or self.dateDescriptor!="LS":
                 if modTime == 8: # if its 8AM people go checkin if they feel bad
@@ -1344,12 +1363,7 @@ class AgentBasedModel:
                 else:
                     self.dateDescriptor ="O"
 
-            if self.config["Exposure"]["CollectData"]:
-                for agentId in self.monitoredAgentId:
-                    # get location ID and get the agents in the room
-                    loc = self.agents[agentId].currLocation
-                    room = self.rooms[loc]
-                    self.agents[agentId].exposure(agentId, room.agentsInside, room.Kv/room.limit)
+
 
 
     def convertScheduleToRoomName(self, schedule):

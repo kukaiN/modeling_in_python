@@ -136,5 +136,6 @@ modelConfig = {
             "CollectData":False,
             "OnCampusData": 2,
             "OffCampusData":2,
+            "facultyData":0,
         }
     }

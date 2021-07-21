@@ -1,6 +1,5 @@
-A# modeling_in_python
-COVID model in python
-
+# modeling_in_python
+COVID model in py
 ---
  - [Dependencies](#depend)
  - [References to tricks used in my code](#refer)
@@ -34,7 +33,14 @@ Python standard libraries used in this project:
 ## outputs:
 ![graph_output](IMAGES/Figure_1.png)
 
-Graphical representation of
+The amount of time required for the number of infection to double
+![Graph_of_infection_doubling](IMAGES/winrest_infe_box_doubletime.png)
+
+Comparision between differnt configuration
+![comparing_different_models](IMAGES/win9infe_box_comparingModels_0.png)
+
+
+Graphical representation of the campus structure, building are the clusters at each branch and the rooms are the tiny leaves
 ![building_network](IMAGES/Figure_2.png)
 
 ---
@@ -79,9 +85,11 @@ The infection model impliments buildings full of rooms and agents that move with
 
 ### Explanation of Running the Code
 <Insert Explanation Here>
+The Model can run in 4 modes: R0, regular infection, exposure counter, and doubling time.  R0 and regular infection starts by running start_here.py.  doubling time is in the doublingtime.py file and exposure counter starts when the revision_exposure.py is executed.
 
 ### Explanation of Configuration files
 
+The configuration files has the data about the agents, buildings and the rooms.  The configuration files tells how many elements to make and the specific configurations of each item.  The factory function in the model unpacks the information in the configuration files and runs the simulation.
 
 
 <a id = "Building"></a>
